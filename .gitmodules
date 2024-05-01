@@ -1,4 +1,0 @@
-[submodule "Vendor/qt"]
-	path = Vendor/qt
-	url = https://github.com/qt/qtbase.git
-	branch = 6.7.1
