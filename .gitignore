@@ -1,0 +1,16 @@
+# User-specific files
+*.env.*
+
+# Build results
+[Bb]in/
+[Bb]uild/
+__pycache__/
+
+# Microsoft Fakes
+.vs/
+
+# Ignore VS project files
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
