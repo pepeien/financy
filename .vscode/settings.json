@@ -84,6 +84,11 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "qdebug": "cpp",
-        "qqmlcontext": "cpp"
+        "qqmlcontext": "cpp",
+        "complex": "cpp",
+        "fstream": "cpp",
+        "typeindex": "cpp",
+        "qimage": "cpp",
+        "qobject": "cpp"
     }
 }

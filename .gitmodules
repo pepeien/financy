@@ -1,0 +1,7 @@
+[submodule "Vendors/rapidjson"]
+	path = Vendors/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "Vendors/opencv"]
+	path = Vendors/opencv
+	url = https://github.com/opencv/opencv.git
+	branch = 4.x

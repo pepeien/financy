@@ -15,6 +15,94 @@ project(${NAME} VERSION 0.0.1)
 set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin/${CMAKE_SYSTEM_NAME}")
 set(SOURCES_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 set(UI_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/UI")
+set(VENDOR_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/Vendors")
+
+##############  Set source files  #######################
+file(
+    GLOB_RECURSE
+    SOURCES
+
+    // Sources
+    ${SOURCES_DIR}/*.cpp
+
+    // Vendors
+    ${VENDOR_DIR}/QtOpenCV/cvmatandqimage.cpp
+)
+
+file(
+    GLOB_RECURSE
+    UI_SOURCES
+
+    ${UI_DIR}/*.qrc
+)
+
+############## Setup Libs  #######################
+set(CMAKE_PREFIX_PATH ${QT_PATH})
+
+set(CMAKE_AUTORCC ON)
+
+set(SKIP_AUTOMOC TRUE)
+set(SKIP_AUTOUIC TRUE) 
+
+# Qt6
+find_package(Qt6 COMPONENTS Charts Core Gui Qml Quick)
+
+qt_standard_project_setup()
+qt_add_executable(
+    ${NAME}
+
+    ${SOURCES}
+    ${UI_SOURCES}
+)
+
+# OpenCV
+
+set(OpenCV_DIR "${VENDOR_DIR}/opencv/build/x64/mingw/lib")
+list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
+
+find_package(OpenCV REQUIRED core imgproc highgui)
+
+target_include_directories(
+    ${NAME}
+
+    PRIVATE
+        ${VENDOR_DIR}/QtOpenCV
+        ${OpenCV_INCLUDE_DIRS}
+        ${VENDOR_DIR}/rapidjson/include
+)
+
+target_link_libraries(
+    ${NAME}
+
+    PRIVATE
+        # Qt6
+        Qt6::Charts
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Qml
+        Qt6::Quick
+
+        # OpenCV
+        ${OpenCV_LIBRARIES}
+)
+
+############## Setup Executable #######################
+set_target_properties(
+    ${NAME}
+    PROPERTIES
+
+    VS_DEBUGGER_WORKING_DIRECTORY
+    "${BUILD_DIR}"
+
+    RUNTIME_OUTPUT_DIRECTORY
+    "${BUILD_DIR}"
+
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}"
+
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}"
+)
 
 ##############  Set compiler  #######################
 if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
@@ -22,6 +110,7 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
       	message(FATAL_ERROR "MINGW_PATH not set in .env.cmake")
     endif()
 
+    message(${MINGW_PATH})
     set(CMAKE_C_COMPILER   ${MINGW_PATH}/bin/gcc.exe)
     set(CMAKE_CXX_COMPILER ${MINGW_PATH}/bin/g++.exe)
 
@@ -41,64 +130,3 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
         )
     endif()
 endif()
-
-##############  Set source files  #######################
-file(
-    GLOB_RECURSE
-    SOURCES
-
-    ${SOURCES_DIR}/*.cpp
-)
-
-file(
-    GLOB_RECURSE
-    UI_SOURCES
-
-    ${UI_DIR}/*.qrc
-)
-
-############## Setup Executable  #######################
-set(CMAKE_PREFIX_PATH ${QT_PATH})
-
-set(CMAKE_AUTORCC ON)
-
-set(SKIP_AUTOMOC TRUE)
-set(SKIP_AUTOUIC TRUE) 
-
-find_package(Qt6 COMPONENTS Charts Core Gui Qml Quick)
-
-qt_standard_project_setup()
-qt_add_executable(
-    ${NAME}
-
-    ${SOURCES}
-    ${UI_SOURCES}
-)
-
-set_target_properties(
-    ${NAME}
-    PROPERTIES
-
-    VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}"
-
-    RUNTIME_OUTPUT_DIRECTORY
-    "${BUILD_DIR}"
-
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}"
-
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}"
-)
-
-target_link_libraries(
-    ${NAME}
-
-    PRIVATE
-        Qt6::Charts
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Qml
-        Qt6::Quick
-)
