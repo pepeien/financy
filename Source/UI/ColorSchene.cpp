@@ -3,45 +3,37 @@
 namespace Financy
 {
     ColorScheme::ColorScheme()
-        : m_theme(ETheme::LIGHT)
+        : m_background("#FFFFFF"),
+        m_foreground("#000000"),
+        m_light("#FFFFFF"),
+        m_dark("#000000")
+    {}
+
+    void ColorScheme::setBackgroundColor(const QColor& inColor)
     {
-        onThemeChange();
+        m_background = inColor;
+
+        emit colorsChanged();
     }
 
-    void ColorScheme::setTheme(ETheme theme)
+    void ColorScheme::setForegroundColor(const QColor& inColor)
     {
-        if (m_theme == theme)
-        {
-            return;
-        }
+        m_foreground = inColor;
 
-        m_theme = theme;
-
-        onThemeChange();
-
-        emit themeChanged();
+        emit colorsChanged();
     }
 
-    void ColorScheme::onThemeChange()
+    void ColorScheme::setLightColor(const QColor& inColor)
     {
-        switch (m_theme)
-        {
-        case ETheme::DARK:
-            m_background = "#E1F7F5";
-            m_foreground = "#D9D9D9";
-            m_light = "#596B5D";
-            m_dark = "#39473C";
+        m_light = inColor;
 
-            return;
+        emit colorsChanged();
+    }
 
-        case ETheme::LIGHT:
-        default:
-            m_background = "#E1F7F5";
-            m_foreground = "#D9D9D9";
-            m_light = "#596B5D";
-            m_dark = "#39473C";
+    void ColorScheme::setDarkColor(const QColor& inColor)
+    {
+        m_dark = inColor;
 
-            return;
-        }
+        emit colorsChanged();
     }
 }

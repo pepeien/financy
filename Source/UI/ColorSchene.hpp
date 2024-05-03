@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtCore>
+#include <QImage>
 
 namespace Financy
 {
@@ -15,43 +16,42 @@ namespace Financy
         Q_OBJECT
 
         Q_PROPERTY(
-            QString background
+            QColor background
             MEMBER m_background
-            NOTIFY themeChanged
+            NOTIFY colorsChanged
         )
         Q_PROPERTY(
-            QString foreground
+            QColor foreground
             MEMBER m_foreground
-            NOTIFY themeChanged
+            NOTIFY colorsChanged
         )
         Q_PROPERTY(
-            QString light
+            QColor light
             MEMBER m_light
-            NOTIFY themeChanged
+            NOTIFY colorsChanged
         )
         Q_PROPERTY(
-            QString dark
+            QColor dark
             MEMBER m_dark
-            NOTIFY themeChanged
+            NOTIFY colorsChanged
         )
 
     signals:
-        void themeChanged();
+        void colorsChanged();
 
     public:
         ColorScheme();
 
     public:
-        void setTheme(ETheme theme);
+        void setBackgroundColor(const QColor& inColor);
+        void setForegroundColor(const QColor& inColor);
+        void setLightColor(const QColor& inColor);
+        void setDarkColor(const QColor& inColor);
 
     private:
-        void onThemeChange();
-
-    private:
-        ETheme m_theme;
-        QString m_background;        
-        QString m_foreground;
-        QString m_light;
-        QString m_dark;
+        QColor m_background;        
+        QColor m_foreground;
+        QColor m_light;
+        QColor m_dark;
     };
 }
