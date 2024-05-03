@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Components/">
         <file>RoundImage.qml</file>
+        <file>SquircleContainer.qml</file>
     </qresource>
 </RCC>

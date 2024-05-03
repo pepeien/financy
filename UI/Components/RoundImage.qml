@@ -10,7 +10,7 @@ Item {
     property alias imageHeight: sourceItem.height
     property alias imageSource: sourceItem.source
 
-   Image {
+    Image {
         id: sourceItem
         fillMode: Image.PreserveAspectCrop
         
@@ -24,9 +24,9 @@ Item {
 
     Rectangle {
         id: mask
-        width: parent.width/2
+        width: parent.width / 2
         height: width
-        radius: width/2
+        radius: width / 2
         visible: false
     }
 }
