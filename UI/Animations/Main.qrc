@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Animations/">
+        <file>FadeIn.qml</file>
+        <file>FadeOut.qml</file>
+    </qresource>
+</RCC>
