@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/Components/">
+        <file>Button.qml</file>
+        <file>Header.qml</file>
+        <file>Page.qml</file>
         <file>RoundImage.qml</file>
         <file>SquircleContainer.qml</file>
     </qresource>
