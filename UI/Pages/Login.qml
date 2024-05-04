@@ -2,61 +2,47 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 import QtQuick
+import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 
-import "qrc:/Components" as Financy
+// Components
+import "qrc:/Components" as Components
 
-Rectangle {
-    color: colorScheme.background
+// Animations
+import "qrc:/Animations" as Animations
 
-    anchors.fill: parent
+Components.Page {
+    title: "Login"
 
-    Text {
-        id: title
-        text: "Login"
-        color: colorScheme.dark
-
-        font.family: "Inter"
-        font.pointSize: 40
-        font.weight: Font.DemiBold
-
-        anchors.top: parent.top
-        anchors.topMargin: 20
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
-
-
-    Financy.SquircleContainer {
+    Components.Button {
         id: addButton
-        width: parent.width * 0.4
         height: 90
+        width: parent.width * 0.6
         backgroundColor: colorScheme.foreground
 
-        anchors.top: title.bottom
-        anchors.topMargin: 40
         anchors.horizontalCenter: parent.horizontalCenter
 
-        MouseArea {
-            anchors.fill: parent
+        onClick: function() {
+            stack.push("qrc:/Pages/UserCreate.qml")
+        }
 
-            onClicked: {
-                console.log(users)
-            }
+        Image {
+            id: icon
+            source: "qrc:/Icons/Plus.svg"
+            sourceSize.width: 35
+            sourceSize.height: 35
+            antialiasing: true
+            visible: false
 
-            HoverHandler {
-                id: hover
-                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                cursorShape: Qt.PointingHandCursor
-            }
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
 
-            Image {
-                source: "qrc:/Icons/Plus.svg"
-                sourceSize.width: 35
-                sourceSize.height: 35
-
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+        ColorOverlay {
+            anchors.fill: icon
+            source: icon
+            color: colorScheme.light
+            antialiasing: true
         }
     }
 
@@ -71,7 +57,7 @@ Rectangle {
         anchors.topMargin: 60
         anchors.horizontalCenter: parent.horizontalCenter
 
-        delegate: Financy.SquircleContainer {
+        delegate: Components.Button {
             required property string firstName
             required property string lastName
             required property string picture
@@ -82,40 +68,30 @@ Rectangle {
             height: 90
             backgroundColor: primaryColor
 
-            MouseArea {
+            onClick: function() {
+                console.log(firstName, lastName)
+            }
+
+            Components.RoundImage {
+                id: pictureComponent
+                imageSource: picture
+                imageWidth: 60
+                imageHeight: 60
+
+                anchors.leftMargin: 20
                 anchors.fill: parent
+            }
 
-                onClicked: {
-                    console.log(firstName, lastName)
-                }
+            Text {
+                text: firstName
+                color: secondaryColor
 
-                HoverHandler {
-                    id: hover
-                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-                    cursorShape: Qt.PointingHandCursor
-                }
+                font.family: "Inter"
+                font.pointSize: 20
+                font.weight: Font.Bold
 
-                Financy.RoundImage {
-                    id: pictureComponent
-                    imageSource: picture
-                    imageWidth: 60
-                    imageHeight: 60
-
-                    anchors.leftMargin: 20
-                    anchors.fill: parent
-                }
-
-                Text {
-                    text: firstName
-                    color: secondaryColor
-
-                    font.family: "Inter"
-                    font.pointSize: 20
-                    font.weight: Font.Bold
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
     }
