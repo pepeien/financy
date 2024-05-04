@@ -5,8 +5,8 @@ import QtQuick
 import Qt5Compat.GraphicalEffects
 
 Item {
-    property bool hasShadow
-    required property string backgroundColor
+    property bool hasShadow: false
+    property string backgroundColor: "transparent"
 
     Rectangle {
         id: base
@@ -20,10 +20,11 @@ Item {
             horizontalOffset: 0
             verticalOffset: 4
 
-            radius: base.radius
-            samples: 16
-            color: colors.foreground
             source: base
+            radius: 4
+            samples: 16
+            color: Qt.rgba(0, 0, 0, 0.25)
+            spread: 0
 
             anchors.fill: base
         }
