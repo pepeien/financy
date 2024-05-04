@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     viewer.setMinimumHeight(900);
     viewer.rootContext()->setContextProperty("colorScheme", colorScheme.get());
     viewer.rootContext()->setContextProperty("users", QVariant::fromValue(users));
-    viewer.setSource(QUrl("qrc:/Pages/Login.qml"));
+    viewer.setSource(QUrl("qrc:/Pages/Root.qml"));
     viewer.setResizeMode(QQuickView::SizeRootObjectToView);
 
     QObject::connect(
