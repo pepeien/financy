@@ -8,4 +8,10 @@ import "qrc:/Components" as Components
 
 Components.Page {
     title: "Create User"
+
+    TextInput {
+        height: 80
+        width: parent.width
+        text: "huh"
+    }
 }

@@ -10,62 +10,154 @@ import "qrc:/Components" as Components
 Rectangle {
     property string title
 
-    height: 80
     width: parent.width
+    height: 125
     color: "transparent"
 
-    Components.Button {
-        id: backButton
-        width: parent.height * 0.8
-        height: parent.height * 0.8
-        visible: stack.depth > 1
+    // Top Bar
+    Rectangle {
+        id: handler
+        width: parent.width
+        height: 40
+        color: "transparent"
 
-        // Props
-        hasShadow: true
-        backgroundColor: colorScheme.background
+        Components.Button {
+            id: closeButton
+            height: 40
+            width: 40
+            color: "transparent"
+            anchors.right: parent.right
 
-        anchors.left: parent.left
-        anchors.leftMargin: 20
-        anchors.verticalCenter: parent.verticalCenter
-
-        onClick: function() {
-            if (stack.depth === 1) {
-                return;
+            onClick: function() {
+                Window.window.close();
             }
 
-            stack.pop();
+            onHover: function() {
+                color = "#d13639";
+                closeIconOverlay.color = "white";
+            }
+
+            onLeave: function() {
+                color = "transparent";
+                closeIconOverlay.color = colorScheme.dark;
+            }
+
+            Image {
+                id: closeIcon
+                source: "qrc:/Icons/Close.svg"
+                width: closeButton.width * 0.35
+                height: closeButton.height * 0.35
+
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ColorOverlay {
+                id: closeIconOverlay
+                anchors.fill: closeIcon
+                source: closeIcon
+                color: colorScheme.dark
+                antialiasing: true
+            }
         }
 
-        Image {
-            id: icon
-            source: "qrc:/Icons/Back.svg"
-            width: parent.width * 0.35
-            height: parent.height * 0.35
+        Components.Button {
+            id: minimizeButton
+            height: 40
+            width: 40
+            color: "transparent"
+            anchors.right: closeButton.left
 
-            antialiasing: true
-            visible: false
+            onClick: function() {
+                Window.window.showMinimized();
+            }
 
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
+            onHover: function () {
+                color = "#17525252";
+            }
 
-        ColorOverlay {
-            anchors.fill: icon
-            source: icon
-            color: colorScheme.light
-            antialiasing: true
+            onLeave: function () {
+                color = "transparent";
+            }
+
+            Image {
+                id: minimizeIcon
+                source: "qrc:/Icons/Minimize.svg"
+                width: minimizeButton.width * 0.35
+                height: minimizeButton.height * 0.35
+
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: parent.height * 0.25
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ColorOverlay {
+                anchors.fill: minimizeIcon
+                source: minimizeIcon
+                color: colorScheme.dark
+                antialiasing: true
+            }
         }
     }
 
-    Text {
-        text: title
-        color: colorScheme.dark
+    Rectangle {
+        width: parent.width
 
-        font.family: "Inter"
-        font.pointSize: 40
-        font.weight: Font.DemiBold
+        anchors.top: handler.bottom
 
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
+        Components.SquircleButton {
+            id: backButton
+            width: 60
+            height: 60
+            visible: stack.depth > 1
+
+            // Props
+            hasShadow: true
+            backgroundColor: colorScheme.background
+
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+
+            onClick: function() {
+                if (stack.depth === 1) {
+                    return;
+                }
+
+                stack.pop();
+            }
+
+            Image {
+                id: icon
+                source: "qrc:/Icons/Back.svg"
+                width: parent.width * 0.35
+                height: parent.height * 0.35
+
+                antialiasing: true
+                visible: false
+
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ColorOverlay {
+                anchors.fill: icon
+                source: icon
+                color: colorScheme.light
+                antialiasing: true
+            }
+        }
+
+        // Title
+        Text {
+            id: titleText
+            text: title
+            color: colorScheme.dark
+
+            font.family: "Inter"
+            font.pointSize: 40
+            font.weight: Font.DemiBold
+
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
     }
 }

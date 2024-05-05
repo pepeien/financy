@@ -3,13 +3,31 @@
 
 import QtQuick
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 
 // Components
 import "qrc:/Components" as Components
 
-StackView {
-    id: stack
-    initialItem: "qrc:/Pages/Login.qml"
-
+Item {
     anchors.fill: parent
+
+    Rectangle {
+        id: mask
+        radius: 4
+        anchors.fill: parent
+    }
+
+    Item {
+        anchors.fill: mask
+        layer.enabled: true
+        layer.effect: OpacityMask {
+            maskSource: mask
+        }
+
+        StackView {
+            id: stack
+            initialItem: "qrc:/Pages/Login.qml"
+            anchors.fill: parent
+        }
+    }
 }

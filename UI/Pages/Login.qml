@@ -14,7 +14,7 @@ import "qrc:/Animations" as Animations
 Components.Page {
     title: "Login"
 
-    Components.Button {
+    Components.SquircleButton {
         id: addButton
         height: 90
         width: parent.width * 0.6
@@ -57,7 +57,7 @@ Components.Page {
         anchors.topMargin: 60
         anchors.horizontalCenter: parent.horizontalCenter
 
-        delegate: Components.Button {
+        delegate: Components.SquircleButton {
             required property string firstName
             required property string lastName
             required property string picture

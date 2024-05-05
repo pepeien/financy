@@ -7,11 +7,16 @@ import QtQuick.Controls
 // Components
 import "qrc:/Components" as Components
 
-Components.SquircleContainer {
+Rectangle {
     default property alias data: click.data
+    property string backgroundColor: "transparent"
+
+    color: backgroundColor
 
     // Props
-    required property var onClick;
+    property var onClick;
+    property var onHover;
+    property var onLeave;
 
     // Consts
     property real normalOpacity: 1.0
@@ -45,10 +50,22 @@ Components.SquircleContainer {
 
         onEntered: {
             cursorShape = Qt.PointingHandCursor;
+
+            if (!onHover) {
+                return;
+            }
+
+            onHover();
         }
 
         onExited: {
             cursorShape = Qt.ArrowCursor;
+
+            if (!onLeave) {
+                return;
+            }
+
+            onLeave();
         }
     }
 }
