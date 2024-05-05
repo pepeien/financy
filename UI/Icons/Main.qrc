@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/Icons/">
         <file>Back.svg</file>
+        <file>Close.svg</file>
+        <file>Minimize.svg</file>
         <file>Plus.svg</file>
     </qresource>
 </RCC>
