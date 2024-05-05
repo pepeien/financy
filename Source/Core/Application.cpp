@@ -10,7 +10,7 @@ namespace Financy
     Application::Application(const std::string& inTitle)
         : Application(
             inTitle,
-            ETheme::LIGHT
+            ETheme::DARK
         )
     {}
 
@@ -35,10 +35,10 @@ namespace Financy
         switch (inTheme)
         {
         case ETheme::DARK:
-            m_colors->setBackgroundColor("#0c1017");
-            m_colors->setForegroundColor("#D9D9D9");
-            m_colors->setLightColor("#596B5D");
-            m_colors->setDarkColor("#39473C");
+            m_colors->setBackgroundColor("#0C1017");
+            m_colors->setForegroundColor("#08374A");
+            m_colors->setLightColor("#006A74");
+            m_colors->setDarkColor("#049E84");
 
             return;
 
