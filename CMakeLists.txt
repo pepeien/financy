@@ -66,6 +66,8 @@ target_include_directories(
     ${NAME}
 
     PRIVATE
+        ${SOURCES_DIR}
+
         ${VENDOR_DIR}/QtOpenCV
         ${OpenCV_INCLUDE_DIRS}
         ${VENDOR_DIR}/rapidjson/include

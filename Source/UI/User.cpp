@@ -1,13 +1,10 @@
 #include "User.hpp"
 
-#include <QtCore>
-#include <QImage>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
 
-#include "opencv2/core.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/highgui.hpp"
-
-#include "cvmatandqimage.h"
+#include <cvmatandqimage.h>
 
 namespace Financy
 {
@@ -18,6 +15,13 @@ namespace Financy
         m_primaryColor("#FFFFFF"),
         m_secondaryColor("#000000")
     {}
+
+    void User::fromJSON(const rapidjson::GenericObject<false, rapidjson::Value>& inData)
+    {
+        setFirstName(inData["firstName"].GetString());
+        setLastName(  inData["lastName"].GetString());
+        setPicture(    inData["picture"].GetString());
+    }
 
     QString User::getFirstName()
     {

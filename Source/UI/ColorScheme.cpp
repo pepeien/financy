@@ -1,4 +1,4 @@
-#include "ColorSchene.hpp"
+#include "ColorScheme.hpp"
 
 namespace Financy
 {

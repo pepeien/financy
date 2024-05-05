@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QtCore>
+#include <QColor>
+#include <QImage>
 
-#include "ColorSchene.hpp"
+#include <rapidjson/document.h>
 
 namespace Financy
 {
@@ -33,6 +35,9 @@ namespace Financy
 
     public:
         User();
+
+    public:
+        void fromJSON(const rapidjson::GenericObject<false, rapidjson::Value>& inData);
 
     public:
         QString getFirstName();
