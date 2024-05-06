@@ -1,10 +1,10 @@
 #include "Internals.hpp"
 
 #include <QtDebug>
+#include <QFileDialog>
 #include "base64.hpp"
 
 #include "Core/Helper.hpp"
-#include "Core/FileSystem.hpp"
 
 namespace Financy
 {
@@ -13,26 +13,20 @@ namespace Financy
         const QString& inExtensions
     )
     {
-        std::vector<FileSystem::FileFormat> fileFormats;
-
-        for (std::string& extension : Helper::splitString(inExtensions.toStdString(), ";"))
+        QString fileExtensions = "Files";
+        fileExtensions.push_back(" (");
+        for (std::string& fileExtension : Helper::splitString(inExtensions.toStdString(), ";"))
         {
-            FileSystem::FileFormat fileFormat;
-            fileFormat.title = extension;
-            fileFormat.extension = extension;
-
-            fileFormats.push_back(fileFormat);
+            fileExtensions.push_back(QString::fromLatin1("*." + fileExtension + " "));
         }
+        fileExtensions.push_back(")");
 
-        FileSystem::FileResult file = FileSystem::openFileDialog(
-            inTitle.toStdString(),
-            fileFormats
-        );
-    
-        std::vector<char> raw = FileSystem::readFile(file.path);
-        std::string sRaw(raw.begin(), raw.end());
-
-        return QString::fromLatin1("data:image/" + file.extension + ";base64," + base64::to_base64(sRaw));
+        return QFileDialog::getOpenFileUrl(
+            nullptr,
+            inTitle,
+            QUrl::fromLocalFile("/"),
+            fileExtensions
+        ).toString();
     }
 
     void Internals::updateTheme(Colors::Theme inTheme)

@@ -16,7 +16,7 @@ Components.Page {
 
     property string profileFirstName: ""
     property string profileLastName: ""
-    property string profilePicture: "qrc:/Icons/Profile.svg"
+    property url profilePicture: "qrc:/Icons/Profile.svg"
 
     id: root
     title: "Create User"
@@ -26,6 +26,18 @@ Components.Page {
         width: 256
         height: 256
         backgroundColor: colors.foreground
+
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        layer.enabled: true
+        layer.effect: OpacityMask {
+            maskSource: Rectangle {
+                width: picture.width
+                height: picture.height
+                radius: 15
+                visible: true
+            }
+        }
 
         onClick: function() {
             var result = internals.openFileDialog(
@@ -42,25 +54,13 @@ Components.Page {
             root.profilePicture = result;
         }
 
-        anchors.horizontalCenter: parent.horizontalCenter
-
         Image {
             id: icon
             source: profilePicture
-            sourceSize.width:  picture.width * 0.5
-            sourceSize.height: picture.height * 0.5
+            sourceSize.width:  wasPictureSelected ? picture.width : picture.width * 0.5
+            sourceSize.height: wasPictureSelected ? picture.height : picture.height * 0.5
             antialiasing: true
-            visible: wasPictureSelected
-
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: Rectangle {
-                    width: picture.width
-                    height: picture.height
-                    radius: 15
-                    visible: false
-                }
-            }
+            fillMode: Image.PreserveAspectCrop
 
             anchors.top: parent.top
             anchors.topMargin: wasPictureSelected ? 0 : 40
