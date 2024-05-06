@@ -18,7 +18,7 @@ Components.Page {
         id: addButton
         height: 90
         width: parent.width * 0.6
-        backgroundColor: colorScheme.foreground
+        backgroundColor: colors.foreground
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -41,7 +41,7 @@ Components.Page {
         ColorOverlay {
             anchors.fill: icon
             source: icon
-            color: colorScheme.light
+            color: colors.light
             antialiasing: true
         }
     }

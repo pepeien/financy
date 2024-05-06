@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 import QtQuick
+import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 
 Item {
+    default property alias data: base.data
+
     property bool hasShadow: false
     property string backgroundColor: "transparent"
 
@@ -14,19 +17,18 @@ Item {
         radius: 15
 
         anchors.fill: parent
+    }
 
-        layer.enabled: hasShadow
-        layer.effect: DropShadow {
-            horizontalOffset: 0
-            verticalOffset: 4
+    MultiEffect {
+        source: base
 
-            source: base
-            radius: 4
-            samples: 16
-            color: Qt.rgba(0, 0, 0, 0.25)
-            spread: 0
+        anchors.fill: base
 
-            anchors.fill: base
-        }
+        shadowEnabled: hasShadow
+        shadowHorizontalOffset: 0
+        shadowVerticalOffset: 4
+        shadowBlur: 0.25
+        shadowColor: Qt.rgba(0, 0, 0, 0.25)
+        shadowScale: 1
     }
 }

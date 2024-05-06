@@ -1,12 +1,25 @@
 #include "Main.hpp"
 
+#include <iostream>
+
 #include "Core/Application.hpp"
 
 int main(int argc, char *argv[])
 {
-    std::unique_ptr<Financy::Application> app = std::make_unique<Financy::Application>(
-        "Financy"
-    );
+    try
+    {
+        std::unique_ptr<Financy::Application> app = std::make_unique<Financy::Application>(
+            "Financy"
+        );
 
-    return app->run(argc, argv);
+        app->run(argc, argv);
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << e.what();
+
+        return 1;
+    }
+
+    return 0;
 }

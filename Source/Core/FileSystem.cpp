@@ -1,5 +1,6 @@
 #include "FileSystem.hpp"
 
+#include <iostream>
 #include <fstream>
 
 #ifdef OS_WINDOWS
@@ -59,15 +60,17 @@ namespace Financy
                 std::wstring sInTitle = std::wstring(inTitle.begin(), inTitle.end());
                 ofn.lpstrTitle = sInTitle.c_str();
 
-                std::wstring filePathWString(filepath);
-                std::string filePathString(filePathWString.begin(), filePathWString.end());
-
                 if (GetOpenFileName(&ofn))
                 {
+                    std::wstring filePathWString(ofn.lpstrFile);
+                    std::string filePathString(filePathWString.begin(), filePathWString.end());
+
                     std::vector<std::string> splittedFilepath = Helper::splitString(
                         filePathString,
                         "."
                     );
+
+                    delete filepath;
 
                     return {
                         filePathString,

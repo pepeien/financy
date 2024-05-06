@@ -9,7 +9,8 @@
 namespace Financy
 {
     User::User()
-        : m_firstName(""),
+        : m_id(0),
+        m_firstName(""),
         m_lastName(""),
         m_picture(""),
         m_primaryColor("#FFFFFF"),
@@ -21,6 +22,11 @@ namespace Financy
         setFirstName(inData["firstName"].GetString());
         setLastName(  inData["lastName"].GetString());
         setPicture(    inData["picture"].GetString());
+    }
+
+    uint32_t User::getId()
+    {
+        return m_id;
     }
 
     QString User::getFirstName()

@@ -2,19 +2,15 @@
 
 #include <QtCore>
 #include <QImage>
+#include <QObject>
 
 namespace Financy
 {
-    enum class ETheme
-    {
-        LIGHT,
-        DARK
-    };
-
-    class ColorScheme : public QObject
+    class Colors : public QObject
     {
         Q_OBJECT
 
+        // Properties
         Q_PROPERTY(
             QColor background
             MEMBER m_background
@@ -40,7 +36,16 @@ namespace Financy
         void colorsChanged();
 
     public:
-        ColorScheme();
+        explicit Colors(QObject* parent = nullptr);
+        
+    // Types
+    public:
+        enum class Theme
+        {
+            Light,
+            Dark
+        };
+        Q_ENUM(Theme)
 
     public:
         void setBackgroundColor(const QColor& inColor);

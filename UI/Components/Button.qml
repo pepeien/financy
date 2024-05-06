@@ -20,7 +20,7 @@ Rectangle {
 
     // Consts
     property real normalOpacity: 1.0
-    property real fadedOpacity: 0.9
+    property real fadedOpacity: 0.7
 
     NumberAnimation on opacity {
         running: click.containsMouse

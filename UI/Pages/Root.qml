@@ -14,6 +14,7 @@ Item {
     Rectangle {
         id: mask
         radius: 4
+        color: colors.background
         anchors.fill: parent
     }
 

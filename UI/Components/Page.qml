@@ -11,7 +11,7 @@ Rectangle {
 
     property alias title: header.title
 
-    color: colorScheme.background
+    color: "transparent"
 
     Components.Header {
         id: header

@@ -4,5 +4,6 @@
         <file>Close.svg</file>
         <file>Minimize.svg</file>
         <file>Plus.svg</file>
+        <file>Profile.svg</file>
     </qresource>
 </RCC>

@@ -7,7 +7,8 @@
 
 #include <rapidjson/document.h>
 
-#include "UI/ColorScheme.hpp"
+#include "UI/Colors.hpp"
+#include "UI/Internals.hpp"
 #include "UI/User.hpp"
 
 namespace Financy
@@ -17,11 +18,11 @@ namespace Financy
     public:
         Application();
         Application(const std::string& inTitle);
-        Application(const std::string& inTitle, ETheme inTheme);
+        Application(const std::string& inTitle, Colors::Theme inTheme);
         ~Application();
 
     public:
-        void updateTheme(ETheme inTheme);
+        void updateTheme(Colors::Theme inTheme);
 
         int run(int argc, char *argv[]);
 
@@ -33,7 +34,7 @@ namespace Financy
         std::string m_title;
 
         // Theme
-        std::unique_ptr<ColorScheme> m_colors;
+        std::unique_ptr<Colors> m_colors;
 
         // Data
         QList<User*> m_users;

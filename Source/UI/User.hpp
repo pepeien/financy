@@ -40,6 +40,8 @@ namespace Financy
         void fromJSON(const rapidjson::GenericObject<false, rapidjson::Value>& inData);
 
     public:
+        uint32_t getId();
+
         QString getFirstName();
         void setFirstName(const QString& inFirstName);
 
@@ -53,9 +55,12 @@ namespace Financy
         void setDominantColors();
 
     private:
+        uint32_t m_id;
+
         QString m_firstName;
         QString m_lastName;
         QString m_picture; // Base64
+
         QColor m_primaryColor;
         QColor m_secondaryColor;
     };

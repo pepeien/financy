@@ -10,13 +10,13 @@ namespace Financy
     Application::Application(const std::string& inTitle)
         : Application(
             inTitle,
-            ETheme::DARK
+            Colors::Theme::Light
         )
     {}
 
-    Application::Application(const std::string& inTitle, ETheme inTheme)
+    Application::Application(const std::string& inTitle, Colors::Theme inTheme)
         : m_title(inTitle),
-        m_colors(std::make_unique<ColorScheme>())
+        m_colors(std::make_unique<Colors>())
     {
         updateTheme(inTheme);
         setupUsers();
@@ -30,11 +30,11 @@ namespace Financy
         }
     }
 
-    void Application::updateTheme(ETheme inTheme)
+    void Application::updateTheme(Colors::Theme inTheme)
     {
         switch (inTheme)
         {
-        case ETheme::DARK:
+        case Colors::Theme::Dark:
             m_colors->setBackgroundColor("#0C1017");
             m_colors->setForegroundColor("#08374A");
             m_colors->setLightColor("#006A74");
@@ -42,7 +42,7 @@ namespace Financy
 
             return;
 
-        case ETheme::LIGHT:
+        case Colors::Theme::Light:
         default:
             m_colors->setBackgroundColor("#E1F7F5");
             m_colors->setForegroundColor("#D9D9D9");
@@ -69,8 +69,15 @@ namespace Financy
 
         // Color Scheme
         content->setContextProperty(
-            "colorScheme",
+            "colors",
             m_colors.release()
+        );
+
+        // Internals
+        std::unique_ptr<Internals> m_internals = std::make_unique<Internals>();
+        content->setContextProperty(
+            "internals",
+            m_internals.release()
         );
 
         // Users

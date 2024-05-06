@@ -2,6 +2,7 @@
     <qresource prefix="/Components/">
         <file>Button.qml</file>
         <file>Header.qml</file>
+        <file>Input.qml</file>
         <file>Page.qml</file>
         <file>RoundImage.qml</file>
         <file>SquircleButton.qml</file>
