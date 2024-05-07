@@ -46,52 +46,59 @@ Components.Page {
         }
     }
 
-    ListView {
-        id: usersView
-        model: internals.users
-        width: addButton.width
-        height: 90 * 10
-        spacing: 25
+    ScrollView {
+        width: addButton.width * 1.25
+        height: addButton.height * 4
 
         anchors.top: addButton.bottom
-        anchors.topMargin: 60
+        anchors.topMargin: 100
         anchors.horizontalCenter: parent.horizontalCenter
 
-        delegate: Components.SquircleButton {
-            required property string firstName
-            required property string lastName
-            required property string picture
-            required property string primaryColor
-            required property string secondaryColor
+        ListView {
+            id: usersView
+            spacing: 25
 
-            width: usersView.width
-            height: 90
-            backgroundColor: primaryColor
+            anchors.fill: parent
 
-            onClick: function() {
-                console.log(firstName, lastName)
-            }
+            model: internals.users
+            delegate: Components.SquircleButton {
+                required property string firstName
+                required property string lastName
+                required property string picture
+                required property string primaryColor
+                required property string secondaryColor
 
-            Components.RoundImage {
-                id: pictureComponent
-                imageSource: picture
-                imageWidth: 60
-                imageHeight: 60
-
-                anchors.leftMargin: 20
-                anchors.fill: parent
-            }
-
-            Text {
-                text: firstName
-                color: secondaryColor
-
-                font.family: "Inter"
-                font.pointSize: 20
-                font.weight: Font.Bold
+                width: usersView.width * 0.8
+                height: 90
+                backgroundColor: primaryColor
 
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+
+                onClick: function() {
+                    console.log(firstName, lastName)
+                }
+
+                Components.RoundImage {
+                    id: pictureComponent
+                    imageSource: picture
+                    imageWidth: 60
+                    imageHeight: 60
+
+                    anchors.leftMargin: 20
+                    anchors.fill: parent
+                }
+
+                Text {
+                    text: firstName
+                    color: secondaryColor
+
+                    font.family: "Inter"
+                    font.pointSize: 20
+                    font.weight: Font.Bold
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
         }
     }

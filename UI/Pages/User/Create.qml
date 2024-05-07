@@ -42,7 +42,7 @@ Components.Page {
         onClick: function() {
             var result = internals.openFileDialog(
                 "Select Profile Picture",
-                "jpeg;png"
+                "jpg;jpeg;png"
             );
 
             if (result === "")
@@ -63,7 +63,7 @@ Components.Page {
             fillMode: Image.PreserveAspectCrop
 
             anchors.top: parent.top
-            anchors.topMargin: wasPictureSelected ? 0 : 40
+            anchors.topMargin: wasPictureSelected ? -plusContainer.height / 2 : 40
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
@@ -77,6 +77,7 @@ Components.Page {
         }
 
         Rectangle {
+            id: plusContainer
             width: parent.width
             height: 60
             color: internals.colors.light
@@ -109,9 +110,12 @@ Components.Page {
 
     Components.Input {
         id: firstName
-        label: "First name"
         width: picture.width + 80
+        
+        label: "First name"
         color: internals.colors.dark
+
+        KeyNavigation.tab: lastName.input
 
         anchors.top: picture.bottom
         anchors.topMargin: 40
@@ -139,15 +143,18 @@ Components.Page {
         anchors.horizontalCenter: parent.horizontalCenter
 
         onClick: function() {
-            if (
-                internals.addUser(
-                    firstName.text,
-                    lastName.text,
-                    profilePicture
-                )
-            ) {
-                stack.pop();
+            console.log(firstName.inputComponent)
+            var user = internals.addUser(
+                firstName.text,
+                lastName.text,
+                profilePicture
+            );
+
+            if (!user) {
+                return;
             }
+
+            stack.pop();
         }
 
         Components.SquircleContainer {

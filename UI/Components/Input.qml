@@ -8,13 +8,15 @@ import QtQuick.Controls
 import "qrc:/Components" as Components
 
 Components.SquircleContainer {
-    // Props
-    property alias color: input.color
+    // Alias Props
+    property alias color: _input.color
     property alias label: inputLabel.text
-    property alias text: input.text
+
+    // Out Props
+    property var input: _input
 
     // Vars
-    property real textPadding: 15
+    property real textPadding: 16
 
     id: root
     height: 60
@@ -31,11 +33,11 @@ Components.SquircleContainer {
         anchors.verticalCenter: parent.verticalCenter
 
         TextInput {
-            id: input
+            id: _input
             verticalAlignment: TextInput.AlignVCenter
 
             font.family: "Inter"           
-            font.pointSize: root.height * 0.25
+            font.pointSize: Math.round(root.height * 0.25)
             font.weight: Font.Normal
 
             anchors.fill: parent
@@ -44,19 +46,19 @@ Components.SquircleContainer {
 
     Label {
         id: inputLabel
-        color: input.color
+        color: _input.color
         leftPadding: textPadding
         opacity: 0.77
 
-        font.family: input.font.family
-        font.pointSize: input.font.pointSize
+        font.family: _input.font.family
+        font.pointSize: _input.font.pointSize
         font.weight: Font.Light
 
         anchors.verticalCenter: parent.verticalCenter
 
         states: [
             State {
-                when: input.activeFocus || input.text !== ""
+                when: _input.activeFocus || _input.text !== ""
                 AnchorChanges {
                     target: inputLabel
 
@@ -66,7 +68,7 @@ Components.SquircleContainer {
                 PropertyChanges {
                     target: inputLabel
 
-                    font.pixelSize: input.font.pointSize * 0.65
+                    font.pointSize: Math.round(_input.font.pointSize * 0.65)
                     topPadding: 2
                 }
             }
@@ -80,7 +82,7 @@ Components.SquircleContainer {
 
                 NumberAnimation {
                     duration: 200
-                    property: "font.pixelSize"
+                    property: "font.pointSize"
                 }
 
                 NumberAnimation {
