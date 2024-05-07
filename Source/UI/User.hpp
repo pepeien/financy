@@ -53,10 +53,16 @@ namespace Financy
         void setLastName(const QString& inLastName);
 
         QString getPicture();
+        void setPicture(const QUrl& inUrl);
         void setPicture(const QString& inPicture);
 
-    private:
-        void setDominantColors();
+        void setColorsFromPicture();
+
+        QColor getPrimaryColor();
+        void setPrimaryColor(const QColor& inColor);
+
+        QColor getSecondaryColor();
+        void setSecondaryColor(const QColor& inColor);
 
     private:
         uint32_t m_id;

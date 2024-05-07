@@ -25,6 +25,11 @@ namespace Financy
 
     Internals::~Internals()
     {
+        for (QObject* user : m_users)
+        {
+            delete user;
+        }
+
         delete m_colors;
     }
 
@@ -79,7 +84,7 @@ namespace Financy
         onThemeUpdate();
     }
 
-    bool Internals::addUser(
+    User* Internals::addUser(
         const QString& inFirstName,
         const QString& inLastName,
         const QUrl& inPicture
@@ -87,46 +92,23 @@ namespace Financy
     {
         if (inFirstName.isEmpty() || inLastName.isEmpty() || inPicture.isEmpty())
         {
-            return false;
-        }
-
-        if (inPicture.toString().toStdString().find("qrc://") != std::string::npos)
-        {
-            return false;
+            return nullptr;
         }
 
         User* user = new User();
         user->setId(m_users.size());
         user->setFirstName(inFirstName);
         user->setLastName(inLastName);
-
-        std::string filePath = Helper::splitString(
-            inPicture.toString().toStdString(),
-            "file:///"
-        )[1];
-
-        std::vector<std::string> splittedFilepath = Helper::splitString(
-            filePath,
-            "."
-        );
-        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
-
-        std::vector<char> raw = FileSystem::readFile(filePath);
-        std::string sRaw(raw.begin(), raw.end());
-
-        user->setPicture(
-            QString::fromLatin1(
-                "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
-            )
-        );
-
-        m_users.push_back(user);
+        user->setPicture(inPicture);
+        user->setColorsFromPicture();
 
         writeUser(user);
 
+        m_users.push_back(user);
+
         onUsersUpdate();
 
-        return true;
+        return user;
     }
 
     void Internals::setupUsers()
@@ -145,7 +127,7 @@ namespace Financy
         }
 
         for (auto& it : users.items()) {
-            Financy::User* user = new Financy::User();
+            User* user = new User();
             user->fromJSON(it.value());
 
             m_users.push_back(user);
@@ -154,22 +136,19 @@ namespace Financy
 
     void Internals::writeUser(User* inUser)
     {
-        if (!FileSystem::doesFileExist(USER_FILE_NAME))
-        {
-            return;
-        }
-
-        std::vector<char> userRaw = FileSystem::readFile(USER_FILE_NAME);
-
         nlohmann::json user = {
             { "id", inUser->getId() },
             { "firstName", inUser->getFirstName().toStdString() },
             { "lastName", inUser->getLastName().toStdString() },
-            { "picture", inUser->getPicture().toStdString() }
+            { "picture", inUser->getPicture().toStdString() },
+            { "primaryColor", inUser->getPrimaryColor().name().toStdString() },
+            { "secondaryColor", inUser->getSecondaryColor().name().toStdString()  }
         };
 
         std::ifstream file(USER_FILE_NAME);
-        nlohmann::json users = nlohmann::json::parse(file);
+        nlohmann::json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
+            nlohmann::json::parse(file):
+            nlohmann::json::array();
         users.push_back(user);
 
         // Write

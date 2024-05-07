@@ -6,6 +6,11 @@
 
 #include <cvmatandqimage.h>
 
+#include <base64.hpp>
+
+#include "Core/FileSystem.hpp"
+#include "Core/Helper.hpp"
+
 namespace Financy
 {
     User::User()
@@ -19,9 +24,14 @@ namespace Financy
 
     void User::fromJSON(const nlohmann::json& inData)
     {
+        // Data
         setFirstName(QString::fromLatin1((std::string) inData["firstName"]));
         setLastName(  QString::fromLatin1((std::string) inData["lastName"]));
         setPicture(    QString::fromLatin1((std::string) inData["picture"]));
+
+        // Colors
+        setPrimaryColor(  QString::fromLatin1((std::string) inData["primaryColor"]));
+        setSecondaryColor(QString::fromLatin1((std::string) inData["secondaryColor"]));
     }
 
     uint32_t User::getId()
@@ -69,16 +79,56 @@ namespace Financy
         return m_picture;
     }
 
+    void User::setPicture(const QUrl& inUrl)
+    {
+        if (inUrl.isEmpty())
+        {
+            return;
+        }
+
+        if (inUrl.toString().toStdString().find("qrc://") != std::string::npos)
+        {
+            return;
+        }
+
+        std::vector<std::string> splittedUrl = Helper::splitString(
+            inUrl.toString().toStdString(),
+            "file:///"
+        );
+
+        std::string filePath = splittedUrl[splittedUrl.size() - 1];
+        std::vector<std::string> splittedFilepath = Helper::splitString(
+            filePath,
+            "."
+        );
+
+        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
+
+        std::vector<char> raw = FileSystem::readFile(filePath);
+        std::string sRaw(raw.begin(), raw.end());
+
+        setPicture(
+            QString::fromLatin1(
+                "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
+            )
+        );
+    }
+
     void User::setPicture(const QString& inPicture)
     {
         m_picture = inPicture;
-
-        // TODO Read these values from JSON <- set it on profile register or edit
-        setDominantColors();
     }
 
-    void User::setDominantColors()
+    void User::setColorsFromPicture()
     {
+        if (m_picture.isEmpty())
+        {
+            m_primaryColor   = QColor("#000000");
+            m_secondaryColor = QColor("#FFFFFF");
+
+            return;
+        }
+
         QStringList splittedData = m_picture.split(',');
 
         QImage image;
@@ -92,16 +142,39 @@ namespace Financy
             QtOcv::image2Mat(image)
         );
 
-        m_primaryColor = QColor(
-           prominentColor[0], // R
-           prominentColor[1], // G
-           prominentColor[2]  // B
+        setPrimaryColor(
+            QColor(
+                prominentColor[0], // R
+                prominentColor[1], // G
+                prominentColor[2]  // B
+            )
         );
+        setSecondaryColor(
+            QColor(
+                255 - m_primaryColor.red(),
+                255 - m_primaryColor.green(),
+                255 - m_primaryColor.blue()
+            )
+        );
+    }
 
-        m_secondaryColor = QColor(
-           255 - m_primaryColor.red(),
-           255 - m_primaryColor.green(),
-           255 - m_primaryColor.blue()
-        );
+    QColor User::getPrimaryColor()
+    {
+        return m_primaryColor;
+    }
+
+    void User::setPrimaryColor(const QColor& inColor)
+    {
+        m_primaryColor = inColor;
+    }
+
+    QColor User::getSecondaryColor()
+    {
+        return m_secondaryColor;
+    }
+
+    void User::setSecondaryColor(const QColor& inColor)
+    {
+        m_secondaryColor = inColor;
     }
 }

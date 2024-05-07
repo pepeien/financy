@@ -18,7 +18,7 @@ namespace Financy
             NOTIFY onThemeUpdate
         )
         Q_PROPERTY(
-            QList<QObject*> users
+            QList<User*> users
             MEMBER m_users
             NOTIFY onUsersUpdate
         )
@@ -36,7 +36,7 @@ namespace Financy
 
         // Modifiers
         void updateTheme(Colors::Theme inTheme);
-        bool addUser( 
+        User* addUser( 
             const QString& inFirstName,
             const QString& inLastName,
             const QUrl& inPicture
@@ -58,6 +58,7 @@ namespace Financy
         Colors* m_colors;
 
         // Data
-        QList<QObject*> m_users;
+        User* m_selectedUser;
+        QList<User*> m_users;
     };
 }
