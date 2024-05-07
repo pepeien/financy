@@ -18,7 +18,7 @@ Components.Page {
         id: addButton
         height: 90
         width: parent.width * 0.6
-        backgroundColor: colors.foreground
+        backgroundColor: internals.colors.foreground
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -41,14 +41,14 @@ Components.Page {
         ColorOverlay {
             anchors.fill: icon
             source: icon
-            color: colors.light
+            color: internals.colors.light
             antialiasing: true
         }
     }
 
     ListView {
         id: usersView
-        model: users
+        model: internals.users
         width: addButton.width
         height: 90 * 10
         spacing: 25

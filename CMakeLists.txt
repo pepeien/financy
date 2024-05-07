@@ -72,6 +72,7 @@ target_include_directories(
         ${VENDOR_DIR}/QtOpenCV
         ${OpenCV_INCLUDE_DIRS}
         ${VENDOR_DIR}/rapidjson/include
+        ${VENDOR_DIR}/json/include
 )
 
 target_link_libraries(

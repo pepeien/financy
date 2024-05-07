@@ -105,6 +105,9 @@
         "xtree": "cpp",
         "qtqml": "cpp",
         "qcolor": "cpp",
-        "qtcore": "cpp"
+        "qtcore": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp",
+        "filesystem": "cpp"
     }
 }

@@ -12,6 +12,21 @@ namespace Financy
     {
         Q_OBJECT
 
+        Q_PROPERTY(
+            Colors* colors
+            MEMBER m_colors
+            NOTIFY onThemeUpdate
+        )
+        Q_PROPERTY(
+            QList<QObject*> users
+            MEMBER m_users
+            NOTIFY onUsersUpdate
+        )
+
+    public:
+        Internals(QObject* parent = nullptr);
+        ~Internals();
+
     public slots:
         // Utils
         QString openFileDialog(
@@ -21,17 +36,28 @@ namespace Financy
 
         // Modifiers
         void updateTheme(Colors::Theme inTheme);
-        void addUser( 
+        bool addUser( 
             const QString& inFirstName,
             const QString& inLastName,
             const QUrl& inPicture
         );
+    
+    signals:
+        void onThemeUpdate();
+        void onUsersUpdate();
 
     private:
+        void setupUsers();
+        void writeUser(User* inUser);
+
+    private:
+        // consts
+        std::string USER_FILE_NAME = "Users.json";
+
         // Colors
-        std::unique_ptr<Colors> m_colors;
+        Colors* m_colors;
 
         // Data
-        QList<User*> m_users;
+        QList<QObject*> m_users;
     };
 }

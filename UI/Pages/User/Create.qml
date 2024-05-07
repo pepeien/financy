@@ -25,7 +25,7 @@ Components.Page {
         id: picture
         width: 256
         height: 256
-        backgroundColor: colors.foreground
+        backgroundColor: internals.colors.foreground
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -71,7 +71,7 @@ Components.Page {
             id: iconMask
             anchors.fill: icon
             source: icon
-            color: colors.light
+            color: internals.colors.light
             antialiasing: true
             visible: !wasPictureSelected
         }
@@ -79,7 +79,7 @@ Components.Page {
         Rectangle {
             width: parent.width
             height: 60
-            color: colors.light
+            color: internals.colors.light
 
             bottomLeftRadius: 15
             bottomRightRadius: 15
@@ -101,7 +101,7 @@ Components.Page {
             ColorOverlay {
                 anchors.fill: plusIcon
                 source: plusIcon
-                color: colors.background
+                color: internals.colors.background
                 antialiasing: true
             }
         }
@@ -111,7 +111,7 @@ Components.Page {
         id: firstName
         label: "First name"
         width: picture.width + 80
-        color: colors.dark
+        color: internals.colors.dark
 
         anchors.top: picture.bottom
         anchors.topMargin: 40
@@ -122,7 +122,7 @@ Components.Page {
         id: lastName
         label: "Last name"
         width: firstName.width
-        color: colors.dark
+        color: internals.colors.dark
 
         anchors.top: firstName.bottom
         anchors.topMargin: 30
@@ -138,14 +138,26 @@ Components.Page {
         anchors.topMargin: 30
         anchors.horizontalCenter: parent.horizontalCenter
 
+        onClick: function() {
+            if (
+                internals.addUser(
+                    firstName.text,
+                    lastName.text,
+                    profilePicture
+                )
+            ) {
+                stack.pop();
+            }
+        }
+
         Components.SquircleContainer {
-            backgroundColor: colors.light
+            backgroundColor: internals.colors.light
 
             anchors.fill: parent
 
             Text {
                 text: "Register"
-                color: colors.background
+                color: internals.colors.background
 
                 font.family: "Inter"           
                 font.pointSize: 15

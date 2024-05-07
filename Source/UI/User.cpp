@@ -17,16 +17,21 @@ namespace Financy
         m_secondaryColor("#000000")
     {}
 
-    void User::fromJSON(const rapidjson::GenericObject<false, rapidjson::Value>& inData)
+    void User::fromJSON(const nlohmann::json& inData)
     {
-        setFirstName(inData["firstName"].GetString());
-        setLastName(  inData["lastName"].GetString());
-        setPicture(    inData["picture"].GetString());
+        setFirstName(QString::fromLatin1((std::string) inData["firstName"]));
+        setLastName(  QString::fromLatin1((std::string) inData["lastName"]));
+        setPicture(    QString::fromLatin1((std::string) inData["picture"]));
     }
 
     uint32_t User::getId()
     {
         return m_id;
+    }
+
+    void User::setId(uint32_t inId)
+    {
+        m_id = inId;
     }
 
     QString User::getFirstName()
@@ -59,18 +64,9 @@ namespace Financy
         m_lastName = inLastName;
     }
 
-    QImage User::getPicture()
+    QString User::getPicture()
     {
-        QStringList splittedData = m_picture.split(',');
-
-        QImage image;
-        image.loadFromData(
-            QByteArray::fromBase64(
-                splittedData.at(splittedData.size() - 1).toUtf8()
-            )
-        );
-
-        return image;
+        return m_picture;
     }
 
     void User::setPicture(const QString& inPicture)
@@ -83,8 +79,17 @@ namespace Financy
 
     void User::setDominantColors()
     {
+        QStringList splittedData = m_picture.split(',');
+
+        QImage image;
+        image.loadFromData(
+            QByteArray::fromBase64(
+                splittedData.at(splittedData.size() - 1).toUtf8()
+            )
+        );
+
         cv::Scalar prominentColor = cv::mean(
-            QtOcv::image2Mat(getPicture())
+            QtOcv::image2Mat(image)
         );
 
         m_primaryColor = QColor(

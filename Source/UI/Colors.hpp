@@ -36,8 +36,11 @@ namespace Financy
         void colorsChanged();
 
     public:
-        explicit Colors(QObject* parent = nullptr);
-        
+        Colors(QObject* parent = nullptr);
+        ~Colors() = default;
+
+        Colors& operator=(const Colors&) = default;
+
     // Types
     public:
         enum class Theme

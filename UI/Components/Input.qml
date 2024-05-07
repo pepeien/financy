@@ -11,6 +11,7 @@ Components.SquircleContainer {
     // Props
     property alias color: input.color
     property alias label: inputLabel.text
+    property alias text: input.text
 
     // Vars
     property real textPadding: 15
@@ -18,7 +19,7 @@ Components.SquircleContainer {
     id: root
     height: 60
     width: 120
-    backgroundColor: colors.foreground
+    backgroundColor: internals.colors.foreground
 
     Rectangle {
         height: parent.height

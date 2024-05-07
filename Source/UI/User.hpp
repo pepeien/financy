@@ -4,7 +4,7 @@
 #include <QColor>
 #include <QImage>
 
-#include <rapidjson/document.h>
+#include <nlohmann/json.hpp>
 
 namespace Financy
 {
@@ -35,12 +35,16 @@ namespace Financy
 
     public:
         User();
+        ~User() = default;
+
+        User& operator=(const User&) = default;
 
     public:
-        void fromJSON(const rapidjson::GenericObject<false, rapidjson::Value>& inData);
+        void fromJSON(const nlohmann::json& inData);
 
     public:
         uint32_t getId();
+        void setId(uint32_t inId);
 
         QString getFirstName();
         void setFirstName(const QString& inFirstName);
@@ -48,7 +52,7 @@ namespace Financy
         QString getLastName();
         void setLastName(const QString& inLastName);
 
-        QImage getPicture();
+        QString getPicture();
         void setPicture(const QString& inPicture);
 
     private:
