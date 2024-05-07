@@ -6,9 +6,6 @@
 #include <QtDebug>
 #include <QFileDialog>
 
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/writer.h>
-
 #include <nlohmann/json.hpp>
 
 #include <base64.hpp>
