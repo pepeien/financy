@@ -98,6 +98,42 @@ Rectangle {
                 antialiasing: true
             }
         }
+
+        Rectangle {
+            width: parent.width - closeButton.width - minimizeButton.width
+            height: parent.height
+            color: "transparent"
+
+            MouseArea {
+                property real clickXLocation: 1;
+                property real clickYLocation: 1;
+
+                id: dragBar
+                pressAndHoldInterval: 100
+
+                anchors.fill: parent
+
+                onPressed: function(event) {
+                    if (event.buttons !== Qt.LeftButton) {
+                        return;
+                    }
+
+                    clickXLocation = event.x;
+                    clickYLocation = event.y;
+                }
+
+                onPositionChanged: function(event) {
+                    if (!dragBar.pressed) {
+                        return;
+                    }
+
+                    var moveDelta = Qt.point(event.x - clickXLocation, event.y - clickYLocation);
+
+                    Window.window.x += moveDelta.x;
+                    Window.window.y += moveDelta.y;
+                }
+            }
+        }
     }
 
     Rectangle {
