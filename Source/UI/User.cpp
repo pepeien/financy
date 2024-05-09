@@ -119,45 +119,6 @@ namespace Financy
         m_picture = inPicture;
     }
 
-    void User::setColorsFromPicture()
-    {
-        if (m_picture.isEmpty())
-        {
-            m_primaryColor   = QColor("#000000");
-            m_secondaryColor = QColor("#FFFFFF");
-
-            return;
-        }
-
-        QStringList splittedData = m_picture.split(',');
-
-        QImage image;
-        image.loadFromData(
-            QByteArray::fromBase64(
-                splittedData.at(splittedData.size() - 1).toUtf8()
-            )
-        );
-
-        cv::Scalar prominentColor = cv::mean(
-            QtOcv::image2Mat(image)
-        );
-
-        setPrimaryColor(
-            QColor(
-                prominentColor[0], // R
-                prominentColor[1], // G
-                prominentColor[2]  // B
-            )
-        );
-        setSecondaryColor(
-            QColor(
-                255 - m_primaryColor.red(),
-                255 - m_primaryColor.green(),
-                255 - m_primaryColor.blue()
-            )
-        );
-    }
-
     QColor User::getPrimaryColor()
     {
         return m_primaryColor;

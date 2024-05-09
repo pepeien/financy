@@ -13,141 +13,282 @@ import "qrc:/Components" as Components
 Components.Page {
     // Vars
     property bool wasPictureSelected
-
-    property string profileFirstName: ""
-    property string profileLastName: ""
     property url profilePicture: "qrc:/Icons/Profile.svg"
 
-    id: root
+    id: _root
     title: "Create User"
 
-    Components.SquircleButton {
-        id: picture
-        width: 256
-        height: 256
-        backgroundColor: internals.colors.foreground
+    Item {
+        id:     _formPicture
+        width:  parent.width * 0.6
+        height: parent.height * 0.7
 
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
 
-        layer.enabled: true
-        layer.effect: OpacityMask {
-            maskSource: Rectangle {
-                width: picture.width
-                height: picture.height
-                radius: 15
-                visible: true
-            }
-        }
+        Components.SquircleButton {
+            id:              picture
+            width:           256
+            height:          256
+            backgroundColor: internals.colors.foreground
 
-        onClick: function() {
-            var result = internals.openFileDialog(
-                "Select Profile Picture",
-                "jpg;jpeg;png"
-            );
-
-            if (result === "")
-            {
-                return;
-            }
-
-            root.wasPictureSelected = true;
-            root.profilePicture = result;
-        }
-
-        Image {
-            id: icon
-            source: profilePicture
-            sourceSize.width:  wasPictureSelected ? picture.width : picture.width * 0.5
-            sourceSize.height: wasPictureSelected ? picture.height : picture.height * 0.5
-            antialiasing: true
-            fillMode: Image.PreserveAspectCrop
-
-            anchors.top: parent.top
-            anchors.topMargin: wasPictureSelected ? -plusContainer.height / 2 : 40
             anchors.horizontalCenter: parent.horizontalCenter
-        }
 
-        ColorOverlay {
-            id: iconMask
-            anchors.fill: icon
-            source: icon
-            color: internals.colors.light
-            antialiasing: true
-            visible: !wasPictureSelected
-        }
+            layer.enabled: true
+            layer.effect:  OpacityMask {
+                maskSource: Rectangle {
+                    width:   picture.width
+                    height:  picture.height
+                    radius:  15
+                    visible: true
+                }
+            }
 
-        Rectangle {
-            id: plusContainer
-            width: parent.width
-            height: 60
-            color: internals.colors.light
+            onClick: function() {
+                var result = internals.openFileDialog(
+                    "Select Profile Picture",
+                    "jpg;jpeg;png"
+                );
 
-            bottomLeftRadius: 15
-            bottomRightRadius: 15
+                if (result === "")
+                {
+                    return;
+                }
 
-            anchors.bottom: parent.bottom
+                _root.wasPictureSelected = true;
+                _root.profilePicture     = result;
+
+                var colors = internals.getUserColorsFromImage(result);
+
+                _primaryColor.selectedColor   = colors[0];
+                _secondaryColor.selectedColor = colors[1];
+            }
 
             Image {
-                id: plusIcon
-                source: "qrc:/Icons/Plus.svg"
-                sourceSize.width: 25
-                sourceSize.height: 25
+                id: icon
+                source: profilePicture
+                sourceSize.width:  wasPictureSelected ? picture.width : picture.width * 0.5
+                sourceSize.height: wasPictureSelected ? picture.height : picture.height * 0.5
                 antialiasing: true
-                visible: false
+                fillMode: Image.PreserveAspectCrop
 
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.top: parent.top
+                anchors.topMargin: wasPictureSelected ? -plusContainer.height / 2 : 40
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             ColorOverlay {
-                anchors.fill: plusIcon
-                source: plusIcon
-                color: internals.colors.background
+                id: iconMask
+                anchors.fill: icon
+                source: icon
+                color: internals.colors.light
                 antialiasing: true
+                visible: !wasPictureSelected
+            }
+
+            Rectangle {
+                id:     plusContainer
+                width:  parent.width
+                height: 60
+                color:  internals.colors.light
+
+                bottomLeftRadius:  15
+                bottomRightRadius: 15
+
+                anchors.bottom: parent.bottom
+
+                Image {
+                    id:                plusIcon
+                    source:            "qrc:/Icons/Plus.svg"
+                    sourceSize.width:  25
+                    sourceSize.height: 25
+                    antialiasing:      true
+                    visible:           false
+
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                ColorOverlay {
+                    anchors.fill: plusIcon
+                    source:       plusIcon
+                    color:        internals.colors.background
+                    antialiasing: true
+                }
+            }
+        }
+
+        Components.Input {
+            id:    firstName
+            width: picture.width * 1.25
+
+            label: "First name"
+            color: internals.colors.dark
+
+            KeyNavigation.tab: lastName.input
+
+            anchors.top:              picture.bottom
+            anchors.topMargin:        30
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        Components.Input {
+            id:    lastName
+            width: firstName.width
+
+            label: "Last name"
+            color: internals.colors.dark
+
+            anchors.top:              firstName.bottom
+            anchors.topMargin:        30
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        Item {
+            id:    _colors
+            width: lastName.width
+
+            anchors.top: lastName.bottom
+            anchors.topMargin:        60
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Components.ColorPicker {
+                id:              _primaryColor
+                width:           (parent.width / 2) - 15
+                height:          60
+                selectedColor:   "#FFFFFF"
+
+                anchors.left:           parent.left
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Components.ColorPicker {
+                id:              _secondaryColor
+                width:           _primaryColor.width
+                height:          _primaryColor.height
+                selectedColor:   "#000000"
+
+                anchors.left:           _primaryColor.right
+                anchors.leftMargin:     30
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
     }
 
-    Components.Input {
-        id: firstName
-        width: picture.width + 80
-        
-        label: "First name"
-        color: internals.colors.dark
+    Item {
+        id:     _preview
+        width:  parent.width - _formPicture.width
+        height: _formPicture.height
 
-        KeyNavigation.tab: lastName.input
+        anchors.left: _formPicture.right
 
-        anchors.top: picture.bottom
-        anchors.topMargin: 40
-        anchors.horizontalCenter: parent.horizontalCenter
+        Components.SquircleContainer {
+            // Var
+            property var _theme: internals.getLightTheme()
+
+            // Props
+            id:              _firstPreviewButton
+            width:           parent.width - 50
+            height:          (parent.height / 2) - 17.5
+            backgroundColor: _theme.background
+            hasShadow:       true
+
+            anchors.top:               parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                id:    _firstPreviewTitle
+                text:  "Light"
+                color: _firstPreviewButton._theme.dark
+
+                font.family:    "Inter"           
+                font.pointSize: 25
+                font.weight:    Font.Normal
+
+                anchors.top:        parent.top
+                anchors.left:       parent.left
+                anchors.topMargin:  parent.height * 0.05
+                anchors.leftMargin: parent.width * 0.05
+            }
+
+            Components.ButtonUser {
+                width:  parent.width * 0.9
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter:   parent.verticalCenter
+
+                // Props
+                firstName:      firstName.text
+                lastName:       lastName.text
+                picture:        profilePicture
+                primaryColor:   _primaryColor.selectedColor
+                secondaryColor: _secondaryColor.selectedColor
+            }
+        }
+
+        Components.SquircleContainer {
+            // Var
+            property var _theme: internals.getDarkTheme()
+
+            // Props
+            id:               _secondPreviewButton
+            width:            _firstPreviewButton.width
+            height:           _firstPreviewButton.height
+            backgroundColor:  _theme.background
+            hasShadow:        true
+
+            anchors.top:              _firstPreviewButton.bottom
+            anchors.topMargin:        35
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                id:    _secondPreviewTitle
+                text:  "Dark"
+                color: _secondPreviewButton._theme.dark
+
+                font.family:    "Inter"           
+                font.pointSize: 25
+                font.weight:    Font.Normal
+
+                anchors.top:        parent.top
+                anchors.left:       parent.left
+                anchors.topMargin:  parent.height * 0.05
+                anchors.leftMargin: parent.width * 0.05
+            }
+
+            Components.ButtonUser {
+                width:  parent.width * 0.9
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter:   parent.verticalCenter
+
+                // Props
+                firstName:      firstName.text
+                lastName:       lastName.text
+                picture:        profilePicture
+                primaryColor:   _primaryColor.selectedColor
+                secondaryColor: _secondaryColor.selectedColor
+            }
+        }
     }
 
-    Components.Input {
-        id: lastName
-        label: "Last name"
-        width: firstName.width
-        color: internals.colors.dark
-
-        anchors.top: firstName.bottom
-        anchors.topMargin: 30
-        anchors.horizontalCenter: parent.horizontalCenter
-    }
-
-    Components.Button {
-        id: confirmButton
-        width: picture.width
+    Components.SquircleButton {
+        width: parent.width / 1.5
         height: 70
 
-        anchors.top: lastName.bottom
-        anchors.topMargin: 30
+        anchors.bottom:           parent.bottom
+        anchors.bottomMargin:     parent.height * 0.065
         anchors.horizontalCenter: parent.horizontalCenter
 
+        // Props
+        backgroundColor: internals.colors.light
+
         onClick: function() {
-            console.log(firstName.inputComponent)
             var user = internals.addUser(
                 firstName.text,
                 lastName.text,
-                profilePicture
+                profilePicture,
+                _primaryColor.selectedColor,
+                _secondaryColor.selectedColor
             );
 
             if (!user) {
@@ -157,22 +298,16 @@ Components.Page {
             stack.pop();
         }
 
-        Components.SquircleContainer {
-            backgroundColor: internals.colors.light
+        Text {
+            text: "Register"
+            color: internals.colors.background
 
-            anchors.fill: parent
+            font.family: "Inter"           
+            font.pointSize: 15
+            font.weight: Font.DemiBold
 
-            Text {
-                text: "Register"
-                color: internals.colors.background
-
-                font.family: "Inter"           
-                font.pointSize: 15
-                font.weight: Font.DemiBold
-
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }

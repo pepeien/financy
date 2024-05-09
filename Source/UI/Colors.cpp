@@ -27,11 +27,21 @@ namespace Financy
         emit colorsChanged();
     }
 
+    QColor Colors::getBackgroundColor()
+    {
+        return m_background;
+    }
+
     void Colors::setForegroundColor(const QColor& inColor)
     {
         m_foreground = inColor;
 
         emit colorsChanged();
+    }
+
+    QColor Colors::getForegroundColor()
+    {
+        return m_foreground;
     }
 
     void Colors::setLightColor(const QColor& inColor)
@@ -41,10 +51,20 @@ namespace Financy
         emit colorsChanged();
     }
 
+    QColor Colors::getLightColor()
+    {
+        return m_light;
+    }
+
     void Colors::setDarkColor(const QColor& inColor)
     {
         m_dark = inColor;
 
         emit colorsChanged();
+    }
+
+    QColor Colors::getDarkColor()
+    {
+        return m_dark;
     }
 }

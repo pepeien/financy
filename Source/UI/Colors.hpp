@@ -52,9 +52,16 @@ namespace Financy
 
     public:
         void setBackgroundColor(const QColor& inColor);
+        QColor getBackgroundColor();
+
         void setForegroundColor(const QColor& inColor);
+        QColor getForegroundColor();
+
         void setLightColor(const QColor& inColor);
+        QColor getLightColor();
+
         void setDarkColor(const QColor& inColor);
+        QColor getDarkColor();
 
     private:
         QColor m_background;        

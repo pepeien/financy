@@ -56,8 +56,6 @@ namespace Financy
         void setPicture(const QUrl& inUrl);
         void setPicture(const QString& inPicture);
 
-        void setColorsFromPicture();
-
         QColor getPrimaryColor();
         void setPrimaryColor(const QColor& inColor);
 

@@ -33,14 +33,22 @@ namespace Financy
             const QString& inTitle,
             const QString& inExtensions
         );
+        QList<QColor> getUserColorsFromImage(const QString& inImage);
 
         // Modifiers
-        void updateTheme(Colors::Theme inTheme);
         User* addUser( 
             const QString& inFirstName,
             const QString& inLastName,
-            const QUrl& inPicture
+            const QUrl& inPicture,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
         );
+
+        // Theme
+        void updateTheme(Colors::Theme inTheme);
+
+        Colors* getLightTheme();
+        Colors* getDarkTheme();
     
     signals:
         void onThemeUpdate();
@@ -56,6 +64,8 @@ namespace Financy
 
         // Colors
         Colors* m_colors;
+        Colors* m_lightColors;
+        Colors* m_darkColors;
 
         // Data
         User* m_selectedUser;

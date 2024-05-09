@@ -61,44 +61,16 @@ Components.Page {
             anchors.fill: parent
 
             model: internals.users
-            delegate: Components.SquircleButton {
-                required property string firstName
-                required property string lastName
-                required property string picture
-                required property string primaryColor
-                required property string secondaryColor
+            delegate: Components.ButtonUser {
+                width: parent.width * 0.8
 
-                width: usersView.width * 0.8
-                height: 90
-                backgroundColor: primaryColor
+                property var user: internals.users[index]
 
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                onClick: function() {
-                    console.log(firstName, lastName)
-                }
-
-                Components.RoundImage {
-                    id: pictureComponent
-                    imageSource: picture
-                    imageWidth: 60
-                    imageHeight: 60
-
-                    anchors.leftMargin: 20
-                    anchors.fill: parent
-                }
-
-                Text {
-                    text: firstName
-                    color: secondaryColor
-
-                    font.family: "Inter"
-                    font.pointSize: 20
-                    font.weight: Font.Bold
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                firstName:      user.firstName
+                lastName:       user.lastName
+                picture:        user.picture
+                primaryColor:   user.primaryColor
+                secondaryColor: user.secondaryColor
             }
         }
     }

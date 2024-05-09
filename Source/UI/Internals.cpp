@@ -6,7 +6,11 @@
 #include <QtDebug>
 #include <QFileDialog>
 
-#include <nlohmann/json.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+
+#include <cvmatandqimage.h>
 
 #include <base64.hpp>
 
@@ -17,7 +21,9 @@ namespace Financy
 {
     Internals::Internals(QObject* parent)
         : QObject(parent),
-        m_colors(new Colors(parent))
+        m_colors(new Colors(parent)),
+        m_lightColors(new Colors(parent)),
+        m_darkColors(new Colors(parent))
     {
         updateTheme(Colors::Theme::Light);
         setupUsers();
@@ -54,13 +60,90 @@ namespace Financy
         ).toString();
     }
 
-    void Internals::updateTheme(Colors::Theme inTheme)
+    QList<QColor> Internals::getUserColorsFromImage(const QString& inImage)
     {
-        if (!m_colors)
+        if (inImage.isEmpty() || inImage.toStdString().find("qrc://") != std::string::npos)
         {
-            return;
+            return { "#000000", "#FFFFFF" };
         }
 
+        std::vector<std::string> splittedUrl = Helper::splitString(
+            inImage.toStdString(),
+            "file:///"
+        );
+
+        std::string filePath = splittedUrl[splittedUrl.size() - 1];
+        std::vector<std::string> splittedFilepath = Helper::splitString(
+            filePath,
+            "."
+        );
+
+        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
+
+        std::vector<char> raw = FileSystem::readFile(filePath);
+        std::string sRaw(raw.begin(), raw.end());
+
+        QImage image;
+        image.loadFromData(
+            QByteArray::fromBase64(
+                base64::to_base64(sRaw).c_str()
+            )
+        );
+
+        cv::Scalar prominentColor = cv::mean(
+            QtOcv::image2Mat(image)
+        );
+
+        QColor primaryColor = QColor(
+            prominentColor[0], // R
+            prominentColor[1], // G
+            prominentColor[2]  // B
+        );
+        QColor secondaryColor = QColor(
+            255 - primaryColor.red(),
+            255 - primaryColor.green(),
+            255 - primaryColor.blue()
+        );
+
+        QList<QColor> result;
+        result.push_back(primaryColor);
+        result.push_back(secondaryColor);
+
+        return result;
+    }
+
+    User* Internals::addUser(
+        const QString& inFirstName,
+        const QString& inLastName,
+        const QUrl& inPicture,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (inFirstName.isEmpty() || inLastName.isEmpty() || inPicture.isEmpty())
+        {
+            return nullptr;
+        }
+
+        User* user = new User();
+        user->setId(                m_users.size());
+        user->setFirstName(              inFirstName);
+        user->setLastName(               inLastName);
+        user->setPicture(         inPicture);
+        user->setPrimaryColor(  inPrimaryColor);
+        user->setSecondaryColor(inSecondaryColor);
+
+        writeUser(user);
+
+        m_users.push_back(user);
+
+        onUsersUpdate();
+
+        return user;
+    }
+
+    void Internals::updateTheme(Colors::Theme inTheme)
+    {
         switch (inTheme)
         {
         case Colors::Theme::Dark:
@@ -84,31 +167,24 @@ namespace Financy
         onThemeUpdate();
     }
 
-    User* Internals::addUser(
-        const QString& inFirstName,
-        const QString& inLastName,
-        const QUrl& inPicture
-    )
+    Colors* Internals::getLightTheme()
     {
-        if (inFirstName.isEmpty() || inLastName.isEmpty() || inPicture.isEmpty())
-        {
-            return nullptr;
-        }
+        m_lightColors->setBackgroundColor("#E1F7F5");
+        m_lightColors->setForegroundColor("#D9D9D9");
+        m_lightColors->setLightColor(     "#596B5D");
+        m_lightColors->setDarkColor(      "#39473C");
 
-        User* user = new User();
-        user->setId(m_users.size());
-        user->setFirstName(inFirstName);
-        user->setLastName(inLastName);
-        user->setPicture(inPicture);
-        user->setColorsFromPicture();
+        return m_lightColors;
+    }
 
-        writeUser(user);
+    Colors* Internals::getDarkTheme()
+    {
+        m_darkColors->setBackgroundColor("#0C1017");
+        m_darkColors->setForegroundColor("#08374A");
+        m_darkColors->setLightColor(     "#006A74");
+        m_darkColors->setDarkColor(      "#049E84");
 
-        m_users.push_back(user);
-
-        onUsersUpdate();
-
-        return user;
+        return m_darkColors;
     }
 
     void Internals::setupUsers()

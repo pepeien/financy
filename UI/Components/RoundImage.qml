@@ -6,27 +6,27 @@ import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 
 Item {
-    property alias imageWidth: sourceItem.width
-    property alias imageHeight: sourceItem.height
-    property alias imageSource: sourceItem.source
+    property alias imageSource: _image.source
+    property alias imageWidth:  _image.sourceSize.width
+    property alias imageHeight: _image.sourceSize.height
 
     Image {
-        id: sourceItem
+        id: _image
+        width: imageWidth
+        height: imageHeight
         fillMode: Image.PreserveAspectCrop
-        
+        antialiasing: true
+
         anchors.verticalCenter: parent.verticalCenter
 
         layer.enabled: true
         layer.effect: OpacityMask {
-            maskSource: mask
+            maskSource: Rectangle {
+                width:   _image.sourceSize.width
+                height:  _image.sourceSize.height
+                radius:  _image.sourceSize.width / 2
+                visible: false
+            }
         }
-    }
-
-    Rectangle {
-        id: mask
-        width: parent.width / 2
-        height: width
-        radius: width / 2
-        visible: false
     }
 }

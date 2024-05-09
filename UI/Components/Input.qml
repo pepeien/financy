@@ -10,6 +10,7 @@ import "qrc:/Components" as Components
 Components.SquircleContainer {
     // Alias Props
     property alias color: _input.color
+    property alias text: _input.text
     property alias label: inputLabel.text
 
     // Out Props
@@ -52,7 +53,7 @@ Components.SquircleContainer {
 
         font.family: _input.font.family
         font.pointSize: _input.font.pointSize
-        font.weight: Font.Light
+        font.weight: Font.Bold
 
         anchors.verticalCenter: parent.verticalCenter
 
