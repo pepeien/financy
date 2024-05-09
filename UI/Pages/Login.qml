@@ -8,9 +8,6 @@ import Qt5Compat.GraphicalEffects
 // Components
 import "qrc:/Components" as Components
 
-// Animations
-import "qrc:/Animations" as Animations
-
 Components.Page {
     title: "Login"
 

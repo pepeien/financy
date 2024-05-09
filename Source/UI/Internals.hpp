@@ -18,6 +18,11 @@ namespace Financy
             NOTIFY onThemeUpdate
         )
         Q_PROPERTY(
+            Colors* showcaseColors
+            MEMBER m_showcaseColors
+            NOTIFY onShowcaseThemeUpdate
+        )
+        Q_PROPERTY(
             QList<User*> users
             MEMBER m_users
             NOTIFY onUsersUpdate
@@ -46,12 +51,12 @@ namespace Financy
 
         // Theme
         void updateTheme(Colors::Theme inTheme);
-
-        Colors* getLightTheme();
-        Colors* getDarkTheme();
+        void updateShowcaseTheme(Colors::Theme inTheme);
     
     signals:
         void onThemeUpdate();
+        void onShowcaseThemeUpdate();
+
         void onUsersUpdate();
 
     private:
@@ -64,8 +69,7 @@ namespace Financy
 
         // Colors
         Colors* m_colors;
-        Colors* m_lightColors;
-        Colors* m_darkColors;
+        Colors* m_showcaseColors;
 
         // Data
         User* m_selectedUser;

@@ -9,5 +9,6 @@
         <file>RoundImage.qml</file>
         <file>SquircleButton.qml</file>
         <file>SquircleContainer.qml</file>
+        <file>Switch.qml</file>
     </qresource>
 </RCC>

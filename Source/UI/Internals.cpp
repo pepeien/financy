@@ -22,10 +22,11 @@ namespace Financy
     Internals::Internals(QObject* parent)
         : QObject(parent),
         m_colors(new Colors(parent)),
-        m_lightColors(new Colors(parent)),
-        m_darkColors(new Colors(parent))
+        m_showcaseColors(new Colors(parent))
     {
         updateTheme(Colors::Theme::Light);
+        updateShowcaseTheme(Colors::Theme::Light);
+
         setupUsers();
     }
 
@@ -167,24 +168,29 @@ namespace Financy
         onThemeUpdate();
     }
 
-    Colors* Internals::getLightTheme()
+    void Internals::updateShowcaseTheme(Colors::Theme inTheme)
     {
-        m_lightColors->setBackgroundColor("#E1F7F5");
-        m_lightColors->setForegroundColor("#D9D9D9");
-        m_lightColors->setLightColor(     "#596B5D");
-        m_lightColors->setDarkColor(      "#39473C");
+        switch (inTheme)
+        {
+        case Colors::Theme::Dark:
+            m_showcaseColors->setBackgroundColor("#0C1017");
+            m_showcaseColors->setForegroundColor("#08374A");
+            m_showcaseColors->setLightColor(     "#008e9c");
+            m_showcaseColors->setDarkColor(      "#049E84");
 
-        return m_lightColors;
-    }
+            break;
 
-    Colors* Internals::getDarkTheme()
-    {
-        m_darkColors->setBackgroundColor("#0C1017");
-        m_darkColors->setForegroundColor("#08374A");
-        m_darkColors->setLightColor(     "#006A74");
-        m_darkColors->setDarkColor(      "#049E84");
+        case Colors::Theme::Light:
+        default:
+            m_showcaseColors->setBackgroundColor("#E1F7F5");
+            m_showcaseColors->setForegroundColor("#D9D9D9");
+            m_showcaseColors->setLightColor(     "#596B5D");
+            m_showcaseColors->setDarkColor(      "#39473C");
 
-        return m_darkColors;
+            break;
+        }
+
+        onShowcaseThemeUpdate();
     }
 
     void Internals::setupUsers()

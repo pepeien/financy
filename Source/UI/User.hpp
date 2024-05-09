@@ -15,23 +15,31 @@ namespace Financy
         Q_PROPERTY(
             QString firstName
             MEMBER m_firstName
+            NOTIFY onEdit
         )
         Q_PROPERTY(
             QString lastName
             MEMBER m_lastName
+            NOTIFY onEdit
         )
         Q_PROPERTY(
             QString picture
             MEMBER m_picture
+            NOTIFY onEdit
         )
         Q_PROPERTY(
             QColor primaryColor
             MEMBER m_primaryColor
+            NOTIFY onEdit
         )
         Q_PROPERTY(
             QColor secondaryColor
             MEMBER m_secondaryColor
+            NOTIFY onEdit
         )
+
+    signals:
+        void onEdit();
 
     public:
         User();

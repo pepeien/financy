@@ -147,7 +147,7 @@ Components.Page {
             id:    _colors
             width: lastName.width
 
-            anchors.top: lastName.bottom
+            anchors.top:              lastName.bottom
             anchors.topMargin:        60
             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -155,7 +155,7 @@ Components.Page {
                 id:              _primaryColor
                 width:           (parent.width / 2) - 15
                 height:          60
-                selectedColor:   "#FFFFFF"
+                selectedColor:   "grey"
 
                 anchors.left:           parent.left
                 anchors.verticalCenter: parent.verticalCenter
@@ -165,7 +165,7 @@ Components.Page {
                 id:              _secondaryColor
                 width:           _primaryColor.width
                 height:          _primaryColor.height
-                selectedColor:   "#000000"
+                selectedColor:   "white"
 
                 anchors.left:           _primaryColor.right
                 anchors.leftMargin:     30
@@ -182,68 +182,20 @@ Components.Page {
         anchors.left: _formPicture.right
 
         Components.SquircleContainer {
-            // Var
-            property var _theme: internals.getLightTheme()
-
-            // Props
-            id:              _firstPreviewButton
-            width:           parent.width - 50
-            height:          (parent.height / 2) - 17.5
-            backgroundColor: _theme.background
-            hasShadow:       true
-
-            anchors.top:               parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Text {
-                id:    _firstPreviewTitle
-                text:  "Light"
-                color: _firstPreviewButton._theme.dark
-
-                font.family:    "Inter"           
-                font.pointSize: 25
-                font.weight:    Font.Normal
-
-                anchors.top:        parent.top
-                anchors.left:       parent.left
-                anchors.topMargin:  parent.height * 0.05
-                anchors.leftMargin: parent.width * 0.05
-            }
-
-            Components.ButtonUser {
-                width:  parent.width * 0.9
-
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter:   parent.verticalCenter
-
-                // Props
-                firstName:      firstName.text
-                lastName:       lastName.text
-                picture:        profilePicture
-                primaryColor:   _primaryColor.selectedColor
-                secondaryColor: _secondaryColor.selectedColor
-            }
-        }
-
-        Components.SquircleContainer {
-            // Var
-            property var _theme: internals.getDarkTheme()
-
             // Props
             id:               _secondPreviewButton
-            width:            _firstPreviewButton.width
-            height:           _firstPreviewButton.height
-            backgroundColor:  _theme.background
+            width:            parent.width * 0.9
+            height:           parent.height
+            backgroundColor:  internals.showcaseColors.background
             hasShadow:        true
 
-            anchors.top:              _firstPreviewButton.bottom
-            anchors.topMargin:        35
+            anchors.top:              parent.top
             anchors.horizontalCenter: parent.horizontalCenter
 
             Text {
                 id:    _secondPreviewTitle
-                text:  "Dark"
-                color: _secondPreviewButton._theme.dark
+                text:  "Preview"
+                color: internals.showcaseColors.light
 
                 font.family:    "Inter"           
                 font.pointSize: 25
@@ -253,6 +205,26 @@ Components.Page {
                 anchors.left:       parent.left
                 anchors.topMargin:  parent.height * 0.05
                 anchors.leftMargin: parent.width * 0.05
+            }
+
+            Components.Switch {
+                id: _switch
+                text: _switch.isSwitched ? "Dark" : "Light"
+                width: 60
+
+                color: internals.showcaseColors.light
+                fill:  internals.showcaseColors.foreground
+
+                anchors.top:         parent.top
+                anchors.right:       parent.right
+                anchors.topMargin:   parent.height * 0.05
+                anchors.rightMargin: parent.width * 0.05
+
+                onSwitch: function() {
+                    internals.updateShowcaseTheme(
+                        _switch.isSwitched ? Colors.Dark : Colors.Light
+                    );
+                }
             }
 
             Components.ButtonUser {
