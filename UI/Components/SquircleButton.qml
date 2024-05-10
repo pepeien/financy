@@ -11,11 +11,12 @@ Components.Button {
     default property alias data: content.data
 
     // Container Props
-    property alias hasShadow: content.hasShadow
+    property alias hasShadow:       content.hasShadow
     property alias backgroundColor: content.backgroundColor
 
     Components.SquircleContainer {
         id: content
+
         anchors.fill: parent
     }
 }

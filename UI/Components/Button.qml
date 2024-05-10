@@ -9,6 +9,7 @@ import "qrc:/Components" as Components
 
 Rectangle {
     default property alias data: click.data
+
     property string backgroundColor: "transparent"
 
     color: backgroundColor

@@ -25,7 +25,6 @@ namespace Financy
         m_showcaseColors(new Colors(parent))
     {
         updateTheme(Colors::Theme::Light);
-        updateShowcaseTheme(Colors::Theme::Light);
 
         setupUsers();
     }
@@ -143,8 +142,39 @@ namespace Financy
         return user;
     }
 
+    void Internals::login(User* inUser)
+    {
+        if (inUser == nullptr)
+        {
+            return;
+        }
+
+        if (m_selectedUser != nullptr && inUser->getId() == m_selectedUser->getId())
+        {
+            return;
+        }
+
+        m_selectedUser = inUser;
+
+        onSelectUserUpdate();
+    }
+
+    void Internals::logout()
+    {
+        if (m_selectedUser == nullptr)
+        {
+            return;
+        }
+
+        m_selectedUser = nullptr;
+
+        onSelectUserUpdate();
+    }
+
     void Internals::updateTheme(Colors::Theme inTheme)
     {
+        m_colorsTheme = inTheme;
+
         switch (inTheme)
         {
         case Colors::Theme::Dark:
@@ -165,11 +195,15 @@ namespace Financy
             break;
         }
 
+        updateShowcaseTheme(inTheme);
+
         onThemeUpdate();
     }
 
     void Internals::updateShowcaseTheme(Colors::Theme inTheme)
     {
+        m_showcaseColorsTheme = inTheme;
+
         switch (inTheme)
         {
         case Colors::Theme::Dark:

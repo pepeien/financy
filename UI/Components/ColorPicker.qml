@@ -7,16 +7,37 @@ import QtQuick.Dialogs
 // Components
 import "qrc:/Components" as Components
 
-Components.SquircleButton {
+Item {
     property alias selectedColor: _dialog.selectedColor
+    property alias label:         _label.text
 
-    backgroundColor: _dialog.selectedColor
+    Text {
+        id:    _label
+        color: internals.colors.dark
 
-    onClick: function() {
-        _dialog.open();
+        font.family:    "Inter"           
+        font.pointSize: 10
+        font.weight:    Font.DemiBold
+
+        anchors.top:              parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
     }
 
-    ColorDialog {
-        id: _dialog
+    Components.SquircleButton {
+        id:              _button
+        width:           parent.width
+        height:          parent.height * 0.9
+        backgroundColor: _dialog.selectedColor
+
+        anchors.top:       _label.bottom
+        anchors.topMargin: _label.text == "" ? 0 : 15
+
+        onClick: function() {
+            _dialog.open();
+        }
+
+        ColorDialog {
+            id: _dialog
+        }
     }
 }

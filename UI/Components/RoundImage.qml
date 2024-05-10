@@ -10,17 +10,20 @@ Item {
     property alias imageWidth:  _image.sourceSize.width
     property alias imageHeight: _image.sourceSize.height
 
+    width:  _image.sourceSize.width
+    height: _image.sourceSize.height
+
     Image {
-        id: _image
-        width: imageWidth
-        height: imageHeight
-        fillMode: Image.PreserveAspectCrop
+        id:           _image
+        width:        imageWidth
+        height:       imageHeight
+        fillMode:     Image.PreserveAspectCrop
         antialiasing: true
 
         anchors.verticalCenter: parent.verticalCenter
 
         layer.enabled: true
-        layer.effect: OpacityMask {
+        layer.effect:  OpacityMask {
             maskSource: Rectangle {
                 width:   _image.sourceSize.width
                 height:  _image.sourceSize.height

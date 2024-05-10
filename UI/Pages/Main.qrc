@@ -2,6 +2,7 @@
     <qresource prefix="/Pages/">
         <file>Login.qml</file>
         <file>Root.qml</file>
+        <file>User.qml</file>
         
         <file alias="UserCreate.qml">User/Create.qml</file>
         <file alias="UserEdit.qml">User/Edit.qml</file>

@@ -12,15 +12,33 @@ namespace Financy
     {
         Q_OBJECT
 
+        // Theme
+        Q_PROPERTY(
+            Colors::Theme colorsTheme
+            MEMBER m_colorsTheme
+            NOTIFY onThemeUpdate
+        )
         Q_PROPERTY(
             Colors* colors
             MEMBER m_colors
             NOTIFY onThemeUpdate
         )
         Q_PROPERTY(
+            Colors::Theme showcaseColorsTheme
+            MEMBER m_showcaseColorsTheme
+            NOTIFY onShowcaseThemeUpdate
+        )
+        Q_PROPERTY(
             Colors* showcaseColors
             MEMBER m_showcaseColors
             NOTIFY onShowcaseThemeUpdate
+        )
+
+        // User
+        Q_PROPERTY(
+            User* selectedUser
+            MEMBER m_selectedUser
+            NOTIFY onSelectUserUpdate
         )
         Q_PROPERTY(
             QList<User*> users
@@ -48,6 +66,8 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+        void login(User* inUser);
+        void logout();
 
         // Theme
         void updateTheme(Colors::Theme inTheme);
@@ -57,6 +77,7 @@ namespace Financy
         void onThemeUpdate();
         void onShowcaseThemeUpdate();
 
+        void onSelectUserUpdate();
         void onUsersUpdate();
 
     private:
@@ -68,7 +89,10 @@ namespace Financy
         std::string USER_FILE_NAME = "Users.json";
 
         // Colors
+        Colors::Theme m_colorsTheme;
         Colors* m_colors;
+
+        Colors::Theme m_showcaseColorsTheme;
         Colors* m_showcaseColors;
 
         // Data

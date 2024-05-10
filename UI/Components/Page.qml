@@ -9,7 +9,8 @@ import "qrc:/Components" as Components
 Rectangle {
     default property alias data: content.data
 
-    property alias title: header.title
+    property alias title:    header.title
+    property alias onReturn: header.onReturn
 
     color: "transparent"
 
@@ -18,10 +19,10 @@ Rectangle {
     }
 
     Rectangle {
-        id: content
+        id:    content
         color: "transparent"
 
         anchors.topMargin: header.height + 30
-        anchors.fill: parent
+        anchors.fill:      parent
     }
 }

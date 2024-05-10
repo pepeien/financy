@@ -8,22 +8,23 @@ import Qt5Compat.GraphicalEffects
 Item {
     property alias text: _label.text
 
-    property bool isSwitched:  false
-    property string color:     internals.colors.light
-    property string fill:      internals.colors.foreground
+    property bool isSwitched
+    property string color:    internals.colors.light
+    property string fill:     internals.colors.foreground
+
     property var onSwitch
 
     id: _root
 
     Text {
-        id: _label
+        id:    _label
         color: _root.color
 
         font.family:    "Inter"           
         font.pointSize: 10
         font.weight:    Font.Bold
 
-        anchors.top: parent.top
+        anchors.top:              parent.top
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
@@ -67,16 +68,30 @@ Item {
                 property real _startLocation: 0.5
                 property real _finalLocation: (parent.width - parent.height) - 0.5
 
-                NumberAnimation on x {
-                    running: _root.isSwitched
-                    from:    _icon._startLocation
-                    to:      _icon._finalLocation
-                }
+                x: _root.isSwitched ? _icon._finalLocation : _icon._startLocation
 
-                NumberAnimation on x {
-                    running: _root.isSwitched == false
-                    from:    _icon._finalLocation
-                    to:      _icon._startLocation
+                states: [
+                    State {
+                        when: _root.isSwitched
+                        PropertyChanges {
+                            target: _icon
+                            x: _icon._finalLocation
+                        }
+                    },
+                    State {
+                        when: _root.isSwitched == false
+                        PropertyChanges {
+                            target: _icon
+                            x: _icon._startLocation
+                        }
+                    }
+                ]
+
+                transitions: Transition {
+                    NumberAnimation {
+                        property:    "x"
+                        easing.type: Easing.InOutQuad
+                    }
                 }
             }
         }

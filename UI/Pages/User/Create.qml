@@ -155,7 +155,8 @@ Components.Page {
                 id:              _primaryColor
                 width:           (parent.width / 2) - 15
                 height:          60
-                selectedColor:   "grey"
+                selectedColor:   internals.colors.foreground
+                label:           "Primary Color"
 
                 anchors.left:           parent.left
                 anchors.verticalCenter: parent.verticalCenter
@@ -165,7 +166,8 @@ Components.Page {
                 id:              _secondaryColor
                 width:           _primaryColor.width
                 height:          _primaryColor.height
-                selectedColor:   "white"
+                selectedColor:   internals.colors.light
+                label:           "Secondary Color"
 
                 anchors.left:           _primaryColor.right
                 anchors.leftMargin:     30
@@ -209,11 +211,13 @@ Components.Page {
 
             Components.Switch {
                 id: _switch
+
+                color:      internals.showcaseColors.light
+                fill:       internals.showcaseColors.foreground
+                isSwitched: internals.colorsTheme == Colors.Dark
+
                 text: _switch.isSwitched ? "Dark" : "Light"
                 width: 60
-
-                color: internals.showcaseColors.light
-                fill:  internals.showcaseColors.foreground
 
                 anchors.top:         parent.top
                 anchors.right:       parent.right
@@ -239,6 +243,7 @@ Components.Page {
                 picture:        profilePicture
                 primaryColor:   _primaryColor.selectedColor
                 secondaryColor: _secondaryColor.selectedColor
+                hasShadow: true
             }
         }
     }

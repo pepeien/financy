@@ -12,24 +12,24 @@ Components.Page {
     title: "Login"
 
     Components.SquircleButton {
-        id: addButton
-        height: 90
-        width: parent.width * 0.6
+        id:              addButton
+        height:          90
+        width:           parent.width * 0.6
         backgroundColor: internals.colors.foreground
 
         anchors.horizontalCenter: parent.horizontalCenter
 
         onClick: function() {
-            stack.push("qrc:/Pages/UserCreate.qml")
+            stack.push("qrc:/Pages/UserCreate.qml");
         }
 
         Image {
-            id: icon
-            source: "qrc:/Icons/Plus.svg"
-            sourceSize.width: 35
+            id:                icon
+            source:            "qrc:/Icons/Plus.svg"
+            sourceSize.width:  35
             sourceSize.height: 35
-            antialiasing: true
-            visible: false
+            antialiasing:      true
+            visible:           false
 
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
@@ -37,31 +37,37 @@ Components.Page {
 
         ColorOverlay {
             anchors.fill: icon
-            source: icon
-            color: internals.colors.light
+            source:       icon
+            color:        internals.colors.light
             antialiasing: true
         }
     }
 
     ScrollView {
-        width: addButton.width * 1.25
+        width:  addButton.width * 1.25
         height: addButton.height * 4
 
-        anchors.top: addButton.bottom
-        anchors.topMargin: 100
+        anchors.top:              addButton.bottom
+        anchors.topMargin:        100
         anchors.horizontalCenter: parent.horizontalCenter
 
         ListView {
-            id: usersView
+            id:      usersView
             spacing: 25
 
             anchors.fill: parent
 
-            model: internals.users
+            model:    internals.users
             delegate: Components.ButtonUser {
                 width: parent.width * 0.8
 
                 property var user: internals.users[index]
+
+                onClick: function() {
+                    internals.login(user);
+    
+                    stack.push("qrc:/Pages/User.qml")
+                }
 
                 firstName:      user.firstName
                 lastName:       user.lastName

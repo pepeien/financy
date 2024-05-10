@@ -25,6 +25,7 @@ Components.SquircleButton {
     anchors.horizontalCenter: parent.horizontalCenter
 
     Components.RoundImage {
+        id: _picture
         imageSource: picture
         imageWidth:  60
         imageHeight: 60
@@ -34,14 +35,21 @@ Components.SquircleButton {
     }
 
     Text {
-        text: firstName + " " + lastName
-        color: secondaryColor
+        text:                firstName + " " + lastName
+        color:               _root.secondaryColor
+        height:              _root.height
+        width:               _root.width - 120
+        leftPadding:         -60
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment:   Text.AlignVCenter
+        clip: true
 
-        font.family: "Inter"
+        font.family:    "Inter"
         font.pointSize: 20
-        font.weight: Font.Bold
+        font.weight:    Font.Bold
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.left:       parent.left
+        anchors.leftMargin: 90
+        anchors.rightMargin: 30
     }
 }

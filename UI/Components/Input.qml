@@ -10,7 +10,7 @@ import "qrc:/Components" as Components
 Components.SquircleContainer {
     // Alias Props
     property alias color: _input.color
-    property alias text: _input.text
+    property alias text:  _input.text
     property alias label: inputLabel.text
 
     // Out Props
@@ -20,40 +20,41 @@ Components.SquircleContainer {
     property real textPadding: 16
 
     id: root
-    height: 60
-    width: 120
+    height:          60
+    width:           120
     backgroundColor: internals.colors.foreground
 
     Rectangle {
-        height: parent.height
-        width: parent.width  - (textPadding * 2)
-        color: "transparent"
-        clip: true
+        height: parent.height  - (textPadding * 2)
+        width:  parent.width  - (textPadding * 2)
+        color:  "transparent"
+        clip:   true
 
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenter:   parent.verticalCenter
 
         TextInput {
-            id: _input
+            id:                _input
             verticalAlignment: TextInput.AlignVCenter
 
-            font.family: "Inter"           
-            font.pointSize: Math.round(root.height * 0.25)
-            font.weight: Font.Normal
+            font.family:    "Inter"           
+            font.pointSize: Math.round(root.height * 0.2)
+            font.weight:    Font.Normal
 
             anchors.fill: parent
+            topPadding: 4
         }
     }
 
     Label {
-        id: inputLabel
-        color: _input.color
+        id:          inputLabel
+        color:       _input.color
         leftPadding: textPadding
-        opacity: 0.77
+        opacity:     0.77
 
-        font.family: _input.font.family
+        font.family:    _input.font.family
         font.pointSize: _input.font.pointSize
-        font.weight: Font.Bold
+        font.weight:    Font.Bold
 
         anchors.verticalCenter: parent.verticalCenter
 
@@ -64,13 +65,13 @@ Components.SquircleContainer {
                     target: inputLabel
 
                     anchors.verticalCenter: undefined
-                    anchors.top: parent.top
+                    anchors.top:            parent.top
                 }
                 PropertyChanges {
                     target: inputLabel
 
                     font.pointSize: Math.round(_input.font.pointSize * 0.65)
-                    topPadding: 2
+                    topPadding:     4
                 }
             }
         ]

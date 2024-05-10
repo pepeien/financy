@@ -8,12 +8,12 @@ import Qt5Compat.GraphicalEffects
 Item {
     default property alias data: base.data
 
-    property bool hasShadow: false
+    property bool hasShadow:         false
     property string backgroundColor: "transparent"
 
     Rectangle {
-        id: base
-        color: backgroundColor
+        id:     base
+        color:  backgroundColor
         radius: 15
 
         anchors.fill: parent
@@ -24,11 +24,11 @@ Item {
 
         anchors.fill: base
 
-        shadowEnabled: hasShadow
+        shadowEnabled:          hasShadow
         shadowHorizontalOffset: 0
-        shadowVerticalOffset: 4
-        shadowBlur: 0.25
-        shadowColor: Qt.rgba(0, 0, 0, 0.25)
-        shadowScale: 1
+        shadowVerticalOffset:   4
+        shadowBlur:             0.25
+        shadowColor:            Qt.rgba(0, 0, 0, 0.25)
+        shadowScale:            1
     }
 }

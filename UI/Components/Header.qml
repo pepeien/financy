@@ -9,6 +9,7 @@ import "qrc:/Components" as Components
 
 Rectangle {
     property string title
+    property var onReturn
 
     width: parent.width
     height: 125
@@ -16,16 +17,16 @@ Rectangle {
 
     // Top Bar
     Rectangle {
-        id: handler
-        width: parent.width
+        id:     handler
+        width:  parent.width
         height: 40
-        color: "transparent"
+        color:  "transparent"
 
         Components.Button {
-            id: closeButton
-            height: 40
-            width: 40
-            color: "transparent"
+            id:            closeButton
+            height:        40
+            width:         40
+            color:         "transparent"
             anchors.right: parent.right
 
             onClick: function() {
@@ -33,39 +34,39 @@ Rectangle {
             }
 
             onHover: function() {
-                color = "#d13639";
+                color                  = "#d13639";
                 closeIconOverlay.color = "white";
             }
 
             onLeave: function() {
-                color = "transparent";
+                color                  = "transparent";
                 closeIconOverlay.color = internals.colors.dark;
             }
 
             Image {
                 id: closeIcon
                 source: "qrc:/Icons/Close.svg"
-                width: closeButton.width * 0.35
+                width:  closeButton.width * 0.35
                 height: closeButton.height * 0.35
 
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:   parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             ColorOverlay {
-                id: closeIconOverlay
+                id:           closeIconOverlay
                 anchors.fill: closeIcon
-                source: closeIcon
-                color: internals.colors.dark
+                source:       closeIcon
+                color:        internals.colors.dark
                 antialiasing: true
             }
         }
 
         Components.Button {
-            id: minimizeButton
-            height: 40
-            width: 40
-            color: "transparent"
+            id:            minimizeButton
+            height:        40
+            width:         40
+            color:         "transparent"
             anchors.right: closeButton.left
 
             onClick: function() {
@@ -81,34 +82,34 @@ Rectangle {
             }
 
             Image {
-                id: minimizeIcon
+                id:     minimizeIcon
                 source: "qrc:/Icons/Minimize.svg"
-                width: minimizeButton.width * 0.35
-                height: minimizeButton.height * 0.35
+                width:   minimizeButton.width * 0.35
+                height:  minimizeButton.height * 0.35
 
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: parent.height * 0.25
+                anchors.bottom:           parent.bottom
+                anchors.bottomMargin:     parent.height * 0.25
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             ColorOverlay {
                 anchors.fill: minimizeIcon
-                source: minimizeIcon
-                color: internals.colors.dark
+                source:       minimizeIcon
+                color:        internals.colors.dark
                 antialiasing: true
             }
         }
 
         Rectangle {
-            width: parent.width - closeButton.width - minimizeButton.width
+            width:  parent.width - closeButton.width - minimizeButton.width
             height: parent.height
-            color: "transparent"
+            color:  "transparent"
 
             MouseArea {
                 property real clickXLocation: 1;
                 property real clickYLocation: 1;
 
-                id: dragBar
+                id:                   dragBar
                 pressAndHoldInterval: 100
 
                 anchors.fill: parent
@@ -142,16 +143,16 @@ Rectangle {
         anchors.top: handler.bottom
 
         Components.SquircleButton {
-            id: backButton
-            width: 60
-            height: 60
+            id:      backButton
+            width:   60
+            height:  60
             visible: stack.depth > 1
 
             // Props
-            hasShadow: true
+            hasShadow:       true
             backgroundColor: internals.colors.background
 
-            anchors.left: parent.left
+            anchors.left:       parent.left
             anchors.leftMargin: 20
 
             onClick: function() {
@@ -159,39 +160,43 @@ Rectangle {
                     return;
                 }
 
+                if (onReturn) {
+                    onReturn();
+                }
+
                 stack.pop();
             }
 
             Image {
-                id: icon
+                id:     icon
                 source: "qrc:/Icons/Back.svg"
-                width: parent.width * 0.35
+                width:  parent.width * 0.35
                 height: parent.height * 0.35
 
                 antialiasing: true
-                visible: false
+                visible:      false
 
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenter:   parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             ColorOverlay {
                 anchors.fill: icon
-                source: icon
-                color: internals.colors.light
+                source:       icon
+                color:        internals.colors.light
                 antialiasing: true
             }
         }
 
         // Title
         Text {
-            id: titleText
-            text: title
+            id:    titleText
+            text:  title
             color: internals.colors.dark
 
-            font.family: "Inter"
+            font.family:    "Inter"
             font.pointSize: 40
-            font.weight: Font.DemiBold
+            font.weight:    Font.DemiBold
 
             anchors.horizontalCenter: parent.horizontalCenter
         }
