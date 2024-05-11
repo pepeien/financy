@@ -8,8 +8,7 @@ import "qrc:/Components" as Components
 
 Components.SquircleButton {
     // Props
-    property string firstName: ""
-    property string lastName:  ""
+    property alias text: _name.text
 
     property url picture: "qrc:/Icons/Profile.svg"
 
@@ -35,7 +34,7 @@ Components.SquircleButton {
     }
 
     Text {
-        text:                firstName + " " + lastName
+        id:                  _name
         color:               _root.secondaryColor
         height:              _root.height
         width:               _root.width - 120

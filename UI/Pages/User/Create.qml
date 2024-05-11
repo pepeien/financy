@@ -121,8 +121,10 @@ Components.Page {
             id:    firstName
             width: picture.width * 1.25
 
-            label: "First name"
-            color: internals.colors.dark
+            label:     "First name"
+            color:     internals.colors.dark
+            minLength: 2
+            maxLength: 20
 
             KeyNavigation.tab: lastName.input
 
@@ -135,8 +137,10 @@ Components.Page {
             id:    lastName
             width: firstName.width
 
-            label: "Last name"
-            color: internals.colors.dark
+            label:     "Last name"
+            color:     internals.colors.dark
+            minLength: 2
+            maxLength: 20
 
             anchors.top:              firstName.bottom
             anchors.topMargin:        30
@@ -238,8 +242,7 @@ Components.Page {
                 anchors.verticalCenter:   parent.verticalCenter
 
                 // Props
-                firstName:      firstName.text
-                lastName:       lastName.text
+                text:           firstName.text + "  " + lastName.text  
                 picture:        profilePicture
                 primaryColor:   _primaryColor.selectedColor
                 secondaryColor: _secondaryColor.selectedColor

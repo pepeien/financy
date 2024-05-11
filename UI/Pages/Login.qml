@@ -69,8 +69,7 @@ Components.Page {
                     stack.push("qrc:/Pages/User.qml")
                 }
 
-                firstName:      user.firstName
-                lastName:       user.lastName
+                text:           user.getFullName()
                 picture:        user.picture
                 primaryColor:   user.primaryColor
                 secondaryColor: user.secondaryColor

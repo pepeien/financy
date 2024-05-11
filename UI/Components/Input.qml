@@ -13,11 +13,15 @@ Components.SquircleContainer {
     property alias text:  _input.text
     property alias label: inputLabel.text
 
+    // Value Props
+    property int minLength: 0
+    property int maxLength: 0
+
     // Out Props
-    property var input: _input
+    readonly property var input: _input
 
     // Vars
-    property real textPadding: 16
+    readonly property real textPadding: 16
 
     id: root
     height:          60
@@ -25,6 +29,7 @@ Components.SquircleContainer {
     backgroundColor: internals.colors.foreground
 
     Rectangle {
+        id:     _inputContainer
         height: parent.height  - (textPadding * 2)
         width:  parent.width  - (textPadding * 2)
         color:  "transparent"
@@ -35,14 +40,16 @@ Components.SquircleContainer {
 
         TextInput {
             id:                _input
+            text:              ""
             verticalAlignment: TextInput.AlignVCenter
+            topPadding:        4
+            maximumLength:     root.maxLength > 0 ? root.maxLength : -1
 
             font.family:    "Inter"           
             font.pointSize: Math.round(root.height * 0.2)
             font.weight:    Font.Normal
 
             anchors.fill: parent
-            topPadding: 4
         }
     }
 
@@ -93,5 +100,41 @@ Components.SquircleContainer {
                 }
             }
         ]
+    }
+
+    Item {
+        id:      _lengthStatus
+        visible: root.minLength > 0 | root.maxLength > 0
+        opacity: 0.7
+
+        anchors.bottom:       _inputContainer.bottom
+        anchors.right:        _inputContainer.right
+        anchors.bottomMargin: -22.5
+        anchors.rightMargin:  _lenghtMin.contentWidth + _lenghtMax.contentWidth - 10
+
+        Text {
+            id:           _lenghtMin
+            text:         _input.text.length > root.minLength ? _input.text.length  : _input.text.length - root.minLength
+            color:        _input.color
+            antialiasing: true
+
+            font.family:    _input.font.family
+            font.pointSize: 8
+            font.weight:    Font.Bold
+        }
+
+        Text {
+            id:           _lenghtMax
+            text:         "/ " + root.maxLength
+            color:        _lenghtMin.color
+            antialiasing: true
+
+            anchors.left:       _lenghtMin.right
+            anchors.leftMargin: 2
+
+            font.family:    _lenghtMin.font.family
+            font.pointSize: _lenghtMin.font.pointSize
+            font.weight:    _lenghtMin.font.weight
+        }
     }
 }
