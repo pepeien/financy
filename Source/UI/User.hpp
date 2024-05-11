@@ -38,14 +38,17 @@ namespace Financy
             NOTIFY onEdit
         )
 
-    signals:
-        void onEdit();
-
     public:
         User();
         ~User() = default;
 
         User& operator=(const User&) = default;
+
+    signals:
+        void onEdit();
+
+    public slots:
+        QString getFullName();
 
     public:
         void fromJSON(const nlohmann::json& inData);

@@ -34,6 +34,11 @@ namespace Financy
         setSecondaryColor(QString::fromLatin1((std::string) inData["secondaryColor"]));
     }
 
+    QString User::getFullName()
+    {
+        return m_firstName + " " + m_lastName;
+    }
+
     uint32_t User::getId()
     {
         return m_id;
