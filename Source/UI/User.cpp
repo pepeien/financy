@@ -37,7 +37,14 @@ namespace Financy
 
     void User::fromJSON(const nlohmann::json& inData)
     {
-        // Data
+        // Data'
+        setId(
+            inData.find("id") != inData.end() ?
+                inData.at("id").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("id") : 0
+                :
+                0
+        );
         setFirstName(
             inData.find("firstName") != inData.end() ?
                 QString::fromStdString((std::string) inData.at("firstName")) :

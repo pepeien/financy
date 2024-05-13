@@ -76,7 +76,7 @@ namespace Financy
     {
         m_name = inName;
 
-        onEdit();
+        emit onEdit();
     }
 
     QString Purchase::getDescription()
@@ -88,7 +88,7 @@ namespace Financy
     {
         m_description = inDescription;
 
-        onEdit();
+        emit onEdit();
     }
 
     QDate Purchase::getDate()
@@ -100,7 +100,7 @@ namespace Financy
     {
         m_date = inDate;
 
-        onEdit();
+        emit onEdit();
     }
 
     float Purchase::getValue()
@@ -112,7 +112,7 @@ namespace Financy
     {
         m_value = inValue;
 
-        onEdit();
+        emit onEdit();
     }
 
     int Purchase::getInstallments()
@@ -124,7 +124,7 @@ namespace Financy
     {
         m_installments = inInstallments;
 
-        onEdit();
+        emit onEdit();
     }
 
     bool Purchase::isSubscription()

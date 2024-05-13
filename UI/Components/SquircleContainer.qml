@@ -5,11 +5,13 @@ import QtQuick
 import QtQuick.Effects
 import Qt5Compat.GraphicalEffects
 
-Item {
-    default property alias data: base.data
+Rectangle {
+    default property alias data: content.data
 
     property bool hasShadow:         false
     property string backgroundColor: "transparent"
+
+    color: "transparent"
 
     Rectangle {
         id:     base
@@ -17,6 +19,14 @@ Item {
         radius: 15
 
         anchors.fill: parent
+    }
+
+    Item {
+        id: content
+        z: 1
+
+        anchors.left: base.left
+        anchors.fill: base
     }
 
     MultiEffect {

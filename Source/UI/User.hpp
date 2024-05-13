@@ -16,6 +16,11 @@ namespace Financy
 
         // Data
         Q_PROPERTY(
+            std::uint32_t id
+            MEMBER m_id
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QString firstName
             MEMBER m_firstName
             NOTIFY onEdit

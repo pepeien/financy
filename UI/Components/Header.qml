@@ -12,7 +12,7 @@ Rectangle {
     property var onReturn
 
     width: parent.width
-    height: 125
+    height: 140
     color: "transparent"
 
     // Top Bar

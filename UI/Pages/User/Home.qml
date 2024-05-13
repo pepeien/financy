@@ -12,17 +12,32 @@ Components.Page {
     id:    _root
     title: internals.selectedUser ? internals.selectedUser.getFullName() : ""
 
+    leftButtonIcon:   "qrc:/Icons/Profile.svg"
+    leftButtonOnClick: function() {
+        console.log("left")
+    }
+
+    centerButtonIcon: "qrc:/Icons/Plus.svg"
+    centerButtonOnClick: function() {
+        console.log("center")
+    }
+
+    rightButtonIcon:  "qrc:/Icons/Cog.svg"
+    rightButtonOnClick: function() {
+        console.log("Right")
+    }
+
     onReturn: function() {
         internals.logout();
     }
 
-    readonly property real padding:      100
+    readonly property real padding:      80
     readonly property real innerPadding: padding / 2
 
     Item {
         id:     _selector
         width:  (parent.width * 0.5) - (_root.innerPadding * 0.5) - (padding * 0.5)
-        height: parent.height * 0.85
+        height: parent.height
 
         anchors.left:       parent.left
         anchors.leftMargin: _root.innerPadding
@@ -53,7 +68,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internals.selectedUser.cards
+                model: internals.selectedUser?.cards ?? []
 
                 anchors.top:              _cardsTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -88,7 +103,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internals.selectedUser.goals
+                model: internals.selectedUser?.goals ?? []
 
                 anchors.top:              _goalTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter

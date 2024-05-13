@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 
 // Components
 import "qrc:/Components" as Components

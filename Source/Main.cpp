@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <QDebug>
+
 #include "Core/Application.hpp"
 
 int main(int argc, char *argv[])
@@ -16,7 +18,7 @@ int main(int argc, char *argv[])
     }
     catch(const std::exception& e)
     {
-        std::cout << e.what();
+        qDebug() << e.what();
 
         return 1;
     }

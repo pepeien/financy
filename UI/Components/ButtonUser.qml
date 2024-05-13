@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 import QtQuick
+import Qt5Compat.GraphicalEffects
 
 // Components
 import "qrc:/Components" as Components
@@ -15,13 +16,23 @@ Components.SquircleButton {
     property string primaryColor:   internals.colors.dark
     property string secondaryColor: internals.colors.foreground
 
-    id: _root
-    width: parent.width
+    id:     _root
+    width:  parent.width
     height: 90
 
     backgroundColor: primaryColor
 
     anchors.horizontalCenter: parent.horizontalCenter
+
+    layer.enabled: true
+    layer.effect:  OpacityMask {
+        maskSource: Rectangle {
+            width:   _root.width
+            height:  _root.height
+            radius:  15
+            visible: true
+        }
+    }
 
     Components.RoundImage {
         id: _picture
@@ -37,7 +48,7 @@ Components.SquircleButton {
         id:                  _name
         color:               _root.secondaryColor
         height:              _root.height
-        width:               _root.width - 120
+        width:               _delete ? _root.width - 120 - _delete.width : _root.width - 120
         leftPadding:         -60
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment:   Text.AlignVCenter

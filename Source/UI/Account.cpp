@@ -151,7 +151,7 @@ namespace Financy
     {
         m_name = inName;
 
-        onEdit();
+        emit onEdit();
     }
 
     std::uint32_t Account::getClosingDay()
@@ -177,7 +177,7 @@ namespace Financy
     {
         m_limit = inLimit;
 
-        onEdit();
+        emit onEdit();
     }
 
     QList<Purchase*> Account::getPurchases()
@@ -189,7 +189,7 @@ namespace Financy
     {
         m_purchases = inPurchases;
 
-        onEdit();
+        emit onEdit();
     }
 
     bool Account::recoversLimitOnInstallmentPayment()
@@ -211,7 +211,7 @@ namespace Financy
     {
         m_primaryColor = inColor;
 
-        onEdit();
+        emit onEdit();
     }
 
     QColor Account::getSecondaryColor()
@@ -223,7 +223,7 @@ namespace Financy
     {
         m_secondaryColor = inColor;
 
-        onEdit();
+        emit onEdit();
     }
 
 }

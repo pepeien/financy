@@ -9,46 +9,30 @@ import Qt5Compat.GraphicalEffects
 import "qrc:/Components" as Components
 
 Components.Page {
+    property bool _isDeleting: false
+
     title: "Login"
 
-    Components.SquircleButton {
-        id:              addButton
-        height:          90
-        width:           parent.width * 0.6
-        backgroundColor: internals.colors.foreground
+    leftButtonIcon: _isDeleting ? "qrc:/Icons/Close.svg" : "qrc:/Icons/Trash.svg" 
+    leftButtonOnClick: function() {
+        _isDeleting = !_isDeleting;
+    }
 
-        anchors.horizontalCenter: parent.horizontalCenter
+    centerButtonIcon: "qrc:/Icons/Plus.svg"
+    centerButtonOnClick: function() {
+        stack.push("qrc:/Pages/UserCreate.qml");
+    }
 
-        onClick: function() {
-            stack.push("qrc:/Pages/UserCreate.qml");
-        }
-
-        Image {
-            id:                icon
-            source:            "qrc:/Icons/Plus.svg"
-            sourceSize.width:  35
-            sourceSize.height: 35
-            antialiasing:      true
-            visible:           false
-
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-        }
-
-        ColorOverlay {
-            anchors.fill: icon
-            source:       icon
-            color:        internals.colors.light
-            antialiasing: true
-        }
+    rightButtonIcon: "qrc:/Icons/Cog.svg"
+    rightButtonOnClick: function() {
+        console.log("Settings")
     }
 
     ScrollView {
-        width:  addButton.width * 1.25
-        height: addButton.height * 4
+        width:  parent.width * 0.7
+        height: parent.height
 
-        anchors.top:              addButton.bottom
-        anchors.topMargin:        100
+        anchors.top:              parent.top
         anchors.horizontalCenter: parent.horizontalCenter
 
         ListView {
@@ -66,13 +50,60 @@ Components.Page {
                 onClick: function() {
                     internals.login(user);
     
-                    stack.push("qrc:/Pages/User.qml")
+                    stack.push("qrc:/Pages/UserHome.qml")
                 }
 
                 text:           user.getFullName()
                 picture:        user.picture
                 primaryColor:   user.primaryColor
                 secondaryColor: user.secondaryColor
+
+                Components.Button {
+                    id:     _delete
+                    height: parent.height
+                    width:  0
+
+                    states: State {
+                        when: _isDeleting
+                        PropertyChanges {
+                            target: _delete
+                            width: 70
+                        }
+                    }
+                    transitions: Transition {
+                        NumberAnimation {
+                            properties: "width"
+                            easing.type: Easing.InOutQuad
+                        }
+                    }
+
+                    anchors.right: parent.right
+
+                    backgroundColor: "#F2665A"
+                    onClick: function() {
+                        internals.removeUser(user.id);
+                    }
+
+                    Image {
+                        id:                _icon
+                        source:            "qrc:/Icons/Close.svg"
+                        sourceSize.width:  parent.width * 0.4
+                        sourceSize.height: parent.width * 0.4
+                        antialiasing:      true
+                        visible:           false
+
+                        anchors.verticalCenter:   parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    ColorOverlay {
+                        anchors.fill: _icon
+                        source:       _icon
+                        color:        "white"
+                        antialiasing: true
+                        visible:      _isDeleting
+                    }
+                }
             }
         }
     }

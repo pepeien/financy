@@ -18,6 +18,23 @@ Components.Page {
     id: _root
     title: "Create User"
 
+    centerButtonIcon: "qrc:/Icons/Plus.svg"
+    centerButtonOnClick: function() {
+        var user = internals.addUser(
+            firstName.text,
+            lastName.text,
+            profilePicture,
+            _primaryColor.selectedColor,
+            _secondaryColor.selectedColor
+        );
+
+        if (!user) {
+            return;
+        }
+
+        stack.pop();
+    }
+
     Item {
         id:     _formPicture
         width:  parent.width * 0.6
@@ -80,7 +97,7 @@ Components.Page {
                 id: iconMask
                 anchors.fill: icon
                 source: icon
-                color: internals.colors.light
+                color: internals.colors.dark
                 antialiasing: true
                 visible: !wasPictureSelected
             }
@@ -89,7 +106,7 @@ Components.Page {
                 id:     plusContainer
                 width:  parent.width
                 height: 60
-                color:  internals.colors.light
+                color:  internals.colors.dark
 
                 bottomLeftRadius:  15
                 bottomRightRadius: 15
@@ -170,7 +187,7 @@ Components.Page {
                 id:              _secondaryColor
                 width:           _primaryColor.width
                 height:          _primaryColor.height
-                selectedColor:   internals.colors.light
+                selectedColor:   internals.colors.dark
                 label:           "Secondary Color"
 
                 anchors.left:           _primaryColor.right
@@ -248,46 +265,6 @@ Components.Page {
                 secondaryColor: _secondaryColor.selectedColor
                 hasShadow: true
             }
-        }
-    }
-
-    Components.SquircleButton {
-        width: parent.width / 1.5
-        height: 70
-
-        anchors.bottom:           parent.bottom
-        anchors.bottomMargin:     parent.height * 0.065
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        // Props
-        backgroundColor: internals.colors.light
-
-        onClick: function() {
-            var user = internals.addUser(
-                firstName.text,
-                lastName.text,
-                profilePicture,
-                _primaryColor.selectedColor,
-                _secondaryColor.selectedColor
-            );
-
-            if (!user) {
-                return;
-            }
-
-            stack.pop();
-        }
-
-        Text {
-            text: "Register"
-            color: internals.colors.background
-
-            font.family: "Inter"           
-            font.pointSize: 15
-            font.weight: Font.DemiBold
-
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }

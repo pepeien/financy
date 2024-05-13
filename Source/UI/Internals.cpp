@@ -1,5 +1,6 @@
 #include "Internals.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 
@@ -142,6 +143,14 @@ namespace Financy
         return user;
     }
 
+    void Internals::removeUser(std::uint32_t inId)
+    {
+        removeUserFromFile(  inId);
+        removeUserFromMemory(inId);
+
+        emit onUsersUpdate();
+    }
+
     void Internals::login(User* inUser)
     {
         if (inUser == nullptr)
@@ -189,8 +198,8 @@ namespace Financy
         default:
             m_colors->setBackgroundColor("#E1F7F5");
             m_colors->setForegroundColor("#D9D9D9");
-            m_colors->setLightColor("#596B5D");
-            m_colors->setDarkColor("#39473C");
+            m_colors->setLightColor(     "#829887");
+            m_colors->setDarkColor(      "#39473C");
 
             break;
         }
@@ -218,7 +227,7 @@ namespace Financy
         default:
             m_showcaseColors->setBackgroundColor("#E1F7F5");
             m_showcaseColors->setForegroundColor("#D9D9D9");
-            m_showcaseColors->setLightColor(     "#596B5D");
+            m_showcaseColors->setLightColor(     "#829887");
             m_showcaseColors->setDarkColor(      "#39473C");
 
             break;
@@ -270,5 +279,64 @@ namespace Financy
         // Write
         std::ofstream stream(USER_FILE_NAME);
         stream << std::setw(4) << users << std::endl;
+    }
+
+    void Internals::removeUserFromFile(std::uint32_t inId)
+    {
+        // Remove from file
+        if (!FileSystem::doesFileExist(USER_FILE_NAME))
+        {
+            return;
+        }
+
+        std::ifstream file(USER_FILE_NAME);
+
+        nlohmann::json storedUsers = nlohmann::json::parse(file);
+
+        if (storedUsers.size() < 0 || !storedUsers.is_array())
+        {
+            return;
+        }
+
+        int index = 0;
+        int lastSize = storedUsers.size();
+
+        for (auto& it : storedUsers.items())
+        {
+            if ((std::uint32_t) it.value().at("id") != inId)
+            {
+                index++;
+
+                continue;
+            }
+
+            storedUsers.erase(index);
+
+            break;
+        }
+
+        if (lastSize == storedUsers.size())
+        {
+            return;
+        }
+
+        std::ofstream stream(USER_FILE_NAME);
+        stream << std::setw(4) << storedUsers << std::endl;
+    }
+
+    void Internals::removeUserFromMemory(std::uint32_t inId)
+    {
+        auto iterator = std::find_if(
+            m_users.begin(),
+            m_users.end(),
+            [=](User* user) { return user->getId() == inId; }
+        );
+
+        if (iterator == m_users.end())
+        {
+            return;
+        }
+
+        m_users.removeAt(iterator - m_users.begin());
     }
 }

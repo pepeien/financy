@@ -66,6 +66,7 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+        void removeUser(std::uint32_t inId);
         void login(User* inUser);
         void logout();
 
@@ -83,6 +84,8 @@ namespace Financy
     private:
         void setupUsers();
         void writeUser(User* inUser);
+        void removeUserFromFile(std::uint32_t inId);
+        void removeUserFromMemory(std::uint32_t inId);
 
     private:
         // consts
