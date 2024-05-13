@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/Components/">
+        <file>Accounts.qml</file>
         <file>Button.qml</file>
         <file>ButtonUser.qml</file>
         <file>ColorPicker.qml</file>
@@ -10,5 +11,7 @@
         <file>SquircleButton.qml</file>
         <file>SquircleContainer.qml</file>
         <file>Switch.qml</file>
+
+        <file alias="ChartCircle.qml">Chart/Circle.qml</file>
     </qresource>
 </RCC>

@@ -22,16 +22,82 @@ namespace Financy
         m_secondaryColor("#000000")
     {}
 
+    User::~User()
+    {
+        for (auto card : m_cards)
+        {
+            delete card;
+        }
+
+        for (auto goals : m_goals)
+        {
+            delete goals;
+        }
+    }
+
     void User::fromJSON(const nlohmann::json& inData)
     {
         // Data
-        setFirstName(QString::fromLatin1((std::string) inData["firstName"]));
-        setLastName(  QString::fromLatin1((std::string) inData["lastName"]));
-        setPicture(    QString::fromLatin1((std::string) inData["picture"]));
+        setFirstName(
+            inData.find("firstName") != inData.end() ?
+                QString::fromStdString((std::string) inData.at("firstName")) :
+                ""
+        );
+        setLastName(
+            inData.find("lastName") != inData.end() ?
+                QString::fromStdString((std::string) inData.at("lastName")) :
+                ""
+        );
+        setPicture(
+            inData.find("picture") != inData.end() ?
+                QString::fromStdString((std::string) inData.at("picture")) :
+                ""
+        );
 
         // Colors
-        setPrimaryColor(  QString::fromLatin1((std::string) inData["primaryColor"]));
-        setSecondaryColor(QString::fromLatin1((std::string) inData["secondaryColor"]));
+        setPrimaryColor(
+            inData.find("primaryColor") != inData.end() ?
+                QString::fromStdString((std::string) inData.at("primaryColor")) :
+                "#FFFFFF"
+        );
+        setSecondaryColor(
+            inData.find("secondaryColor") != inData.end() ?
+                QString::fromStdString((std::string) inData.at("secondaryColor")) :
+                "#000000"
+        );
+
+        // Finances
+        if (inData.find("cards") != inData.end())
+        {
+            auto& cards = inData.at("cards");
+
+            if (cards.is_array())
+            {
+                for (auto& it : cards.items())
+                {
+                    Account* card = new Account();
+                    card->fromJSON(it.value());
+
+                    m_cards.push_back(card);
+                }
+            }
+        }
+
+        if (inData.find("goals") != inData.end())
+        {
+            auto& goals = inData.at("goals");
+
+            if (goals.is_array())
+            {
+                for (auto& it : goals.items())
+                {
+                    Account* goal = new Account();
+                    goal->fromJSON(it.value());
+
+                    m_goals.push_back(goal);
+                }
+            }
+        }
     }
 
     QString User::getFullName()
@@ -142,5 +208,25 @@ namespace Financy
     void User::setSecondaryColor(const QColor& inColor)
     {
         m_secondaryColor = inColor;
+    }
+
+    QList<Account*> User::getCards()
+    {
+        return m_cards;
+    }
+
+    void User::setCards(const QList<Account*>& inCards)
+    {
+        m_cards = inCards;
+    }
+        
+    QList<Account*> User::getGoals()
+    {
+        return m_goals;
+    }
+
+    void User::setGoals(const QList<Account*>& inGoals)
+    {
+        m_goals = inGoals;
     }
 }

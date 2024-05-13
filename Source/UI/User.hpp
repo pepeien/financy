@@ -6,12 +6,15 @@
 
 #include <nlohmann/json.hpp>
 
+#include "UI/Account.hpp"
+
 namespace Financy
 {
     class User : public QObject
     {
         Q_OBJECT
 
+        // Data
         Q_PROPERTY(
             QString firstName
             MEMBER m_firstName
@@ -22,6 +25,8 @@ namespace Financy
             MEMBER m_lastName
             NOTIFY onEdit
         )
+
+        // Looks
         Q_PROPERTY(
             QString picture
             MEMBER m_picture
@@ -38,9 +43,21 @@ namespace Financy
             NOTIFY onEdit
         )
 
+        // Finances
+        Q_PROPERTY(
+            QList<Account*> cards
+            MEMBER m_cards
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
+            QList<Account*> goals
+            MEMBER m_goals
+            NOTIFY onEdit
+        )
+
     public:
         User();
-        ~User() = default;
+        ~User();
 
         User& operator=(const User&) = default;
 
@@ -73,6 +90,12 @@ namespace Financy
         QColor getSecondaryColor();
         void setSecondaryColor(const QColor& inColor);
 
+        QList<Account*> getCards();
+        void setCards(const QList<Account*>& inCards);
+        
+        QList<Account*> getGoals();
+        void setGoals(const QList<Account*>& inGoals);
+
     private:
         uint32_t m_id;
 
@@ -82,5 +105,8 @@ namespace Financy
 
         QColor m_primaryColor;
         QColor m_secondaryColor;
+
+        QList<Account*> m_cards;
+        QList<Account*> m_goals;
     };
 }
