@@ -4,6 +4,7 @@
         <file>Button.qml</file>
         <file>ButtonUser.qml</file>
         <file>ColorPicker.qml</file>
+        <file>Footer.qml</file>
         <file>Header.qml</file>
         <file>Input.qml</file>
         <file>Page.qml</file>
