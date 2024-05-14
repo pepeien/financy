@@ -13,6 +13,13 @@ Item {
         radius:       4
         color:        internals.colors.background
         anchors.fill: parent
+
+        Behavior on color {
+            ColorAnimation {
+                easing.type: Easing.InOutQuad
+                duration:    200
+            }
+        }
     }
 
     Item {

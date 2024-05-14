@@ -10,15 +10,32 @@ Rectangle {
 
     property bool hasShadow:         false
     property string backgroundColor: "transparent"
+    property real backgroundRadius:  Math.min((height * 0.25), 9)
+
+    property real backgroundTopLeftRadius:     backgroundRadius
+    property real backgroundTopRightRadius:    backgroundRadius
+    property real backgroundBottomLeftRadius:  backgroundRadius
+    property real backgroundBottomRightRadius: backgroundRadius
 
     color: "transparent"
 
     Rectangle {
         id:     base
         color:  backgroundColor
-        radius: 15
+
+        topLeftRadius:     backgroundTopLeftRadius
+        topRightRadius:    backgroundTopRightRadius
+        bottomLeftRadius:  backgroundBottomLeftRadius
+        bottomRightRadius: backgroundBottomRightRadius
 
         anchors.fill: parent
+
+        Behavior on color {
+            ColorAnimation {
+                easing.type: Easing.InOutQuad
+                duration:    200
+            }
+        }
     }
 
     Item {

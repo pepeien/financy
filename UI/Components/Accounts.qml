@@ -50,12 +50,11 @@ ScrollView {
 
                 anchors.verticalCenter: parent.verticalCenter
 
-                Text {
+                Components.Text {
                     id:    _title
                     text:  _item.name
                     color: _item.secondaryColor
 
-                    font.family:    "Inter"
                     font.pointSize: 13
                     font.weight:    Font.DemiBold
 
@@ -97,12 +96,11 @@ ScrollView {
                         antialiasing: true
                     }
 
-                    Text {
+                    Components.Text {
                         id:    _limitText
                         text:  _item.limit
                         color: _item.secondaryColor
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.Normal
 
@@ -143,7 +141,7 @@ ScrollView {
                         antialiasing: true
                     }
 
-                    Text {
+                    Components.Text {
                         text: _item.getDueAmount().toFixed(2)
                         color: _item.secondaryColor
 
@@ -170,11 +168,10 @@ ScrollView {
                     anchors.rightMargin:    10
                 }
 
-                Text {
+                Components.Text {
                     text: Math.round(_ultilization * 100) + "%"
                     color: _item.secondaryColor
-                    
-                    font.family:    "Inter"
+
                     font.pointSize: 9
                     font.weight:    Font.Bold
 

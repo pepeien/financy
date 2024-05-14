@@ -38,7 +38,7 @@ Components.Page {
     Item {
         id:     _formPicture
         width:  parent.width * 0.6
-        height: parent.height * 0.7
+        height: parent.height
 
         anchors.left: parent.left
 
@@ -173,22 +173,22 @@ Components.Page {
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.ColorPicker {
-                id:              _primaryColor
-                width:           (parent.width / 2) - 15
-                height:          60
-                selectedColor:   internals.colors.foreground
-                label:           "Primary Color"
+                id:           _primaryColor
+                width:        (parent.width / 2) - 15
+                height:       60
+                startColor:   internals.colors.foreground
+                label:        "Primary Color"
 
                 anchors.left:           parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             Components.ColorPicker {
-                id:              _secondaryColor
-                width:           _primaryColor.width
-                height:          _primaryColor.height
-                selectedColor:   internals.colors.dark
-                label:           "Secondary Color"
+                id:           _secondaryColor
+                width:        _primaryColor.width
+                height:       _primaryColor.height
+                startColor:   internals.colors.dark
+                label:        "Secondary Color"
 
                 anchors.left:           _primaryColor.right
                 anchors.leftMargin:     30
@@ -215,7 +215,7 @@ Components.Page {
             anchors.top:              parent.top
             anchors.horizontalCenter: parent.horizontalCenter
 
-            Text {
+            Components.Text {
                 id:    _secondPreviewTitle
                 text:  "Preview"
                 color: internals.showcaseColors.light
@@ -226,23 +226,26 @@ Components.Page {
 
                 anchors.top:        parent.top
                 anchors.left:       parent.left
-                anchors.topMargin:  parent.height * 0.05
+                anchors.topMargin:  parent.height * 0.06
                 anchors.leftMargin: parent.width * 0.05
             }
 
             Components.Switch {
                 id: _switch
 
-                color:      internals.showcaseColors.light
-                fill:       internals.showcaseColors.foreground
-                isSwitched: internals.colorsTheme == Colors.Dark
-
-                text: _switch.isSwitched ? "Dark" : "Light"
+                color: internals.showcaseColors.light
+                fill:  internals.showcaseColors.foreground
                 width: 60
+
+                labelText:    _switch.isSwitched ? "Dark" : "Light"
+
+                buttonHeight: 28
+
+                isSwitched:   internals.colorsTheme == Colors.Dark
 
                 anchors.top:         parent.top
                 anchors.right:       parent.right
-                anchors.topMargin:   parent.height * 0.05
+                anchors.topMargin:   parent.height * 0.03
                 anchors.rightMargin: parent.width * 0.05
 
                 onSwitch: function() {
@@ -261,9 +264,9 @@ Components.Page {
                 // Props
                 text:           firstName.text + "  " + lastName.text  
                 picture:        profilePicture
-                primaryColor:   _primaryColor.selectedColor
-                secondaryColor: _secondaryColor.selectedColor
-                hasShadow: true
+                primaryColor:   _primaryColor.picker.currentColor
+                secondaryColor: _secondaryColor.picker.currentColor
+                hasShadow:      true
             }
         }
     }

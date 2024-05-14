@@ -31,7 +31,7 @@ Rectangle {
         height: 42
         visible: leftButtonIcon != ""
 
-        backgroundColor: "#E5F2F1"
+        backgroundColor: Qt.lighter(internals.colors.foreground, 1.1)
         hasShadow:       true
 
         anchors.right:          _centerButton.left

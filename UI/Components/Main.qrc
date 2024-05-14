@@ -4,6 +4,7 @@
         <file>Button.qml</file>
         <file>ButtonUser.qml</file>
         <file>ColorPicker.qml</file>
+        <file>Dropdown.qml</file>
         <file>Footer.qml</file>
         <file>Header.qml</file>
         <file>Input.qml</file>
@@ -12,6 +13,7 @@
         <file>SquircleButton.qml</file>
         <file>SquircleContainer.qml</file>
         <file>Switch.qml</file>
+        <file>Text.qml</file>
 
         <file alias="ChartCircle.qml">Chart/Circle.qml</file>
     </qresource>

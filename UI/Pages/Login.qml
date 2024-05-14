@@ -23,11 +23,6 @@ Components.Page {
         stack.push("qrc:/Pages/UserCreate.qml");
     }
 
-    rightButtonIcon: "qrc:/Icons/Cog.svg"
-    rightButtonOnClick: function() {
-        console.log("Settings")
-    }
-
     ScrollView {
         width:  parent.width * 0.7
         height: parent.height

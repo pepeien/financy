@@ -189,12 +189,11 @@ Rectangle {
         }
 
         // Title
-        Text {
+        Components.Text {
             id:    titleText
             text:  title
             color: internals.colors.dark
 
-            font.family:    "Inter"
             font.pointSize: 40
             font.weight:    Font.DemiBold
 

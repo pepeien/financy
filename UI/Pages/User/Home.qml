@@ -22,11 +22,6 @@ Components.Page {
         console.log("center")
     }
 
-    rightButtonIcon:  "qrc:/Icons/Cog.svg"
-    rightButtonOnClick: function() {
-        console.log("Right")
-    }
-
     onReturn: function() {
         internals.logout();
     }
@@ -52,7 +47,7 @@ Components.Page {
 
             anchors.horizontalCenter: parent.horizontalCenter
 
-            Text {
+            Components.Text {
                 id:    _cardsTitle
                 text:  "Cards"
                 color: internals.colors.light
@@ -87,7 +82,7 @@ Components.Page {
             anchors.topMargin:        _root.innerPadding
             anchors.horizontalCenter: parent.horizontalCenter
 
-            Text {
+            Components.Text {
                 id:    _goalTitle
                 text:  "Goals"
                 color: internals.colors.light

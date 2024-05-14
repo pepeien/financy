@@ -112,18 +112,17 @@ Components.SquircleContainer {
         anchors.bottomMargin: -22.5
         anchors.rightMargin:  _lenghtMin.contentWidth + _lenghtMax.contentWidth - 10
 
-        Text {
+        Components.Text {
             id:           _lenghtMin
             text:         _input.text.length > root.minLength ? _input.text.length  : _input.text.length - root.minLength
             color:        _input.color
             antialiasing: true
 
-            font.family:    _input.font.family
             font.pointSize: 8
             font.weight:    Font.Bold
         }
 
-        Text {
+        Components.Text {
             id:           _lenghtMax
             text:         "/ " + root.maxLength
             color:        _lenghtMin.color

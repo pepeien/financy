@@ -145,8 +145,15 @@ namespace Financy
 
     void Internals::removeUser(std::uint32_t inId)
     {
+        int userCount = m_users.size();
+
         removeUserFromFile(  inId);
         removeUserFromMemory(inId);
+
+        if (userCount == m_users.size())
+        {
+            return;
+        }
 
         emit onUsersUpdate();
     }
@@ -189,8 +196,8 @@ namespace Financy
         case Colors::Theme::Dark:
             m_colors->setBackgroundColor("#0C1017");
             m_colors->setForegroundColor("#08374A");
-            m_colors->setLightColor("#006A74");
-            m_colors->setDarkColor("#049E84");
+            m_colors->setLightColor(     "#006A74");
+            m_colors->setDarkColor(      "#049E84");
 
             break;
 

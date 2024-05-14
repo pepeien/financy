@@ -44,7 +44,7 @@ Components.SquircleButton {
         anchors.fill: parent
     }
 
-    Text {
+    Components.Text {
         id:                  _name
         color:               _root.secondaryColor
         height:              _root.height
@@ -54,7 +54,6 @@ Components.SquircleButton {
         verticalAlignment:   Text.AlignVCenter
         clip: true
 
-        font.family:    "Inter"
         font.pointSize: 20
         font.weight:    Font.Bold
 

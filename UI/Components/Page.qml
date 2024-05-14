@@ -41,5 +41,10 @@ Item {
 
     Components.Footer {
         id: footer
+
+        rightButtonIcon: "qrc:/Icons/Cog.svg"
+        rightButtonOnClick: function() {
+            stack.push("qrc:/Pages/Settings.qml");
+        }
     }
 }

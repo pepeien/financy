@@ -2,25 +2,32 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic
 import Qt5Compat.GraphicalEffects
 
-Item {
-    property alias text: _label.text
+// Components
+import "qrc:/Components" as Components
 
-    property bool isSwitched
-    property string color:    internals.colors.light
-    property string fill:     internals.colors.foreground
+Item {
+    // Props
+    property alias labelText:    _label.text
+
+    property alias buttonHeight: _switch.height
+    property alias buttonWidth:  _switch.width
+
+    property bool isSwitched:   false
+    property string color:      internals.colors.light
+    property string fill:       internals.colors.foreground
 
     property var onSwitch
 
     id: _root
 
-    Text {
-        id:    _label
-        color: _root.color
-
-        font.family:    "Inter"           
+    Components.Text {
+        id:      _label
+        color:   _root.color
+        visible: text != ""
+        
         font.pointSize: 10
         font.weight:    Font.Bold
 
@@ -29,15 +36,17 @@ Item {
     }
 
     Button {
-        property int _radius: parent.width / 2
-
         id:      _switch
-        width:   parent.width
+        width:   _root.width
+        height:  20
         display: AbstractButton.IconOnly
 
+        readonly property int _radius: _switch.height / 2
+
         anchors.top:              _label.bottom
-        anchors.topMargin:        10
+        anchors.topMargin:        _label.visible ? 10 : 0
         anchors.horizontalCenter: parent.horizontalCenter
+        anchors.fill:             _label.visible ? undefined : parent
 
         layer.enabled: true
         layer.effect:  OpacityMask {
@@ -49,6 +58,10 @@ Item {
             }
         }
 
+        background: Rectangle {
+            color: "transparent"
+        }
+
         Rectangle {
             id:           _indicator
             radius:       _switch._radius
@@ -58,39 +71,26 @@ Item {
             anchors.fill: parent
 
             Rectangle {
+                property real _size:          _indicator.height * 0.78
+                property real _padding:       _indicator.height * 0.22
+                property real _startLocation: _padding
+                property real _finalLocation: _indicator.width - _size - _padding
+
                 id:           _icon
-                width:        parent.height
-                height:       parent.height
+                width:        _size
+                height:       _size
                 radius:       _switch._radius
-                antialiasing: true
                 color:        _root.color
-                
-                property real _startLocation: 0.5
-                property real _finalLocation: (parent.width - parent.height) - 0.5
+                antialiasing: true
 
-                x: _root.isSwitched ? _icon._finalLocation : _icon._startLocation
+                anchors.left:           parent.left
+                anchors.leftMargin:     _root.isSwitched ? _finalLocation : _startLocation
+                anchors.verticalCenter: parent.verticalCenter
 
-                states: [
-                    State {
-                        when: _root.isSwitched
-                        PropertyChanges {
-                            target: _icon
-                            x: _icon._finalLocation
-                        }
-                    },
-                    State {
-                        when: _root.isSwitched == false
-                        PropertyChanges {
-                            target: _icon
-                            x: _icon._startLocation
-                        }
-                    }
-                ]
-
-                transitions: Transition {
-                    NumberAnimation {
-                        property:    "x"
+                Behavior on anchors.leftMargin {
+                    PropertyAnimation {
                         easing.type: Easing.InOutQuad
+                        duration:    200
                     }
                 }
             }
