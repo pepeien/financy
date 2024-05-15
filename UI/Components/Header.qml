@@ -40,7 +40,7 @@ Rectangle {
 
             onLeave: function() {
                 color                  = "transparent";
-                closeIconOverlay.color = internals.colors.dark;
+                closeIconOverlay.color = internal.colors.dark;
             }
 
             Image {
@@ -57,7 +57,7 @@ Rectangle {
                 id:           closeIconOverlay
                 anchors.fill: closeIcon
                 source:       closeIcon
-                color:        internals.colors.dark
+                color:        internal.colors.dark
                 antialiasing: true
             }
         }
@@ -95,7 +95,7 @@ Rectangle {
             ColorOverlay {
                 anchors.fill: minimizeIcon
                 source:       minimizeIcon
-                color:        internals.colors.dark
+                color:        internal.colors.dark
                 antialiasing: true
             }
         }
@@ -150,7 +150,7 @@ Rectangle {
 
             // Props
             hasShadow:       true
-            backgroundColor: internals.colors.background
+            backgroundColor: internal.colors.background
 
             anchors.left:       parent.left
             anchors.leftMargin: 20
@@ -183,7 +183,7 @@ Rectangle {
             ColorOverlay {
                 anchors.fill: icon
                 source:       icon
-                color:        internals.colors.light
+                color:        internal.colors.light
                 antialiasing: true
             }
         }
@@ -192,7 +192,7 @@ Rectangle {
         Components.Text {
             id:    titleText
             text:  title
-            color: internals.colors.dark
+            color: internal.colors.dark
 
             font.pointSize: 40
             font.weight:    Font.DemiBold

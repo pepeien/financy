@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QtCore>
-#include <QImage>
 #include <QObject>
+#include <QImage>
 
 namespace Financy
 {

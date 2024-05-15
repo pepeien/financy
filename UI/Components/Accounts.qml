@@ -157,7 +157,7 @@ ScrollView {
                     id:              _chart
                     size:            60
                     colorCircle:     _item.secondaryColor
-                    colorBackground: internals.colors.foreground
+                    colorBackground: internal.colors.foreground
                     arcBegin:        0
                     arcEnd:          360 * _ultilization
                     lineWidth:       6

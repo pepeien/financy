@@ -16,8 +16,8 @@ Item {
     property alias buttonWidth:  _switch.width
 
     property bool isSwitched:   false
-    property string color:      internals.colors.light
-    property string fill:       internals.colors.foreground
+    property string color:      internal.colors.light
+    property string fill:       internal.colors.foreground
 
     property var onSwitch
 

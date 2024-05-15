@@ -13,8 +13,8 @@ Components.SquircleButton {
 
     property url picture: "qrc:/Icons/Profile.svg"
 
-    property string primaryColor:   internals.colors.dark
-    property string secondaryColor: internals.colors.foreground
+    property string primaryColor:   internal.colors.dark
+    property string secondaryColor: internal.colors.foreground
 
     id:     _root
     width:  parent.width

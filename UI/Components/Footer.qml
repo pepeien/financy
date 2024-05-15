@@ -31,7 +31,7 @@ Rectangle {
         height: 42
         visible: leftButtonIcon != ""
 
-        backgroundColor: Qt.lighter(internals.colors.foreground, 1.1)
+        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
         hasShadow:       true
 
         anchors.right:          _centerButton.left
@@ -52,7 +52,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _leftButtonIcon
             source:       _leftButtonIcon
-            color:        internals.colors.light
+            color:        internal.colors.light
             antialiasing: true
         }
     }
@@ -83,7 +83,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _centerButtonIcon
             source:       _centerButtonIcon
-            color:        internals.colors.light
+            color:        internal.colors.light
             antialiasing: true
         }
     }
@@ -115,7 +115,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _rightButtonIcon
             source:       _rightButtonIcon
-            color:        internals.colors.light
+            color:        internal.colors.light
             antialiasing: true
         }
     }

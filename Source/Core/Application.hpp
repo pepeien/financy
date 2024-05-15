@@ -6,7 +6,6 @@
 #include <QtQml>
 
 #include "UI/Colors.hpp"
-#include "UI/Internals.hpp"
 #include "UI/User.hpp"
 
 namespace Financy

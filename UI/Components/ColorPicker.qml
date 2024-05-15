@@ -9,15 +9,15 @@ import "qrc:/Components" as Components
 
 Item {
     // Props In
-    property var startColor: "white"
-    property alias label:    _label.text
+    property alias color: _dialog.currentColor
+    property alias label: _label.text
 
     // Props Out
     readonly property alias picker: _dialog
 
     Components.Text {
         id:    _label
-        color: internals.colors.dark
+        color: internal.colors.dark
         
         font.pointSize: 10
         font.weight:    Font.DemiBold
@@ -42,7 +42,8 @@ Item {
         ColorDialog {
             id: _dialog
 
-            currentColor: startColor
+            color:        color
+            currentColor: color
         }
     }
 }

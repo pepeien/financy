@@ -20,7 +20,7 @@ Components.Page {
 
     centerButtonIcon: "qrc:/Icons/Plus.svg"
     centerButtonOnClick: function() {
-        var user = internals.addUser(
+        var user = internal.addUser(
             firstName.text,
             lastName.text,
             profilePicture,
@@ -46,7 +46,7 @@ Components.Page {
             id:              picture
             width:           256
             height:          256
-            backgroundColor: internals.colors.foreground
+            backgroundColor: internal.colors.foreground
 
             anchors.horizontalCenter: parent.horizontalCenter
 
@@ -61,7 +61,7 @@ Components.Page {
             }
 
             onClick: function() {
-                var result = internals.openFileDialog(
+                var result = internal.openFileDialog(
                     "Select Profile Picture",
                     "jpg;jpeg;png"
                 );
@@ -74,10 +74,10 @@ Components.Page {
                 _root.wasPictureSelected = true;
                 _root.profilePicture     = result;
 
-                var colors = internals.getUserColorsFromImage(result);
+                var colors = internal.getUserColorsFromImage(result);
 
-                _primaryColor.selectedColor   = colors[0];
-                _secondaryColor.selectedColor = colors[1];
+                _primaryColor.color   = colors[0];
+                _secondaryColor.color = colors[1];
             }
 
             Image {
@@ -97,7 +97,7 @@ Components.Page {
                 id: iconMask
                 anchors.fill: icon
                 source: icon
-                color: internals.colors.dark
+                color: internal.colors.dark
                 antialiasing: true
                 visible: !wasPictureSelected
             }
@@ -106,7 +106,7 @@ Components.Page {
                 id:     plusContainer
                 width:  parent.width
                 height: 60
-                color:  internals.colors.dark
+                color:  internal.colors.dark
 
                 bottomLeftRadius:  15
                 bottomRightRadius: 15
@@ -128,7 +128,7 @@ Components.Page {
                 ColorOverlay {
                     anchors.fill: plusIcon
                     source:       plusIcon
-                    color:        internals.colors.background
+                    color:        internal.colors.background
                     antialiasing: true
                 }
             }
@@ -139,7 +139,7 @@ Components.Page {
             width: picture.width * 1.25
 
             label:     "First name"
-            color:     internals.colors.dark
+            color:     internal.colors.dark
             minLength: 2
             maxLength: 20
 
@@ -155,7 +155,7 @@ Components.Page {
             width: firstName.width
 
             label:     "Last name"
-            color:     internals.colors.dark
+            color:     internal.colors.dark
             minLength: 2
             maxLength: 20
 
@@ -173,22 +173,22 @@ Components.Page {
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.ColorPicker {
-                id:           _primaryColor
-                width:        (parent.width / 2) - 15
-                height:       60
-                startColor:   internals.colors.foreground
-                label:        "Primary Color"
+                id:     _primaryColor
+                width:  (parent.width / 2) - 15
+                height: 60
+                color:  internal.colors.foreground
+                label:  "Primary Color"
 
                 anchors.left:           parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             Components.ColorPicker {
-                id:           _secondaryColor
-                width:        _primaryColor.width
-                height:       _primaryColor.height
-                startColor:   internals.colors.dark
-                label:        "Secondary Color"
+                id:     _secondaryColor
+                width:  _primaryColor.width
+                height: _primaryColor.height
+                color:  internal.colors.dark
+                label:  "Secondary Color"
 
                 anchors.left:           _primaryColor.right
                 anchors.leftMargin:     30
@@ -209,7 +209,7 @@ Components.Page {
             id:               _secondPreviewButton
             width:            parent.width * 0.9
             height:           parent.height
-            backgroundColor:  internals.showcaseColors.background
+            backgroundColor:  internal.showcaseColors.background
             hasShadow:        true
 
             anchors.top:              parent.top
@@ -218,7 +218,7 @@ Components.Page {
             Components.Text {
                 id:    _secondPreviewTitle
                 text:  "Preview"
-                color: internals.showcaseColors.light
+                color: internal.showcaseColors.light
 
                 font.family:    "Inter"           
                 font.pointSize: 25
@@ -233,15 +233,15 @@ Components.Page {
             Components.Switch {
                 id: _switch
 
-                color: internals.showcaseColors.light
-                fill:  internals.showcaseColors.foreground
+                color: internal.showcaseColors.light
+                fill:  internal.showcaseColors.foreground
                 width: 60
 
                 labelText:    _switch.isSwitched ? "Dark" : "Light"
 
                 buttonHeight: 28
 
-                isSwitched:   internals.colorsTheme == Colors.Dark
+                isSwitched:   internal.colorsTheme == Colors.Dark
 
                 anchors.top:         parent.top
                 anchors.right:       parent.right
@@ -249,14 +249,15 @@ Components.Page {
                 anchors.rightMargin: parent.width * 0.05
 
                 onSwitch: function() {
-                    internals.updateShowcaseTheme(
+                    internal.updateShowcaseTheme(
                         _switch.isSwitched ? Colors.Dark : Colors.Light
                     );
                 }
             }
 
             Components.ButtonUser {
-                width:  parent.width * 0.9
+                id:    _previewButton
+                width: parent.width * 0.9
 
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter:   parent.verticalCenter

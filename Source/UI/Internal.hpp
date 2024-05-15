@@ -8,7 +8,7 @@
 
 namespace Financy
 {
-    class Internals : public QObject
+    class Internal : public QObject
     {
         Q_OBJECT
 
@@ -47,8 +47,8 @@ namespace Financy
         )
 
     public:
-        Internals(QObject* parent = nullptr);
-        ~Internals();
+        Internal(QObject* parent = nullptr);
+        ~Internal();
 
     public slots:
         // Utils
@@ -73,7 +73,7 @@ namespace Financy
         // Theme
         void updateTheme(Colors::Theme inTheme);
         void updateShowcaseTheme(Colors::Theme inTheme);
-    
+
     signals:
         void onThemeUpdate();
         void onShowcaseThemeUpdate();
@@ -82,23 +82,35 @@ namespace Financy
         void onUsersUpdate();
 
     private:
-        void setupUsers();
+        // User
+        void loadUsers();
         void writeUser(User* inUser);
         void removeUserFromFile(std::uint32_t inId);
         void removeUserFromMemory(std::uint32_t inId);
 
+        // Settings
+        void loadSettings();
+        void writeSettings();
+
+        // Theme
+        void reloadTheme();
+        void reloadShowcaseTheme();
+
     private:
         // consts
-        std::string USER_FILE_NAME = "Users.json";
+        std::string USER_FILE_NAME     = "Users.json";
+        std::string SETTINGS_FILE_NAME = "Settings.json";
 
-        // Colors
+        // Settings
         Colors::Theme m_colorsTheme;
+
+        // Theme
         Colors* m_colors;
 
         Colors::Theme m_showcaseColorsTheme;
         Colors* m_showcaseColors;
 
-        // Data
+        // User
         User* m_selectedUser;
         QList<User*> m_users;
     };

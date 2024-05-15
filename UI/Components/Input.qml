@@ -26,7 +26,7 @@ Components.SquircleContainer {
     id: root
     height:          60
     width:           120
-    backgroundColor: internals.colors.foreground
+    backgroundColor: internal.colors.foreground
 
     Rectangle {
         id:     _inputContainer

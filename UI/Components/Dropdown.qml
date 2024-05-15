@@ -26,7 +26,7 @@ ComboBox {
 
         contentItem: Components.Text {
             text:              delegate.model[control.textRole]
-            color:             internals.colors.dark
+            color:             internal.colors.dark
             font:              control.font
             verticalAlignment: Text.AlignVCenter
         }
@@ -65,7 +65,7 @@ ComboBox {
 
             context.closePath();
     
-            context.fillStyle = internals.colors.dark
+            context.fillStyle = internal.colors.dark
 
             context.fill();
         }
@@ -77,13 +77,13 @@ ComboBox {
 
         text:              control.displayText
         font:              control.font
-        color:             internals.colors.dark
+        color:             internal.colors.dark
         verticalAlignment: Text.AlignVCenter
         elide:             Text.ElideRight
     }
 
     background: Rectangle {
-        color:          internals.colors.background
+        color:          internal.colors.background
         implicitWidth:  control.itemWidth
         implicitHeight: control.itemHeight
         border.color:   "transparent"
@@ -128,7 +128,7 @@ ComboBox {
         }
 
         background: Components.SquircleContainer {
-            backgroundColor: internals.colors.background
+            backgroundColor: internal.colors.background
             backgroundRadius: 0
             hasShadow: true
 

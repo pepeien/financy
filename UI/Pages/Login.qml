@@ -36,14 +36,14 @@ Components.Page {
 
             anchors.fill: parent
 
-            model:    internals.users
+            model:    internal.users
             delegate: Components.ButtonUser {
                 width: parent.width * 0.8
 
-                property var user: internals.users[index]
+                property var user: internal.users[index]
 
                 onClick: function() {
-                    internals.login(user);
+                    internal.login(user);
     
                     stack.push("qrc:/Pages/UserHome.qml")
                 }
@@ -76,7 +76,7 @@ Components.Page {
 
                     backgroundColor: "#F2665A"
                     onClick: function() {
-                        internals.removeUser(user.id);
+                        internal.removeUser(user.id);
                     }
 
                     Image {

@@ -10,7 +10,7 @@ import "qrc:/Components" as Components
 
 Components.Page {
     id:    _root
-    title: internals.selectedUser ? internals.selectedUser.getFullName() : ""
+    title: internal.selectedUser ? internal.selectedUser.getFullName() : ""
 
     leftButtonIcon:   "qrc:/Icons/Profile.svg"
     leftButtonOnClick: function() {
@@ -23,7 +23,7 @@ Components.Page {
     }
 
     onReturn: function() {
-        internals.logout();
+        internal.logout();
     }
 
     readonly property real padding:      80
@@ -42,7 +42,7 @@ Components.Page {
             width:  parent.width
             height: (parent.height * 0.5) - (_root.innerPadding * 0.5)
 
-            backgroundColor: Qt.lighter(internals.colors.background, 0.965)
+            backgroundColor: Qt.lighter(internal.colors.background, 0.965)
             hasShadow:       true
 
             anchors.horizontalCenter: parent.horizontalCenter
@@ -50,7 +50,7 @@ Components.Page {
             Components.Text {
                 id:    _cardsTitle
                 text:  "Cards"
-                color: internals.colors.light
+                color: internal.colors.light
 
                 font.family:    "Inter"
                 font.pointSize: 25
@@ -63,7 +63,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internals.selectedUser?.cards ?? []
+                model: internal.selectedUser?.cards ?? []
 
                 anchors.top:              _cardsTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -85,7 +85,7 @@ Components.Page {
             Components.Text {
                 id:    _goalTitle
                 text:  "Goals"
-                color: internals.colors.light
+                color: internal.colors.light
 
                 font.family:    "Inter"
                 font.pointSize: 25
@@ -98,7 +98,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internals.selectedUser?.goals ?? []
+                model: internal.selectedUser?.goals ?? []
 
                 anchors.top:              _goalTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter

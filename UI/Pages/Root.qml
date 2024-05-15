@@ -11,7 +11,7 @@ Item {
     Rectangle {
         id:           mask
         radius:       4
-        color:        internals.colors.background
+        color:        internal.colors.background
         anchors.fill: parent
 
         Behavior on color {

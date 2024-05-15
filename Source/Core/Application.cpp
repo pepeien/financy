@@ -2,6 +2,8 @@
 
 #include "FileSystem.hpp"
 
+#include "UI/Internal.hpp"
+
 namespace Financy
 {
     Application::Application()
@@ -34,10 +36,10 @@ namespace Financy
         QQmlContext* content = viewer.rootContext();
 
         // Internals
-        std::unique_ptr<Internals> m_internals = std::make_unique<Internals>();
+        std::unique_ptr<Internal> m_internal = std::make_unique<Internal>();
         content->setContextProperty(
-            "internals",
-            m_internals.release()
+            "internal",
+            m_internal.release()
         );
 
         viewer.setSource(QUrl("qrc:/Pages/Root.qml"));

@@ -23,12 +23,12 @@ Components.Page {
 
         anchors.horizontalCenter: parent.horizontalCenter
 
-        backgroundColor: internals.colors.background
+        backgroundColor: internal.colors.background
         hasShadow:       true
 
         Components.Text {
             text:  "Theme"
-            color: internals.colors.dark
+            color: internal.colors.dark
 
             font.pointSize: 16
             font.weight:    Font.Bold
@@ -41,7 +41,7 @@ Components.Page {
         Rectangle {
             width:  1
             height: parent.height - (_theme._padding * 1.5)
-            color:  internals.colors.light
+            color:  internal.colors.light
 
             anchors.right:          _switch.left
             anchors.rightMargin:    10
@@ -64,12 +64,12 @@ Components.Page {
             anchors.rightMargin:    _theme._padding
             anchors.verticalCenter: parent.verticalCenter
 
-            color:      internals.colors.background
-            fill:       internals.colors.light
-            isSwitched: internals.colorsTheme == Colors.Dark
+            color:      internal.colors.background
+            fill:       internal.colors.light
+            isSwitched: internal.colorsTheme == Colors.Dark
 
             onSwitch: function() {
-                internals.updateTheme(internals.colorsTheme == Colors.Dark ? Colors.Light : Colors.Dark);
+                internal.updateTheme(internal.colorsTheme == Colors.Dark ? Colors.Light : Colors.Dark);
             }
         }
     }
