@@ -91,16 +91,21 @@ set_target_properties(
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Debug"
 
-    RUNTIME_OUTPUT_DIRECTORY
-    "${BUILD_DIR}"
-
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}"
-
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}/Release"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}/Release"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Release"
+
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Debug"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Debug"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Debug"
 )
 
 ##############  Set compiler  #######################
@@ -129,3 +134,17 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
         )
     endif()
 endif()
+
+add_custom_command(
+    TARGET 
+        ${NAME}
+    POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:Qt6::Charts>
+            $<TARGET_FILE:Qt6::Core>
+            $<TARGET_FILE:Qt6::Gui>
+            $<TARGET_FILE:Qt6::Qml>
+            $<TARGET_FILE:Qt6::Quick>
+            $<TARGET_FILE_DIR:${NAME}>
+)

@@ -10,7 +10,7 @@ do
    export "$KEY"="$VALUE"
 done
 
-cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G "$G" \
+cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G "$generator" \
 -DBUILD_WITH_STATIC_CRT=OFF \
 -DBUILD_IPP_IW=OFF \
 -DBUILD_ITT=OFF \
@@ -46,4 +46,4 @@ cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G "$G" \
 -DWITH_VTK=OFF \
 -DWITH_WIN32UI=OFF
 
-cmake --build "../Vendors/opencv/build" --config Release --target install
+cmake --build "../Vendors/opencv/build" --config "$config" --target install
