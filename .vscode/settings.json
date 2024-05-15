@@ -109,6 +109,7 @@
         "ranges": "cpp",
         "valarray": "cpp",
         "filesystem": "cpp",
-        "qtdebug": "cpp"
+        "qtdebug": "cpp",
+        "qmetatype": "cpp"
     }
 }

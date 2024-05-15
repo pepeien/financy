@@ -1,6 +1,4 @@
-@echo off
-
-cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %1% ^
+cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G $1 ^
 -DBUILD_WITH_STATIC_CRT=OFF ^
 -DBUILD_IPP_IW=OFF ^
 -DBUILD_ITT=OFF ^
@@ -37,5 +35,3 @@ cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %1% ^
 -DWITH_WIN32UI=OFF
 
 cmake --build "../Vendors/opencv/build" --config Release --target install
-
-@echo on

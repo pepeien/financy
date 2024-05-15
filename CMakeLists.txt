@@ -36,16 +36,19 @@ file(
     ${UI_DIR}/*.qrc
 )
 
-############## Setup Libs  #######################
-set(CMAKE_PREFIX_PATH ${QT_PATH})
+############## Setup Libs #######################
+list(APPEND CMAKE_PREFIX_PATH ${QT_PATH})
+list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
 
 set(CMAKE_AUTORCC ON)
 
 set(SKIP_AUTOMOC TRUE)
 set(SKIP_AUTOUIC TRUE) 
 
-# Qt6
-find_package(Qt6 COMPONENTS Charts Core Gui Qml Quick)
+set(OpenCV_DIR "${VENDOR_DIR}/opencv/build/lib")
+
+find_package(Qt6    REQUIRED COMPONENTS Charts Core Gui Qml Quick)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 
 qt_standard_project_setup()
 qt_add_executable(
@@ -54,13 +57,6 @@ qt_add_executable(
     ${SOURCES}
     ${UI_SOURCES}
 )
-
-# OpenCV
-
-set(OpenCV_DIR "${VENDOR_DIR}/opencv/build/x64/mingw/lib")
-list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
-
-find_package(OpenCV REQUIRED core imgproc highgui)
 
 target_include_directories(
     ${NAME}
