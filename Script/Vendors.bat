@@ -1,6 +1,10 @@
 @echo off
+setlocal
 
-cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %1% ^
+set "params=%*"
+set "%params: =" & set "%"
+
+cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %G% ^
 -DBUILD_WITH_STATIC_CRT=OFF ^
 -DBUILD_IPP_IW=OFF ^
 -DBUILD_ITT=OFF ^
