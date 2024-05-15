@@ -190,7 +190,12 @@ namespace Financy
     {
         m_colorsTheme = inTheme;
 
+        writeSettings();
+
         reloadTheme();
+        onThemeUpdate();
+
+        updateShowcaseTheme(m_colorsTheme);
     }
 
     void Internal::updateShowcaseTheme(Colors::Theme inTheme)
@@ -198,6 +203,7 @@ namespace Financy
         m_showcaseColorsTheme = inTheme;
 
         reloadShowcaseTheme();
+        onShowcaseThemeUpdate();
     }
 
     void Internal::loadUsers()
@@ -308,6 +314,8 @@ namespace Financy
     {
         if (!FileSystem::doesFileExist(SETTINGS_FILE_NAME))
         {
+            updateTheme(m_colorsTheme);
+
             return;
         }
 
@@ -353,12 +361,6 @@ namespace Financy
 
             break;
         }
-
-        writeSettings();
-
-        onThemeUpdate();
-
-        updateShowcaseTheme(m_colorsTheme);
     }
 
     void Internal::reloadShowcaseTheme()
@@ -382,7 +384,5 @@ namespace Financy
 
             break;
         }
-
-        onShowcaseThemeUpdate();
     }
 }
