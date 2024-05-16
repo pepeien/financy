@@ -37,7 +37,7 @@ file(
 )
 
 ############## Setup Libs #######################
-list(APPEND CMAKE_PREFIX_PATH ${QT_PATH})
+list(APPEND CMAKE_PREFIX_PATH "${QT_PATH}/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
 
 set(CMAKE_AUTORCC ON)
@@ -134,17 +134,3 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
         )
     endif()
 endif()
-
-add_custom_command(
-    TARGET 
-        ${NAME}
-    POST_BUILD
-    COMMAND
-        ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:Qt6::Charts>
-            $<TARGET_FILE:Qt6::Core>
-            $<TARGET_FILE:Qt6::Gui>
-            $<TARGET_FILE:Qt6::Qml>
-            $<TARGET_FILE:Qt6::Quick>
-            $<TARGET_FILE_DIR:${NAME}>
-)
