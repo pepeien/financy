@@ -38,7 +38,8 @@ Components.Page {
 
             model:    internal.users
             delegate: Components.ButtonUser {
-                width: parent.width * 0.8
+                width:        parent.width * 0.8
+                contentWidth: (parent.width * 0.87) - _delete.width
 
                 property var user: internal.users[index]
 

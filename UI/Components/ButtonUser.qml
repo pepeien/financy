@@ -16,9 +16,12 @@ Components.SquircleButton {
     property string primaryColor:   internal.colors.dark
     property string secondaryColor: internal.colors.foreground
 
+    property real contentWidth: parent.width
+
     id:     _root
     width:  parent.width
     height: 90
+    clip:   true
 
     backgroundColor: primaryColor
 
@@ -48,7 +51,7 @@ Components.SquircleButton {
         id:                  _name
         color:               _root.secondaryColor
         height:              _root.height
-        width:               _delete ? _root.width - 120 - _delete.width : _root.width - 120
+        width:               _root.contentWidth - 170
         leftPadding:         -60
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment:   Text.AlignVCenter
