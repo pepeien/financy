@@ -28,6 +28,17 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
     }
 
+    Timer {
+        id: timer
+    }
+
+    function setTimeout(cb, delayTime) {
+        timer.interval = delayTime;
+        timer.repeat = false;
+        timer.triggered.connect(cb);
+        timer.start();
+    }
+
     Components.SquircleButton {
         id:              _button
         width:           parent.width
@@ -43,6 +54,16 @@ Item {
 
         ColorDialog {
             id: _dialog
+
+            Component.onCompleted: function() {
+                // This mfer won't accept / signal start colors if didn't open beforehand
+                // Freaking JS (╬ Ò﹏Ó)
+                _dialog.open();
+
+                setTimeout(() => {
+                    _dialog.close();
+                }, 0);
+            }
 
             color:        _root.color
             currentColor: _root.color
