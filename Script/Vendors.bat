@@ -4,7 +4,7 @@ setlocal
 set "params=%*"
 set "%params: =" & set "%"
 
-cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %generator% ^
+cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %1% ^
 -DBUILD_WITH_STATIC_CRT=OFF ^
 -DBUILD_IPP_IW=OFF ^
 -DBUILD_ITT=OFF ^
@@ -40,6 +40,6 @@ cmake "../Vendors/opencv" -B "../Vendors/opencv/build" -G %generator% ^
 -DWITH_VTK=OFF ^
 -DWITH_WIN32UI=OFF
 
-cmake --build "../Vendors/opencv/build" --config "%config%" --target install
+cmake --build "../Vendors/opencv/build" --config "%2%" --target install
 
 @echo on

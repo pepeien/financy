@@ -7,5 +7,5 @@ import QtQuick
 import "qrc:/Components" as Components
 
 Components.Page {
-    title: "Edit User"
+    title: "Edit"
 }

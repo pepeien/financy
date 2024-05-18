@@ -14,7 +14,7 @@ Components.Page {
 
     leftButtonIcon:   "qrc:/Icons/Profile.svg"
     leftButtonOnClick: function() {
-        console.log("left")
+        stack.push("qrc:/Pages/UserEdit.qml");
     }
 
     centerButtonIcon: "qrc:/Icons/Plus.svg"
