@@ -23,7 +23,8 @@ namespace Financy
     Internal::Internal(QObject* parent)
         : QObject(parent),
         m_colors(new Colors(parent)),
-        m_showcaseColors(new Colors(parent))
+        m_showcaseColors(new Colors(parent)),
+        m_selectedUser(nullptr)
     {
         loadSettings();
         loadUsers();
@@ -142,6 +143,71 @@ namespace Financy
         return user;
     }
 
+    void Internal::editUser(
+        std::uint32_t inId,
+        const QString& inFirstName,
+        const QString& inLastName,
+        const QUrl& inPicture,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (!FileSystem::doesFileExist(USER_FILE_NAME))
+        {
+            return;
+        }
+
+        if (!m_selectedUser)
+        {
+            return;
+        }
+    
+        int index = -1;
+
+        nlohmann::json users = nlohmann::json::parse(std::ifstream(USER_FILE_NAME));
+
+        if (!users.is_array())
+        {
+            return;
+        }
+
+        nlohmann::json updatedUsers = nlohmann::json::array();
+
+        m_selectedUser->edit(
+            inFirstName,
+            inLastName,
+            inPicture,
+            inPrimaryColor,
+            inSecondaryColor
+        );
+
+        for (auto& [key, user] : users.items())
+        {
+            if (user.find("id") == user.end() || !user.at("id").is_number_unsigned())
+            {
+                continue;
+            }
+
+            if ((int) user.at("id") != inId)
+            {
+                updatedUsers.push_back(user);
+
+                continue;
+            }
+
+            updatedUsers.push_back(m_selectedUser->toJSON());
+
+            break;
+        }
+
+        // Write
+        std::ofstream stream(USER_FILE_NAME);
+        stream << std::setw(4) << updatedUsers << std::endl;
+
+        onSelectUserUpdate();
+        onUsersUpdate();
+    }
+
     void Internal::removeUser(std::uint32_t inId)
     {
         int userCount = m_users.size();
@@ -231,20 +297,11 @@ namespace Financy
 
     void Internal::writeUser(User* inUser)
     {
-        nlohmann::json user = {
-            { "id", inUser->getId() },
-            { "firstName", inUser->getFirstName().toStdString() },
-            { "lastName", inUser->getLastName().toStdString() },
-            { "picture", inUser->getPicture().toStdString() },
-            { "primaryColor", inUser->getPrimaryColor().name().toStdString() },
-            { "secondaryColor", inUser->getSecondaryColor().name().toStdString()  }
-        };
-
         std::ifstream file(USER_FILE_NAME);
         nlohmann::json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
             nlohmann::json::parse(file):
             nlohmann::json::array();
-        users.push_back(user);
+        users.push_back(inUser->toJSON());
 
         // Write
         std::ofstream stream(USER_FILE_NAME);

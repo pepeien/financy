@@ -4,7 +4,7 @@
 import QtQuick
 
 // Types
-import Financy.Colors 1.0
+import Financy.Types 1.0
 
 // Components
 import "qrc:/Components" as Components

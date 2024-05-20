@@ -107,6 +107,18 @@ namespace Financy
         }
     }
 
+    nlohmann::json User::toJSON()
+    {
+        return {
+            { "id",             m_id },
+            { "firstName",      m_firstName.toStdString() },
+            { "lastName",       m_lastName.toStdString() },
+            { "picture",        m_picture.toStdString() },
+            { "primaryColor",   m_primaryColor.name().toStdString() },
+            { "secondaryColor", m_secondaryColor.name().toStdString() }
+        };
+    }
+
     QString User::getFullName()
     {
         return m_firstName + " " + m_lastName;
@@ -159,37 +171,14 @@ namespace Financy
 
     void User::setPicture(const QUrl& inUrl)
     {
-        if (inUrl.isEmpty())
+        QString image = formatPicture(inUrl);
+
+        if (image.isEmpty())
         {
             return;
         }
 
-        if (inUrl.toString().toStdString().find("qrc://") != std::string::npos)
-        {
-            return;
-        }
-
-        std::vector<std::string> splittedUrl = Helper::splitString(
-            inUrl.toString().toStdString(),
-            "file:///"
-        );
-
-        std::string filePath = splittedUrl[splittedUrl.size() - 1];
-        std::vector<std::string> splittedFilepath = Helper::splitString(
-            filePath,
-            "."
-        );
-
-        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
-
-        std::vector<char> raw = FileSystem::readFile(filePath);
-        std::string sRaw(raw.begin(), raw.end());
-
-        setPicture(
-            QString::fromLatin1(
-                "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
-            )
-        );
+        setPicture(image);
     }
 
     void User::setPicture(const QString& inPicture)
@@ -235,5 +224,76 @@ namespace Financy
     void User::setGoals(const QList<Account*>& inGoals)
     {
         m_goals = inGoals;
+    }
+
+    void User::edit(
+        const QString& inFirstName,
+        const QString& inLastName,
+        const QUrl& inPicture,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (m_firstName.compare(inFirstName) != 0)
+        {
+            m_firstName = inFirstName;
+        }
+
+        if (m_lastName.compare(inLastName) != 0)
+        {
+            m_lastName = inLastName;
+        }
+
+        if (m_picture.compare(inPicture.toString()) != 0)
+        {
+            QString picture = formatPicture(inPicture);
+
+            if (picture.isEmpty())
+            {
+                return;
+            }
+
+            m_picture = picture;
+        }
+
+        if (m_primaryColor.name().compare(inPrimaryColor.name()) != 0)
+        {
+            m_primaryColor = inPrimaryColor;
+        }
+
+        if (m_secondaryColor.name().compare(inSecondaryColor.name()) != 0)
+        {
+            m_secondaryColor = inSecondaryColor;
+        }
+
+        onEdit();
+    }
+
+    QString User::formatPicture(const QUrl& inUrl)
+    {
+        if (inUrl.toString().toStdString().find("qrc://") != std::string::npos)
+        {
+            return "";
+        }
+
+        std::vector<std::string> splittedUrl = Helper::splitString(
+            inUrl.toString().toStdString(),
+            "file:///"
+        );
+
+        std::string filePath = splittedUrl[splittedUrl.size() - 1];
+        std::vector<std::string> splittedFilepath = Helper::splitString(
+            filePath,
+            "."
+        );
+
+        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
+
+        std::vector<char> raw = FileSystem::readFile(filePath);
+        std::string sRaw(raw.begin(), raw.end());
+
+        return QString::fromLatin1(
+            "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
+        );
     }
 }

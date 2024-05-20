@@ -74,6 +74,7 @@ namespace Financy
 
     public:
         void fromJSON(const nlohmann::json& inData);
+        nlohmann::json toJSON();
 
     public:
         uint32_t getId();
@@ -100,6 +101,17 @@ namespace Financy
         
         QList<Account*> getGoals();
         void setGoals(const QList<Account*>& inGoals);
+
+        void edit(
+            const QString& inFirstName,
+            const QString& inLastName,
+            const QUrl& inPicture,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+
+    private:
+        QString formatPicture(const QUrl& inUrl);
 
     private:
         uint32_t m_id;

@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtCharts
 import Qt5Compat.GraphicalEffects
 
 // Components
@@ -59,7 +60,7 @@ Components.Page {
                 anchors.top:        parent.top
                 anchors.left:       parent.left
                 anchors.topMargin:  15
-                anchors.leftMargin: 35
+                anchors.leftMargin: 25
             }
 
             Components.Accounts {
@@ -94,7 +95,7 @@ Components.Page {
                 anchors.top:        parent.top
                 anchors.left:       parent.left
                 anchors.topMargin:  15
-                anchors.leftMargin: 35
+                anchors.leftMargin: 25
             }
 
             Components.Accounts {
@@ -107,7 +108,7 @@ Components.Page {
     }
 
     Item {
-        id:     _general
+        id:     _overview
         width:  _selector.width
         height: _selector.height
 
@@ -120,6 +121,74 @@ Components.Page {
 
             anchors.fill: parent
             anchors.horizontalCenter: parent.horizontalCenter
+
+            Components.Text {
+                id:    _overviewTitle
+                text:  "Overview"
+                color: internal.colors.light
+
+                font.family:    "Inter"
+                font.pointSize: 25
+                font.weight:    Font.DemiBold
+
+                anchors.top:        parent.top
+                anchors.left:       parent.left
+                anchors.topMargin:  15
+                anchors.leftMargin: 25
+            }
+
+            ChartView {
+                id:           _overviewChart
+                height:       parent.height - _overviewTitle.height
+                width:        parent.width - _overviewTitle.height
+                antialiasing: true
+                visible:      internal.selectedUser?.cards.length > 0
+
+                backgroundColor:  "transparent"
+                plotAreaColor:    _cards.backgroundColor
+                animationOptions: ChartView.SeriesAnimations
+
+                legend.visible:        true
+                legend.markerShape:    Legend.MarkerShapeCircle
+                legend.color:          internal.colors.dark
+                legend.font.family:    "Inter"
+                legend.font.pointSize: 12
+                legend.font.weight:    Font.Normal
+
+                anchors.top:              _overviewTitle.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Component.onCompleted: function() {
+                    const expensesMap = {};
+
+                    internal.selectedUser.cards.forEach((card) => {
+                        card.purchases.forEach((purchase) => {
+                            const key = purchase.getTypeName();
+
+                            if (expensesMap[key]) {
+                                expensesMap[key] += purchase.getInstallmentValue();
+
+                                return;
+                            }
+
+                            expensesMap[key] = purchase.getInstallmentValue();
+                        });
+                    });
+
+                    for (const [key, value] of Object.entries(expensesMap)) {
+                        _overviewChartPie.append(
+                            key,
+                            value
+                        );
+                    }
+                }
+
+                PieSeries {
+                    id:       _overviewChartPie
+                    size:     1
+                    holeSize: 0.7
+                }
+            }
         }
     }
 }

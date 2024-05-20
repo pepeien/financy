@@ -38,10 +38,22 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
-            bool bIsSubscription
-            MEMBER m_bIsSubscription
+            Type type
+            MEMBER m_type
             NOTIFY onEdit
         )
+
+    // Types
+    public:
+        enum class Type
+        {
+            Utility       = 0, // Light, Water, Internet, Gas, School bills
+            Subscription  = 1,
+            Travel        = 2,
+            Debt          = 3,
+            Other         = 4
+        };
+        Q_ENUM(Type)
 
     signals:
         void onEdit();
@@ -54,6 +66,8 @@ namespace Financy
 
     public slots:
         float getInstallmentValue();
+
+        QString getTypeName();
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -74,8 +88,8 @@ namespace Financy
         int getInstallments();
         void setInstallments(int inInstallments);
 
-        bool isSubscription();
-        void setIsSubscription(bool inIsSubscription);
+        Type getType();
+        void setType(Type inType);
 
     private:
         QString m_name;
@@ -85,6 +99,6 @@ namespace Financy
         float m_value;
         int m_installments;
 
-        bool m_bIsSubscription;
+        Type m_type;
     };
 }

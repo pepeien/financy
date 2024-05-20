@@ -1,19 +1,47 @@
 #include "Purchase.hpp"
 
+#include <QQmlEngine>
+
 namespace Financy
 {
     Purchase::Purchase()
-        : m_name(""),
+        : QObject(),
+        m_name(""),
         m_description(""),
         m_date(QDate::currentDate()),
         m_value(0.0f),
         m_installments(1),
-        m_bIsSubscription(false)
-    {}
+        m_type(Type::Other)
+    {
+        qmlRegisterUncreatableType<Purchase>(
+            "Financy.Types",
+            1,
+            0,
+            "Purchase",
+            "Internal use only"
+        );
+    }
 
     float Purchase::getInstallmentValue()
     {
         return m_value / m_installments;
+    }
+
+    QString Purchase::getTypeName()
+    {
+        switch (m_type)
+        {
+        case Type::Utility:
+            return "Utilities";
+        case Type::Subscription:
+            return "Subscriptions";
+        case Type::Travel:
+            return "Travels";
+        case Type::Debt:
+            return "Debts";
+        default:
+            return "Others";
+        }
     }
 
     void Purchase::fromJSON(const nlohmann::json& inData)
@@ -60,10 +88,10 @@ namespace Financy
                 : 1
         );
 
-        setIsSubscription(
-            inData.find("isSubscription") != inData.end() ?
-                inData.at("isSubscription").is_boolean() ? (bool) inData.at("isSubscription") : false
-            : false
+        setType(
+            inData.find("type") != inData.end() ?
+                inData.at("type").is_number_unsigned() ? (Type) inData.at("type") : Type::Other
+            : Type::Other
         );
     }
 
@@ -127,13 +155,13 @@ namespace Financy
         emit onEdit();
     }
 
-    bool Purchase::isSubscription()
+    Purchase::Type Purchase::getType()
     {
-        return m_bIsSubscription;
+        return m_type;
     }
 
-    void Purchase::setIsSubscription(bool inIsSubscription)
+    void Purchase::setType(Type inType)
     {
-        m_bIsSubscription = inIsSubscription;
+        m_type = inType;
     }
 }

@@ -12,7 +12,7 @@ namespace Financy
         m_dark("#000000")
     {
         qmlRegisterUncreatableType<Colors>(
-            "Financy.Colors",
+            "Financy.Types",
             1,
             0,
             "Colors",

@@ -76,7 +76,7 @@ namespace Financy
 
         for (Purchase* purchase : m_purchases)
         {
-            if (purchase->isSubscription())
+            if (purchase->getType() == Purchase::Type::Subscription)
             {
                 result += purchase->getValue();
 

@@ -58,8 +58,16 @@ namespace Financy
         );
         QList<QColor> getUserColorsFromImage(const QString& inImage);
 
-        // Modifiers
-        User* addUser( 
+        // User
+        User* addUser(
+            const QString& inFirstName,
+            const QString& inLastName,
+            const QUrl& inPicture,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void editUser(
+            std::uint32_t inId,
             const QString& inFirstName,
             const QString& inLastName,
             const QUrl& inPicture,

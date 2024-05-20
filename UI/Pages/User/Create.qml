@@ -5,7 +5,7 @@ import QtQuick
 import Qt5Compat.GraphicalEffects
 
 // Types
-import Financy.Colors 1.0
+import Financy.Types 1.0
 
 // Components
 import "qrc:/Components" as Components
@@ -24,8 +24,8 @@ Components.Page {
             firstName.text,
             lastName.text,
             profilePicture,
-            _primaryColor.selectedColor,
-            _secondaryColor.selectedColor
+            _primaryColor.picker.color,
+            _secondaryColor.picker.color
         );
 
         if (!user) {
