@@ -145,7 +145,7 @@ Components.Page {
                 visible:      internal.selectedUser?.cards.length > 0
 
                 backgroundColor:  "transparent"
-                plotAreaColor:    _cards.backgroundColor
+                plotAreaColor:    "transparent"
                 animationOptions: ChartView.SeriesAnimations
 
                 legend.visible:        true

@@ -3,24 +3,57 @@
 
 import QtCharts
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic
 
 // Components
 import "qrc:/Components" as Components
 
 Item {
-    property var account
+    property var history: []
 
     property var _points: []
 
     id: _root
 
+    Component.onCompleted: function() {
+        if (history.length <= 0) {
+            return;
+        }
+
+        _chart.width = 200 * history.length
+
+        let maxValue = 0;
+
+        history.forEach((statement) => {
+            if (statement.dueAmount <= maxValue) {
+                return;
+            }
+
+            maxValue = statement.dueAmount;
+        });
+
+        let x = (_chart.width / history.length) / (_chart.width * 2)
+
+        history.forEach((statement) => {
+            const y = statement.dueAmount / (maxValue * 1.45);
+
+            _historyLine.append(   x, y);
+            _historyScatter.append(x, y);
+
+            x += (_chart.width / history.length) / _chart.width;
+        });
+    }
+  
     ScrollView {
         id:           _chartScroll
         anchors.fill: parent
 
         contentWidth:  _chart.width
         contentHeight: -1
+
+        ScrollBar.horizontal: Components.ScrollBar {
+            isVertical: false
+        }
 
         ChartView {
             id:     _chart
@@ -33,40 +66,10 @@ Item {
 
             legend.visible: false
 
-            Component.onCompleted: function() {
-                if (!account) {
-                    return;
-                }
-
-                const statements     = account.getHistory();
-                const statementCount = statements.length;
-
-                _chart.width = (_root.width / 3) * statementCount;
-
-                let maxValue = 0;
-
-                statements.forEach((statement) => {
-                    if (statement.dueAmount <= maxValue) {
-                        return;
-                    }
-
-                    maxValue = statement.dueAmount;
-                });
-
-                let x = 0.025;
-
-                statements.forEach((statement) => {
-                    const y = statement.dueAmount / (maxValue * 1.75);
-
-                    _historyLine.append(   x, y);
-                    _historyScatter.append(x, y);
-
-                    x += 0.33 / (statementCount / 3.3);
-                });
-            }
-
             SplineSeries {
-                id: _historyLine
+                id:    _historyLine
+                color: internal.colors.foreground
+                width: 2
 
                 axisX: ValueAxis {
                     labelsVisible: false
@@ -84,9 +87,15 @@ Item {
                 id: _historyScatter
 
                 markerSize:  30
-                color:       internal.colors.light
-                borderWidth: 0
-                borderColor: "transparent"
+                color:       internal.colors.background
+                borderWidth: 2
+                borderColor: internal.colors.light
+
+                Component.onCompleted: function() {
+                    for (let i = 0; i < history.length; i++) {
+                        _months.model.push(_historyScatter.at(i));
+                    }
+                }
 
                 axisX: ValueAxis {
                     labelsVisible: false
@@ -97,6 +106,70 @@ Item {
                     labelsVisible: false
                     gridVisible:   false
                     lineVisible:   false
+                }
+            }
+
+            Repeater {
+                id:    _months
+                model: []
+
+                delegate: Item  {
+                    required property int index
+
+                    readonly property var position: _chart.mapToPosition(_months.model[index], _historyScatter)
+
+                    x: position.x
+                    y: _chart.height - (_historyScatter.markerSize + 10)
+
+                    Text {
+                        id:    _text
+                        text:  internal.getLongMonth(_root.history[index].date)
+                        color: internal.colors.dark
+                        
+                        font.family:    "Inter"
+                        font.pointSize: 9
+                        font.weight:    Font.DemiBold
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter:   parent.verticalCenter
+                    }
+
+                    Rectangle {
+                        width: _historyScatter.borderWidth
+                        height: parent.y - position.y - (_historyScatter.markerSize / 2) - (_text.font.pointSize + 2)
+                        color:  internal.colors.light
+                        radius: width / 2
+
+                        anchors.top: parent.top
+                        anchors.topMargin: -height - _text.font.pointSize
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                }
+            }
+
+            Repeater {
+                id:    _values
+                model: _months.model
+
+                delegate: Item  {
+                    required property int index
+
+                    readonly property var position: _chart.mapToPosition(_values.model[index], _historyScatter)
+
+                    x: position.x
+                    y: position.y - _historyScatter.markerSize - 5
+
+                    Text {
+                        text:  _root.history[index].dueAmount.toFixed(2)
+                        color: internal.colors.dark
+                        
+                        font.family:    "Inter"
+                        font.pointSize: 12
+                        font.weight:    Font.Bold
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter:   parent.verticalCenter
+                    }
                 }
             }
         }

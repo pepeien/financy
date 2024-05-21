@@ -309,6 +309,14 @@ namespace Financy
         onShowcaseThemeUpdate();
     }
 
+    QString Internal::getLongMonth(const QDate& inDate)
+    {
+        return QLocale(QLocale::English).toString(
+            inDate,
+            "MMMM"
+        );
+    }
+
     void Internal::loadUsers()
     {
         if (!FileSystem::doesFileExist(USER_FILE_NAME))

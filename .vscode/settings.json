@@ -111,6 +111,7 @@
         "filesystem": "cpp",
         "qtdebug": "cpp",
         "qmetatype": "cpp",
-        "qqmlengine": "cpp"
+        "qqmlengine": "cpp",
+        "qscatterseries": "cpp"
     }
 }

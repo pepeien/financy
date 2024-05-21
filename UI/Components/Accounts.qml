@@ -18,6 +18,10 @@ ScrollView {
     height: parent.height - (_padding * 2)
     clip: true
 
+    ScrollBar.vertical: Components.ScrollBar {
+        isVertical: true
+    }
+
     GridView {
         id:     _grid
         width:  _scroll.width - _scroll._padding

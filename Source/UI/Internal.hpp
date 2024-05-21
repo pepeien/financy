@@ -105,6 +105,9 @@ namespace Financy
         void updateTheme(Colors::Theme inTheme);
         void updateShowcaseTheme(Colors::Theme inTheme);
 
+        // Utils
+        QString getLongMonth(const QDate& inDate);
+
     private:
         // User
         void loadUsers();

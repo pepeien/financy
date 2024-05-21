@@ -30,6 +30,10 @@ Components.Page {
         anchors.top:              parent.top
         anchors.horizontalCenter: parent.horizontalCenter
 
+        ScrollBar.vertical: Components.ScrollBar {
+            isVertical: true
+        }
+
         ListView {
             id:      usersView
             spacing: 25
