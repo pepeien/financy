@@ -10,6 +10,7 @@
         <file>Input.qml</file>
         <file>Page.qml</file>
         <file>RoundImage.qml</file>
+        <file>ScrollBar.qml</file>
         <file>SquircleButton.qml</file>
         <file>SquircleContainer.qml</file>
         <file>Switch.qml</file>
