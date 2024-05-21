@@ -7,5 +7,7 @@
         <file alias="UserCreate.qml">User/Create.qml</file>
         <file alias="UserEdit.qml">User/Edit.qml</file>
         <file alias="UserHome.qml">User/Home.qml</file>
+        <file alias="UserFinanceCreate.qml">User/Finance/Create.qml</file>
+        <file alias="UserFinanceHome.qml">User/Finance/Home.qml</file>
     </qresource>
 </RCC>

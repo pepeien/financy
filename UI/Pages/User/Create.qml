@@ -18,7 +18,7 @@ Components.Page {
     id: _root
     title: "Create User"
 
-    centerButtonIcon: "qrc:/Icons/Plus.svg"
+    centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         var user = internal.addUser(
             firstName.text,

@@ -29,7 +29,7 @@ ScrollView {
         cellWidth:  _grid.width / 2
 
         delegate: Item {
-            readonly property var  _item: _grid.model[index]
+            readonly property var _item:          _grid.model[index]
             readonly property real _ultilization: _item.getUsedLimit() / _item.limit
 
             id:     _root
@@ -50,13 +50,19 @@ ScrollView {
 
                 anchors.verticalCenter: parent.verticalCenter
 
+                onClick: function() {
+                    internal.accountLogin(_item);
+
+                    stack.push("qrc:/Pages/UserFinanceHome.qml");
+                }
+
                 Components.Text {
                     id:    _title
                     text:  _item.name
                     color: _item.secondaryColor
 
                     font.pointSize: 13
-                    font.weight:    Font.DemiBold
+                    font.weight:    Font.Bold
 
                     anchors.top:        parent.top
                     anchors.left:       parent.left
@@ -98,11 +104,11 @@ ScrollView {
 
                     Components.Text {
                         id:    _limitText
-                        text:  _item.limit
+                        text:  _item.getUsedLimit().toFixed(0) + " | " + _item.limit
                         color: _item.secondaryColor
 
                         font.pointSize: 9
-                        font.weight:    Font.Normal
+                        font.weight:    Font.DemiBold
 
                         anchors.left:           _limitIcon.right
                         anchors.leftMargin:     5
@@ -142,7 +148,7 @@ ScrollView {
                     }
 
                     Components.Text {
-                        text: _item.getDueAmount().toFixed(2)
+                        text:  _item.getDueAmount().toFixed(2)
                         color: _item.secondaryColor
 
                         font: _limitText.font

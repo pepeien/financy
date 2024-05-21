@@ -110,6 +110,7 @@
         "valarray": "cpp",
         "filesystem": "cpp",
         "qtdebug": "cpp",
-        "qmetatype": "cpp"
+        "qmetatype": "cpp",
+        "qqmlengine": "cpp"
     }
 }

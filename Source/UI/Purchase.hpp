@@ -51,7 +51,8 @@ namespace Financy
             Subscription  = 1,
             Travel        = 2,
             Debt          = 3,
-            Other         = 4
+            Food          = 4,
+            Other         = 5
         };
         Q_ENUM(Type)
 
@@ -82,23 +83,22 @@ namespace Financy
         QDate getDate();
         void setDate(const QDate& inDate);
 
+        Type getType();
+        void setType(Type inType);
+
         float getValue();
         void setValue(float inValue);
 
         int getInstallments();
         void setInstallments(int inInstallments);
 
-        Type getType();
-        void setType(Type inType);
-
     private:
         QString m_name;
         QString m_description;
         QDate m_date;
+        Type m_type;
 
         float m_value;
         int m_installments;
-
-        Type m_type;
     };
 }

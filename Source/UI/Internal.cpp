@@ -24,7 +24,8 @@ namespace Financy
         : QObject(parent),
         m_colors(new Colors(parent)),
         m_showcaseColors(new Colors(parent)),
-        m_selectedUser(nullptr)
+        m_selectedUser(nullptr),
+        m_selectedAccount(nullptr)
     {
         loadSettings();
         loadUsers();
@@ -250,6 +251,42 @@ namespace Financy
         m_selectedUser = nullptr;
 
         onSelectUserUpdate();
+    }
+
+    std::uint32_t Internal::getMonthlyDue()
+    {
+        if (!m_selectedUser)
+        {
+            return 0;
+        }
+
+        std::uint32_t result = 0;
+
+        for (Account* card : m_selectedUser->getCards())
+        {
+            result += card->getDueAmount();
+        }
+
+        return result;
+    }
+
+    void Internal::accountLogin(Account* inAccount)
+    {
+        if (m_selectedAccount != nullptr)
+        {
+            m_selectedAccount = nullptr;
+        }
+
+        m_selectedAccount = inAccount;
+
+        onSelectedAccount();
+    }
+
+    void Internal::accountLogout()
+    {
+        m_selectedAccount = nullptr;
+
+        onSelectedAccount();
     }
 
     void Internal::updateTheme(Colors::Theme inTheme)

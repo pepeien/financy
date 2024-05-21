@@ -1,12 +1,15 @@
 #include "Account.hpp"
 
+#include <QQmlEngine>
+
 namespace Financy
 {
     Account::Account()
-        : m_name(""),
+        : QObject(),
+        m_name(""),
         m_closingDay(1),
+        m_type(Type::Expense),
         m_limit(1.0f),
-        m_bRecoversLimitOnInstallmentPayment(true),
         m_primaryColor("#FFFFFF"),
         m_secondaryColor("#000000")
     {}
@@ -26,17 +29,17 @@ namespace Financy
                 :
                 1
         );
+        setType(
+            inData.find("type") != inData.end() ?
+                inData.at("type").is_number_unsigned() ? (Type) inData.at("type") : Type::Expense
+            : Type::Expense
+        );
         setLimit(
             inData.find("limit") != inData.end() ?
                 inData.at("limit").is_number() ?
                     (float) inData.at("limit") : 1.0f
                 :
                 1.0f
-        );
-        setRecoversLimitOnInstallmentPayment(
-            inData.find("recoversOnInstallmentPayment") != inData.end() ?
-                inData.at("recoversOnInstallmentPayment").is_boolean() ? (bool) inData.at("recoversOnInstallmentPayment") : true
-            : true
         );
 
         if (inData.find("purchases") != inData.end())
@@ -83,7 +86,12 @@ namespace Financy
                 continue;
             }
 
-            result += m_bRecoversLimitOnInstallmentPayment ? getRemainingValue(purchase) : purchase->getValue();
+            if (hasFullyPaid(purchase))
+            {
+                continue;
+            }
+    
+            result += getRemainingValue(purchase);
         }
 
         return result;
@@ -92,6 +100,11 @@ namespace Financy
     float Account::getRemainingLimit()
     {
         return m_limit - getUsedLimit();
+    }
+
+    bool Account::hasFullyPaid(Purchase* inPurchase)
+    {
+        return getPaidInstallments(inPurchase) > inPurchase->getInstallments();
     }
 
     int Account::getPaidInstallments(Purchase* inPurchase)
@@ -106,7 +119,7 @@ namespace Financy
 
         QDate currentDate(QDate::currentDate());
 
-        while ((date.daysTo(currentDate) > 0) && (result <= installments))
+        while (date.daysTo(currentDate) > 0)
         {
             if (date.daysTo(closingDate) <= 0) {
                 closingDate = closingDate.addMonths(1);
@@ -122,11 +135,20 @@ namespace Financy
 
     int Account::getRemainingInstallments(Purchase* inPurchase)
     {
-        return inPurchase->getInstallments() - getPaidInstallments(inPurchase);
+        return std::clamp(
+            inPurchase->getInstallments() - getPaidInstallments(inPurchase),
+            0,
+            inPurchase->getInstallments()
+        );
     }
 
     float Account::getRemainingValue(Purchase* inPurchase)
     {
+        if (hasFullyPaid(inPurchase))
+        {
+            return 0;
+        }
+
         return inPurchase->getValue() - (inPurchase->getInstallmentValue() * getPaidInstallments(inPurchase));
     }
 
@@ -136,7 +158,74 @@ namespace Financy
 
         for(Purchase* purchase : m_purchases)
         {
+            if (hasFullyPaid(purchase))
+            {
+                continue;
+            }
+
             result += purchase->getInstallmentValue();
+        }
+
+        return result;
+    }
+
+    QList<Statement> Account::getHistory()
+    {
+        QList<Statement> result;
+
+        QDate earliestDate = QDate::currentDate();
+        QDate latestDate   = earliestDate;
+
+        for (Purchase* purchase : m_purchases) {
+            QDate date = purchase->getDate();
+
+            if (earliestDate.daysTo(date) < 0)
+            {
+                earliestDate = date;
+
+                continue;
+            }
+
+            date = date.addMonths(getRemainingInstallments(purchase));
+
+            if (latestDate.daysTo(date) > 0)
+            {
+                latestDate = date;
+
+                continue;
+            }
+        }
+
+        QDate statementDate = earliestDate;
+        statementDate.setDate(
+            statementDate.year(),
+            statementDate.month(),
+            m_closingDay
+        );
+
+        while(statementDate.daysTo(latestDate) > 0)
+        {
+            Statement statement{};
+            statement.m_date      = statementDate;
+            statement.m_dueAmount = 0;
+
+            for (Purchase* purchase : m_purchases) {
+                int daysToStatement = purchase->getDate()
+                    .addMonths(purchase->getInstallments())
+                    .daysTo(statementDate);
+
+                if (daysToStatement > 0)
+                {
+                    continue;
+                }
+
+                statement.m_purchases.push_back(purchase);
+                statement.m_dueAmount += purchase->getInstallmentValue();
+            }
+
+            statementDate = statementDate.addMonths(1);
+
+            result.push_back(statement);
         }
 
         return result;
@@ -168,6 +257,16 @@ namespace Financy
         );
     }
 
+    Account::Type Account::getType()
+    {
+        return m_type;
+    }
+
+    void Account::setType(Type inType)
+    {
+        m_type = inType;
+    }
+
     float Account::getLimit()
     {
         return m_limit;
@@ -190,16 +289,6 @@ namespace Financy
         m_purchases = inPurchases;
 
         emit onEdit();
-    }
-
-    bool Account::recoversLimitOnInstallmentPayment()
-    {
-        return m_bRecoversLimitOnInstallmentPayment;
-    }
-
-    void Account::setRecoversLimitOnInstallmentPayment(bool bInRecoversLimitOnInstallmentPayment)
-    {
-        m_bRecoversLimitOnInstallmentPayment = bInRecoversLimitOnInstallmentPayment;
     }
 
     QColor Account::getPrimaryColor()
@@ -225,5 +314,4 @@ namespace Financy
 
         emit onEdit();
     }
-
 }

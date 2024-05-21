@@ -16,5 +16,7 @@
         <file>Text.qml</file>
 
         <file alias="ChartCircle.qml">Chart/Circle.qml</file>
+
+        <file alias="FinancyHistory.qml">Finance/History.qml</file>
     </qresource>
 </RCC>

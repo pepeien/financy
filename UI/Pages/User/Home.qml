@@ -1,9 +1,9 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
+import QtCharts
 import QtQuick
 import QtQuick.Controls
-import QtCharts
 import Qt5Compat.GraphicalEffects
 
 // Components
@@ -20,7 +20,7 @@ Components.Page {
 
     centerButtonIcon: "qrc:/Icons/Plus.svg"
     centerButtonOnClick: function() {
-        console.log("center")
+        stack.push("qrc:/Pages/UserFinanceCreate.qml");
     }
 
     onReturn: function() {
@@ -150,22 +150,28 @@ Components.Page {
 
                 legend.visible:        true
                 legend.markerShape:    Legend.MarkerShapeCircle
-                legend.color:          internal.colors.dark
+                legend.color:          internal.colors.foreground
                 legend.font.family:    "Inter"
-                legend.font.pointSize: 12
-                legend.font.weight:    Font.Normal
+                legend.font.pointSize: 13
+                legend.font.weight:    Font.Bold
 
                 anchors.top:              _overviewTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.topMargin:        -10
 
                 Component.onCompleted: function() {
                     const expensesMap = {};
 
                     internal.selectedUser.cards.forEach((card) => {
                         card.purchases.forEach((purchase) => {
+                            if (card.hasFullyPaid(purchase)) {
+                                return;
+                            }
+
                             const key = purchase.getTypeName();
 
                             if (expensesMap[key]) {
+
                                 expensesMap[key] += purchase.getInstallmentValue();
 
                                 return;
@@ -187,6 +193,32 @@ Components.Page {
                     id:       _overviewChartPie
                     size:     1
                     holeSize: 0.7
+                }
+
+                Text {
+                    id:    _overviewInnerText
+                    text:  "Total"
+                    color: internal.colors.dark
+
+                    font.family:    "Inter"
+                    font.pointSize: 30
+                    font.weight:    Font.Bold
+
+                    anchors.centerIn:  parent
+                    anchors.topMargin: -10
+                }
+
+                Text {
+                    text:  internal.getMonthlyDue()
+                    color: Qt.lighter(internal.colors.dark, 1.1)
+
+                    font.family:    "Inter"
+                    font.pointSize: 22
+                    font.weight:    Font.DemiBold
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top:              _overviewInnerText.bottom
+                    anchors.topMargin:        10
                 }
             }
         }

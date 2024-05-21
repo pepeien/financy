@@ -9,9 +9,9 @@ namespace Financy
         m_name(""),
         m_description(""),
         m_date(QDate::currentDate()),
+        m_type(Type::Other),
         m_value(0.0f),
-        m_installments(1),
-        m_type(Type::Other)
+        m_installments(1)
     {
         qmlRegisterUncreatableType<Purchase>(
             "Financy.Types",
@@ -39,6 +39,8 @@ namespace Financy
             return "Travels";
         case Type::Debt:
             return "Debts";
+        case Type::Food:
+            return "Food";
         default:
             return "Others";
         }
@@ -73,6 +75,12 @@ namespace Financy
                 QDate::currentDate()
         );
 
+        setType(
+            inData.find("type") != inData.end() ?
+                inData.at("type").is_number_unsigned() ? (Type) inData.at("type") : Type::Other
+            : Type::Other
+        );
+
         setValue(
             inData.find("value") != inData.end() ?
                 inData.at("value").is_number() ?
@@ -86,12 +94,6 @@ namespace Financy
                 inData.at("installments").is_number_unsigned() ?
                     (int) inData.at("installments") : 1
                 : 1
-        );
-
-        setType(
-            inData.find("type") != inData.end() ?
-                inData.at("type").is_number_unsigned() ? (Type) inData.at("type") : Type::Other
-            : Type::Other
         );
     }
 
@@ -131,6 +133,16 @@ namespace Financy
         emit onEdit();
     }
 
+    Purchase::Type Purchase::getType()
+    {
+        return m_type;
+    }
+
+    void Purchase::setType(Type inType)
+    {
+        m_type = inType;
+    }
+
     float Purchase::getValue()
     {
         return m_value;
@@ -153,15 +165,5 @@ namespace Financy
         m_installments = inInstallments;
 
         emit onEdit();
-    }
-
-    Purchase::Type Purchase::getType()
-    {
-        return m_type;
-    }
-
-    void Purchase::setType(Type inType)
-    {
-        m_type = inType;
     }
 }

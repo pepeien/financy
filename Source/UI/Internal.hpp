@@ -46,6 +46,23 @@ namespace Financy
             NOTIFY onUsersUpdate
         )
 
+        // Finance
+        Q_PROPERTY(
+            Account* selectedAccount
+            MEMBER m_selectedAccount
+            NOTIFY onSelectedAccount
+        )
+
+
+    signals:
+        void onThemeUpdate();
+        void onShowcaseThemeUpdate();
+
+        void onSelectUserUpdate();
+        void onUsersUpdate();
+        
+        void onSelectedAccount();
+
     public:
         Internal(QObject* parent = nullptr);
         ~Internal();
@@ -78,16 +95,15 @@ namespace Financy
         void login(User* inUser);
         void logout();
 
+        // Finance
+        std::uint32_t getMonthlyDue();
+
+        void accountLogin(Account* inAccount);
+        void accountLogout();
+
         // Theme
         void updateTheme(Colors::Theme inTheme);
         void updateShowcaseTheme(Colors::Theme inTheme);
-
-    signals:
-        void onThemeUpdate();
-        void onShowcaseThemeUpdate();
-
-        void onSelectUserUpdate();
-        void onUsersUpdate();
 
     private:
         // User
@@ -121,5 +137,8 @@ namespace Financy
         // User
         User* m_selectedUser;
         QList<User*> m_users;
+
+        // Finance
+        Account* m_selectedAccount;
     };
 }

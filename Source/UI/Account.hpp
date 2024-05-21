@@ -9,6 +9,29 @@
 
 namespace Financy
 {
+    struct Statement
+    {
+        Q_GADGET
+
+        Q_PROPERTY(
+            QDate date
+            MEMBER m_date
+        )
+        Q_PROPERTY(
+            QList<Purchase*> purchases
+            MEMBER m_purchases
+        )
+        Q_PROPERTY(
+            float dueAmount
+            MEMBER m_dueAmount
+        )
+
+    public:
+        QDate m_date;
+        QList<Purchase*> m_purchases;
+        float m_dueAmount;
+    };
+
     class Account : public QObject
     {
         Q_OBJECT
@@ -45,6 +68,14 @@ namespace Financy
             NOTIFY onEdit
         )
 
+    // Types
+    public:
+        enum class Type
+        {
+            Expense = 0,
+            Saving  = 1
+        };
+
     signals:
         void onEdit();
 
@@ -58,12 +89,15 @@ namespace Financy
         float getUsedLimit();
         float getRemainingLimit();
 
+        bool hasFullyPaid(Purchase* inPurchase);
         int getPaidInstallments(Purchase* inPurchase);
         int getRemainingInstallments(Purchase* inPurchase);
 
         float getRemainingValue(Purchase* inPurchase);
 
         float getDueAmount();
+
+        QList<Statement> getHistory();
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -75,14 +109,14 @@ namespace Financy
         std::uint32_t getClosingDay();
         void setClosingDay(std::uint32_t inClosingDay);
 
+        Type getType();
+        void setType(Type inType);
+
         float getLimit();
         void setLimit(float inLimit);
 
         QList<Purchase*> getPurchases();
         void setPurchases(const QList<Purchase*>& inPurchases);
-
-        bool recoversLimitOnInstallmentPayment();
-        void setRecoversLimitOnInstallmentPayment(bool bInRecoversLimitOnInstallmentPayment);
 
         QColor getPrimaryColor();
         void setPrimaryColor(const QColor& inColor);
@@ -93,10 +127,10 @@ namespace Financy
     private:
         QString m_name;
         std::uint32_t m_closingDay;
+        Type m_type;
 
         float m_limit;
         QList<Purchase*> m_purchases;
-        bool m_bRecoversLimitOnInstallmentPayment;
 
         QColor m_primaryColor;
         QColor m_secondaryColor;
