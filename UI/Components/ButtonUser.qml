@@ -37,6 +37,14 @@ Components.SquircleButton {
         }
     }
 
+    onHover: function() {
+        opacity = 0.7;
+    }
+
+    onLeave: function() {
+        opacity = 1;
+    }
+
     Components.RoundImage {
         id: _picture
         imageSource: picture

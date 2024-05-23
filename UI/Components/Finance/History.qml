@@ -9,8 +9,13 @@ import QtQuick.Controls.Basic
 import "qrc:/Components" as Components
 
 Item {
+    // Input
     property var history: []
 
+    // Output
+    property var selectedHistory: history.length > 0 ? history[0] : undefined
+
+    // Vars
     property var _points: []
 
     id: _root
@@ -44,16 +49,13 @@ Item {
         });
     }
   
-    ScrollView {
-        id:           _chartScroll
+    Item {
+        id: _chartScroll
+
+        width:  _root.width
+        height: _root.height
+
         anchors.fill: parent
-
-        contentWidth:  _chart.width
-        contentHeight: -1
-
-        ScrollBar.horizontal: Components.ScrollBar {
-            isVertical: false
-        }
 
         ChartView {
             id:     _chart
@@ -65,6 +67,13 @@ Item {
             animationOptions: ChartView.SeriesAnimations
 
             legend.visible: false
+
+            Behavior on x {
+                PropertyAnimation {
+                    easing.type: Easing.InOutQuad
+                    duration:    200
+                }
+            }
 
             SplineSeries {
                 id:    _historyLine
@@ -87,9 +96,9 @@ Item {
                 id: _historyScatter
 
                 markerSize:  30
-                color:       internal.colors.background
+                color:       "transparent"
                 borderWidth: 2
-                borderColor: internal.colors.light
+                borderColor: "transparent"
 
                 Component.onCompleted: function() {
                     for (let i = 0; i < history.length; i++) {
@@ -169,6 +178,42 @@ Item {
 
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter:   parent.verticalCenter
+                    }
+                }
+            }
+
+            Repeater {
+                property int _selectedIndex: 0
+
+                id:    _button
+                model: _months.model
+
+                delegate: Item  {
+                    required property int index
+
+                    readonly property var position: _chart.mapToPosition(_button.model[index], _historyScatter)
+
+                    x: position.x - 15 - 1
+                    y: position.y - 15 - 1
+
+                    Components.Button {
+                        readonly property var _data: _root.history[index]
+
+                        width:  30
+                        height: 30
+                        radius: 15
+                        color:  _data.date.toString() === _root.selectedHistory.date.toString() ? internal.colors.light : internal.colors.dark
+
+                        onClick: function() {
+                            if (index == _button._selectedIndex) {
+                                return;
+                            }
+
+                            _chart.x += (_button._selectedIndex - index) * 100;
+
+                            _root.selectedHistory = _data;
+                            _button._selectedIndex = index;
+                        }
                     }
                 }
             }

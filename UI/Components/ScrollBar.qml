@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls.Basic
 
 ScrollBar {
+    // Input
     required property bool isVertical
 
     readonly property bool _isActive: isVertical ? parent.contentHeight > parent.height : parent.contentWidth > parent.width

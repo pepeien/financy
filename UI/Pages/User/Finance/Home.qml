@@ -23,47 +23,62 @@ Components.Page {
         history: _root.history
     }
 
-    Components.SquircleContainer {
-        width: _history.width
+    Item {
+        width:  _history.width
         height: _root.height - _history.height - 250 - 30
-
-        backgroundColor: internal.colors.foreground
-        hasShadow:       true
 
         anchors.top:              _history.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin:        30
 
-        ScrollView {
-            id:     _scroll
+        Components.SquircleContainer {
+            id:     _purchases
+            width:  parent.width * 0.50 - 30
             height: parent.height
-            width:  parent.width
-            clip:   true
 
-            contentWidth:  -1
-            contentHeight: 100 * history.length
+            ScrollView {
+                id:     _scroll
+                height: parent.height
+                width:  parent.width
+                clip:   true
 
-            ScrollBar.vertical: Components.ScrollBar {
-                isVertical: true
-            }
+                contentWidth: -1
 
-            ListView {
-                model: _root.history
+                ScrollBar.vertical: Components.ScrollBar {
+                    isVertical: true
+                }
 
-                delegate: Rectangle {
-                    required property int index
+                ListView {
+                    id: list
+                    model:   _history.selectedHistory.purchases
+                    spacing: 10
 
-                    readonly property var statement: _root.history[index]
+                    delegate: Components.SquircleContainer {
+                        required property int index
+                        readonly property var purchase: _history.selectedHistory.purchases[index]
 
-                    width: _scroll.width
-                    height: 100
-                    color: "transparent"
+                        width: _scroll.width - 100
+                        height: 100
 
-                    Text {
-                        text: internal.getLongMonth(statement.date)
+                        backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+
+                        Text {
+                            text: purchase.date + purchase.name
+                        }
                     }
                 }
             }
+        }
+
+        Components.SquircleContainer {
+            width:  _purchases.width
+            height: _purchases.height
+
+            backgroundColor: internal.colors.background
+            hasShadow:       true
+
+            anchors.left:       _purchases.right
+            anchors.leftMargin: 30
         }
     }
 }

@@ -19,20 +19,18 @@ Rectangle {
     property var onHover;
     property var onLeave;
 
-    // Consts
-    property real normalOpacity: 1.0
-    property real fadedOpacity: 0.8
-
-    NumberAnimation on opacity {
-        running: click.containsMouse
-        from: normalOpacity
-        to: fadedOpacity
+    Behavior on color {
+        ColorAnimation {
+            easing.type: Easing.InOutQuad
+            duration:    200
+        }
     }
 
-    NumberAnimation on opacity {
-        running: click.containsMouse == false
-        from: fadedOpacity
-        to: normalOpacity
+    Behavior on opacity {
+        PropertyAnimation {
+            easing.type: Easing.InOutQuad
+            duration:    200
+        }
     }
 
     MouseArea {

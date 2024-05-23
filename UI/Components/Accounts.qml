@@ -16,7 +16,10 @@ ScrollView {
     id:     _scroll
     width:  parent.width
     height: parent.height - (_padding * 2)
-    clip: true
+    clip:   true
+
+    contentHeight: 110 * model.length / 2
+    contentWidth:  -1
 
     ScrollBar.vertical: Components.ScrollBar {
         isVertical: true
@@ -58,6 +61,14 @@ ScrollView {
                     internal.accountLogin(_item);
 
                     stack.push("qrc:/Pages/UserFinanceHome.qml");
+                }
+
+                onHover: function() {
+                    opacity = 0.7;
+                }
+
+                onLeave: function() {
+                    opacity = 1;
                 }
 
                 Components.Text {
