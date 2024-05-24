@@ -50,7 +50,7 @@ Components.Page {
 
                 ListView {
                     id: list
-                    model:   _history.selectedHistory.purchases
+                    model:   _history.selectedHistory ? _history.selectedHistory.purchases : []
                     spacing: 10
 
                     delegate: Components.SquircleContainer {

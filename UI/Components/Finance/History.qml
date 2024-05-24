@@ -13,10 +13,12 @@ Item {
     property var history: []
 
     // Output
-    property var selectedHistory: history.length > 0 ? history[0] : undefined
+    property var selectedHistory: undefined
+    property int selectedIndex:   0
 
     // Vars
     property var _points: []
+    property var _now:     new Date()
 
     id: _root
 
@@ -29,7 +31,14 @@ Item {
 
         let maxValue = 0;
 
-        history.forEach((statement) => {
+        history.forEach((statement, index) => {
+            const date = statement.date;
+
+            if (date.getUTCMonth() === _now.getUTCMonth() && date.getUTCFullYear() === _now.getUTCFullYear()) {
+                selectedHistory = statement;
+                selectedIndex   = index;
+            }
+            
             if (statement.dueAmount <= maxValue) {
                 return;
             }
@@ -75,6 +84,10 @@ Item {
                 }
             }
 
+            function centerOn(point) {
+                _chart.x = ((_chartScroll.width / 2) - point.x) - ((_chart.width / history.length) / (_chart.width * 2)) - 50;
+            }
+
             SplineSeries {
                 id:    _historyLine
                 color: internal.colors.foreground
@@ -104,6 +117,8 @@ Item {
                     for (let i = 0; i < history.length; i++) {
                         _months.model.push(_historyScatter.at(i));
                     }
+
+                    _chart.centerOn(_chart.mapToPosition(_months.model[_root.selectedIndex], _historyScatter));
                 }
 
                 axisX: ValueAxis {
@@ -122,98 +137,91 @@ Item {
                 id:    _months
                 model: []
 
-                delegate: Item  {
+                delegate: Item {
                     required property int index
 
-                    readonly property var position: _chart.mapToPosition(_months.model[index], _historyScatter)
+                    readonly property var _position: _chart.mapToPosition(_months.model[index], _historyScatter)
+                    readonly property var _data:     _root.history[index]
 
-                    x: position.x
-                    y: _chart.height - (_historyScatter.markerSize + 10)
+                    property bool _isSelected: _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
+                    property bool _isFuture:   _data.date > _root._now
 
-                    Text {
-                        id:    _text
-                        text:  internal.getLongMonth(_root.history[index].date)
-                        color: internal.colors.dark
-                        
-                        font.family:    "Inter"
-                        font.pointSize: 9
-                        font.weight:    Font.DemiBold
+                    x: _position.x
+                    y: _position.y
 
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter:   parent.verticalCenter
+                    height: Math.abs(_chartScroll.height - _position.y)
+
+                    Components.Button {
+                        id:           _point
+                        x:            -(_historyScatter.markerSize / 2) - 1
+                        y:            -(_historyScatter.markerSize / 2) - 1
+                        width:        _historyScatter.markerSize
+                        height:       _historyScatter.markerSize
+                        radius:       _historyScatter.markerSize / 2
+                        color:        _isSelected ? internal.colors.light : _isFuture ? internal.colors.background : internal.colors.dark
+                        border.width: _isFuture ? _isSelected ? 0 : _historyScatter.borderWidth : 0
+                        border.color: _isFuture ? internal.colors.foreground : "transparent"
+
+                        onClick: function() {
+                            if (_isSelected) {
+                                return;
+                            }
+
+                            _chart.centerOn(_position);
+
+                            _root.selectedHistory = _data;
+                            _root.selectedIndex   = index;
+                        }
                     }
 
-                    Rectangle {
-                        width: _historyScatter.borderWidth
-                        height: parent.y - position.y - (_historyScatter.markerSize / 2) - (_text.font.pointSize + 2)
-                        color:  internal.colors.light
-                        radius: width / 2
-
-                        anchors.top: parent.top
-                        anchors.topMargin: -height - _text.font.pointSize
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                }
-            }
-
-            Repeater {
-                id:    _values
-                model: _months.model
-
-                delegate: Item  {
-                    required property int index
-
-                    readonly property var position: _chart.mapToPosition(_values.model[index], _historyScatter)
-
-                    x: position.x
-                    y: position.y - _historyScatter.markerSize - 5
-
                     Text {
-                        text:  _root.history[index].dueAmount.toFixed(2)
+                        id:    _dueAmount
+                        text:  _data.dueAmount.toFixed(2)
                         color: internal.colors.dark
-                        
+
                         font.family:    "Inter"
                         font.pointSize: 12
                         font.weight:    Font.Bold
 
+                        anchors.bottom:           _point.top
+                        anchors.bottomMargin:     10
                         anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter:   parent.verticalCenter
                     }
-                }
-            }
 
-            Repeater {
-                property int _selectedIndex: 0
+                    Rectangle {
+                        id:     _line
+                        width:  _isSelected ? _historyScatter.borderWidth * 2 : _historyScatter.borderWidth
+                        height: Math.max(0, (_text.y - _point.y) - _historyScatter.markerSize - _text.font.pointSize)
+                        color:  _isFuture ? internal.colors.light : _point.color
+                        radius: _line.width / 2
 
-                id:    _button
-                model: _months.model
-
-                delegate: Item  {
-                    required property int index
-
-                    readonly property var position: _chart.mapToPosition(_button.model[index], _historyScatter)
-
-                    x: position.x - 15 - 1
-                    y: position.y - 15 - 1
-
-                    Components.Button {
-                        readonly property var _data: _root.history[index]
-
-                        width:  30
-                        height: 30
-                        radius: 15
-                        color:  _data.date.toString() === _root.selectedHistory.date.toString() ? internal.colors.light : internal.colors.dark
-
-                        onClick: function() {
-                            if (index == _button._selectedIndex) {
-                                return;
-                            }
-
-                            _chart.x += (_button._selectedIndex - index) * 100;
-
-                            _root.selectedHistory = _data;
-                            _button._selectedIndex = index;
+                        Component.onCompleted: function() {
+                            color: Qt.rgba(color.r, color.g, color.b, _isFuture ? 125 : 255);
                         }
+
+                        anchors.top:              _point.bottom
+                        anchors.topMargin:        _text.font.pointSize / 2
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Behavior on width {
+                            PropertyAnimation {
+                                easing.type: Easing.InOutQuad
+                                duration:    200
+                            }
+                        }
+                    }
+
+                    Text {
+                        id:    _text
+                        text:  internal.getLongMonth(_data.date)
+                        color: internal.colors.dark
+
+                        font.family:    "Inter"
+                        font.pointSize: 9
+                        font.weight:    Font.DemiBold
+
+                        anchors.bottom: parent.bottom
+                        anchors.horizontalCenter: _point.horizontalCenter
                     }
                 }
             }
