@@ -4,6 +4,35 @@
 
 namespace Financy
 {
+    QList<Statement> Statement::getDateBasedHistory()
+    {
+        QList<Statement> result;
+
+        for (Purchase* purchase : m_purchases) {
+            auto foundItem = std::find_if(
+                result.begin(),
+                result.end(),
+                [purchase](Statement& _) { return _.m_date.daysTo(purchase->getDate()) == 0; }
+            );
+
+            int foundIndex = foundItem - result.begin();
+
+            if (foundItem == result.end()) {
+                foundIndex = result.size();
+
+                result.push_back({});
+
+                result[foundIndex].m_date      = purchase->getDate();
+                result[foundIndex].m_purchases = {};
+            }
+
+            result[foundIndex].m_purchases.push_back(purchase);
+            result[foundIndex].m_dueAmount += purchase->getInstallmentValue();
+        }
+
+        return result;
+    }
+
     Account::Account()
         : QObject(),
         m_name(""),
@@ -189,7 +218,7 @@ namespace Financy
                 continue;
             }
 
-            date = date.addMonths(getRemainingInstallments(purchase));
+            date = date.addMonths(purchase->getInstallments());
 
             if (latestDate.daysTo(date) > 0)
             {

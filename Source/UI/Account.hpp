@@ -26,6 +26,9 @@ namespace Financy
             MEMBER m_dueAmount
         )
 
+    public slots:
+        QList<Statement> getDateBasedHistory();
+
     public:
         QDate m_date;
         QList<Purchase*> m_purchases;

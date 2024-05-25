@@ -20,40 +20,15 @@ Components.Page {
     title: "Account Home"
 
     function updateListing() {
+        _wrapper.height  = 0;
+
         if (!_history.selectedHistory) {
             _root.statements = [];
 
             return;
         }
-        _wrapper.height  = 0;
 
-        const selectedHistory = _history.selectedHistory;
-        const statements      = [];
-
-        _history.selectedHistory.purchases.forEach((purchase) => {
-            let foundIndex = statements.findIndex((statement) => {
-                const isSameDay   = statement.date.getUTCDate() === purchase.date.getUTCDate();
-                const isSameMonth = statement.date.getUTCMonth() === purchase.date.getUTCMonth();
-                const isSameYear  = statement.date.getFullYear() === purchase.date.getFullYear();
-
-                return isSameDay && isSameMonth && isSameYear;
-            });
-
-            if (foundIndex < 0) {
-                statements.push({
-                    date: purchase.date,
-                    purchases: [],
-                    dueAmount: 0
-                });
-
-                foundIndex = statements.length - 1;
-            }
-
-            statements[foundIndex].purchases.push(purchase);
-            statements[foundIndex].dueAmount += purchase.getInstallmentValue();
-        });
-
-        _root.statements = statements;
+        _root.statements = _history.selectedHistory.getDateBasedHistory();
     }
 
     Components.FinancyHistory {
@@ -136,12 +111,12 @@ Components.Page {
                             font.weight:    Font.Bold
 
                             anchors.left:           parent.left
-                            anchors.leftMargin:     10
+                            anchors.leftMargin:     20
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
                         Text {
-                            text:  _data.date.getUTCDate() + "/" + _data.date.getUTCMonth() + "/" + _data.date.getFullYear()
+                            text:  internal.getLongDate(_data.date)
                             color: internal.colors.background
 
                             font.family:    "Inter"
@@ -177,7 +152,7 @@ Components.Page {
                             font.weight:    Font.Normal
 
                             anchors.right:          parent.right
-                            anchors.rightMargin:    10
+                            anchors.rightMargin:    _headerDateTitle.anchors.leftMargin
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
@@ -206,7 +181,7 @@ Components.Page {
                             }
 
                             Rectangle {
-                                color:   internal.colors.dark
+                                color:   internal.colors.foreground
                                 width:   parent.width
                                 height:  1
                                 visible: index > 0

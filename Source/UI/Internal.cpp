@@ -309,6 +309,12 @@ namespace Financy
         onShowcaseThemeUpdate();
     }
 
+    QString Internal::getLongDate(const QDate& inDate) {
+        return QString::fromStdString(
+            std::to_string(inDate.day()) + "/" + std::to_string(inDate.month()) + "/" + std::to_string(inDate.year())
+        );
+    }
+
     QString Internal::getLongMonth(const QDate& inDate)
     {
         return QLocale(QLocale::English).toString(
