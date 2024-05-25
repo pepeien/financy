@@ -91,6 +91,7 @@ namespace Financy
 
         bool hasFullyPaid(Purchase* inPurchase);
         int getPaidInstallments(Purchase* inPurchase);
+        int getPaidInstallments(Purchase* inPurchase, const QDate& inDate);
         int getRemainingInstallments(Purchase* inPurchase);
 
         float getRemainingValue(Purchase* inPurchase);

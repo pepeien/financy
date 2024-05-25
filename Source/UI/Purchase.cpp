@@ -22,6 +22,11 @@ namespace Financy
         );
     }
 
+    bool Purchase::hasDescription()
+    {
+        return !m_description.isEmpty();
+    }
+
     float Purchase::getInstallmentValue()
     {
         return m_value / m_installments;

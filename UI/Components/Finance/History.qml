@@ -12,6 +12,8 @@ Item {
     // Input
     property var history: []
 
+    property var onSelectedHistoryUpdate
+
     // Output
     property var selectedHistory: undefined
     property int selectedIndex:   0
@@ -21,6 +23,17 @@ Item {
     property var _now:     new Date()
 
     id: _root
+
+    function _onSelectedHistoryUpdate(data, index) {
+        _root.selectedHistory = data;
+        _root.selectedIndex   = index;
+
+        if (!_root.onSelectedHistoryUpdate) {
+            return;
+        }
+
+        _root.onSelectedHistoryUpdate();
+    }
 
     Component.onCompleted: function() {
         if (history.length <= 0) {
@@ -35,8 +48,7 @@ Item {
             const date = statement.date;
 
             if (date.getUTCMonth() === _now.getUTCMonth() && date.getUTCFullYear() === _now.getUTCFullYear()) {
-                selectedHistory = statement;
-                selectedIndex   = index;
+                _root._onSelectedHistoryUpdate(statement, index);
             }
             
             if (statement.dueAmount <= maxValue) {
@@ -169,8 +181,7 @@ Item {
 
                             _chart.centerOn(_position);
 
-                            _root.selectedHistory = _data;
-                            _root.selectedIndex   = index;
+                            _root._onSelectedHistoryUpdate(_data, index);
                         }
                     }
 
@@ -192,7 +203,7 @@ Item {
                         id:     _line
                         width:  _isSelected ? _historyScatter.borderWidth * 2 : _historyScatter.borderWidth
                         height: Math.max(0, (_text.y - _point.y) - _historyScatter.markerSize - _text.font.pointSize)
-                        color:  _isFuture ? internal.colors.light : _point.color
+                        color:  _isFuture ? _isSelected ? _point.color : _point.border.color : _point.color
                         radius: _line.width / 2
 
                         Component.onCompleted: function() {

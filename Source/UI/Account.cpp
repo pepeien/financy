@@ -109,17 +109,20 @@ namespace Financy
 
     int Account::getPaidInstallments(Purchase* inPurchase)
     {
+        return getPaidInstallments(inPurchase, QDate::currentDate());
+    }
+    
+    int Account::getPaidInstallments(Purchase* inPurchase, const QDate& inDate)
+    {
         int result       = 1;
         int installments = inPurchase->getInstallments();
 
-        QDate date(inPurchase->getDate());
+        QDate date = inPurchase->getDate();
 
         QDate closingDate(date.year(), date.month(), m_closingDay);
         closingDate = closingDate.addMonths(1);
 
-        QDate currentDate(QDate::currentDate());
-
-        while (date.daysTo(currentDate) > 0)
+        while (date.daysTo(inDate) > 0)
         {
             if (date.daysTo(closingDate) <= 0) {
                 closingDate = closingDate.addMonths(1);

@@ -66,6 +66,8 @@ namespace Financy
         Purchase& operator=(const Purchase&) = default;
 
     public slots:
+        bool hasDescription();
+
         float getInstallmentValue();
 
         QString getTypeName();
