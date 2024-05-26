@@ -7,134 +7,168 @@ import QtQuick.Controls.Basic
 // Components
 import "qrc:/Components" as Components
 
-ComboBox {
-    // Props
+Item {
+    id: _root
+
+    property real itemWidth:  100
     property real itemHeight: 40
+    property real radius:     Math.min((itemHeight * 0.25), 9)
 
     property string backgroundColor: internal.colors.foreground
 
-    id: control
+    property alias model: _control.model
+    property alias label: _label.text
 
-    delegate: ItemDelegate {
-        required property var model
-        required property int index
+    // Vars
+    readonly property real textPadding: 16
 
-        id:     delegate
-        height: control.itemHeight
-        width:  control.width
+    width: _root.itemWidth
 
-        highlighted: control.highlightedIndex === index
+    ComboBox {
+        id:     _control
+        width:  _root.itemWidth
+
+        font.family:    "Inter"
+        font.pointSize: _root.itemHeight * 0.2
+        font.weight:    Font.Normal
+
+        delegate: ItemDelegate {
+            required property var model
+            required property int index
+
+            id:     delegate
+            height: _root.itemHeight
+            width:  _root.itemWidth
+
+            highlighted: _control.highlightedIndex === index
+
+            contentItem: Components.Text {
+                text:              delegate.model[_control.textRole]
+                color:             internal.colors.dark
+                font:              _control.font
+                verticalAlignment: Text.AlignVCenter
+                padding:           _root.textPadding
+            }
+
+            background: Components.SquircleButton {
+                topLeftRadius:  index === 0 ? _root.radius : 0
+                topRightRadius: index === 0 ? _root.radius : 0
+
+                bottomLeftRadius:  index === (_control.model.length - 1) ? _root.radius : 0
+                bottomRightRadius: index === (_control.model.length - 1) ? _root.radius : 0
+            }
+        }
+
+        indicator: Canvas {
+            id:     canvas
+            x:      _control.width - width - _control.rightPadding
+            y:      _control.topPadding + (_control.availableHeight - height) / 2
+            width:  12
+            height: 8
+
+            contextType: "2d"
+
+            Connections {
+                target: _control
+                function onPressedChanged() {
+                    canvas.requestPaint();
+                }
+            }
+
+            onPaint: {
+                context.reset();
+
+                context.moveTo(0, 0);
+                context.lineTo(width, 0);
+                context.lineTo(width / 2, height);
+
+                context.closePath();
+
+                context.fillStyle = internal.colors.dark
+
+                context.fill();
+            }
+        }
 
         contentItem: Components.Text {
-            text:              delegate.model[control.textRole]
+            padding:           _root.textPadding
+            text:              _control.displayText
+            font:              _control.font
             color:             internal.colors.dark
-            font:              control.font
-            verticalAlignment: Text.AlignVCenter
+            elide:             Text.ElideRight
+
+            anchors.top:       parent.top
+            anchors.topMargin: _root.itemHeight * 0.1
         }
 
-        background: Components.SquircleButton {
-            topLeftRadius:  index === 0 ? 4 : 0
-            topRightRadius: index === 0 ? 4 : 0
+        background: Rectangle {
+            color:          _root.backgroundColor
+            implicitWidth:  _root.itemWidth
+            implicitHeight: _root.itemHeight
+            border.color:   "transparent"
+            border.width:   0
 
-            bottomLeftRadius:  index === (control.model.length - 1) ? 4 : 0
-            bottomRightRadius: index === (control.model.length - 1) ? 4 : 0
-        }
-    }
+            topLeftRadius:     _root.radius
+            topRightRadius:    _root.radius
+            bottomLeftRadius:  _control.popup.visible ? 0 : _root.radius
+            bottomRightRadius: _control.popup.visible ? 0 : _root.radius
 
-    indicator: Canvas {
-        id:     canvas
-        x:      control.width - width - control.rightPadding
-        y:      control.topPadding + (control.availableHeight - height) / 2
-        width:  12
-        height: 8
+            Components.Text {
+                id:     _label
+                color:  internal.colors.dark
+                text:   "Label"
+                opacity: 0.77
 
-        contextType: "2d"
+                font.weight:    Font.Bold
+                font.pointSize: Math.round(_control.font.pointSize * 0.65)
 
-        Connections {
-            target: control
-            function onPressedChanged() {
-                canvas.requestPaint();
+                anchors.top:        parent.top
+                anchors.left:       parent.left
+                anchors.topMargin:  _root.itemHeight * 0.1
+                anchors.leftMargin: _root.textPadding
             }
         }
 
-        onPaint: {
-            context.reset();
+        popup: Popup {
+            y:              _control.height + 1
+            width:          _control.width
+            implicitHeight: contentItem.implicitHeight
+            padding:        0
 
-            context.moveTo(0, 0);
-            context.lineTo(width, 0);
-            context.lineTo(width / 2, height);
+            contentItem: ListView {
+                implicitHeight: contentHeight
+                model:          _control.popup.visible ? _control.delegateModel : null
+                currentIndex:   _control.highlightedIndex
 
-            context.closePath();
-    
-            context.fillStyle = internal.colors.dark
-
-            context.fill();
-        }
-    }
-
-    contentItem: Components.Text {
-        leftPadding:  control.indicator.width + control.spacing
-        rightPadding: control.indicator.width + control.spacing
-
-        text:              control.displayText
-        font:              control.font
-        color:             internal.colors.dark
-        verticalAlignment: Text.AlignVCenter
-        elide:             Text.ElideRight
-    }
-
-    background: Rectangle {
-        color:          control.backgroundColor
-        implicitWidth:  control.width
-        implicitHeight: control.itemHeight
-        border.color:   "transparent"
-        border.width:   0
-
-        topLeftRadius:     4
-        topRightRadius:    4
-        bottomLeftRadius:  control.popup.visible ? 0 : 4
-        bottomRightRadius: control.popup.visible ? 0 : 4
-    }
-
-    popup: Popup {
-        y:              control.height + 1
-        width:          control.width
-        implicitHeight: contentItem.implicitHeight
-        padding:        0
-
-        contentItem: ListView {
-            implicitHeight: contentHeight
-            model:          control.popup.visible ? control.delegateModel : null
-            currentIndex:   control.highlightedIndex
-
-            ScrollIndicator.vertical: ScrollIndicator { }
-        }
-
-        enter: Transition {
-            NumberAnimation {
-                property: "height"
-                from: 0
-                to: control.itemHeight * control.model.length
-                duration: 100
+                ScrollIndicator.vertical: ScrollIndicator { }
             }
-        }
 
-        exit: Transition {
-            NumberAnimation {
-                property: "height"
-                from: control.itemHeight * control.model.length
-                to: 0
-                duration: 100
+            enter: Transition {
+                NumberAnimation {
+                    property: "height"
+                    from: 0
+                    to: itemHeight * _control.model.length
+                    duration: 100
+                }
             }
-        }
 
-        background: Components.SquircleContainer {
-            backgroundColor: internal.colors.background
-            backgroundRadius: 0
-            hasShadow: true
+            exit: Transition {
+                NumberAnimation {
+                    property: "height"
+                    from: itemHeight * _control.model.length
+                    to: 0
+                    duration: 100
+                }
+            }
 
-            backgroundBottomLeftRadius:  4
-            backgroundBottomRightRadius: 4
+            background: Components.SquircleContainer {
+                backgroundColor: internal.colors.background
+                backgroundRadius: 0
+                hasShadow: true
+
+                backgroundBottomLeftRadius:  _root.radius
+                backgroundBottomRightRadius: _root.radius
+            }
         }
     }
 }

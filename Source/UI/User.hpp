@@ -74,6 +74,7 @@ namespace Financy
 
         void createAccount(
             const QString& inName,
+            const QString& inClosingDay,
             const QString& inLimit,
             const QString& inType,
             const QColor& inPrimaryColor,

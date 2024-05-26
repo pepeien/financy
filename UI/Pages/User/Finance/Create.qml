@@ -22,6 +22,7 @@ Components.Page {
 
         internal.selectedUser.createAccount(
             _name.text,
+            _closingDay.text,
             _limit.text,
             _type.currentValue,
             _primaryColor.picker.color,
@@ -70,25 +71,52 @@ Components.Page {
             }
         }
 
-        Components.Dropdown {
-            id:    _type
+        Item {
+            id:    _data
             width: _name.width
 
-            itemHeight: _name.height * 0.8
-
-            model: [ "Expense", "Saving" ]
-
-            anchors.top:              _limit.bottom
-            anchors.topMargin:        30
+            anchors.top:       _limit.bottom
+            anchors.topMargin: 15
             anchors.horizontalCenter: parent.horizontalCenter
+
+            Components.Input {
+                id:     _closingDay
+                width:  (parent.width / 2) - 10
+                height: _limit.height
+
+                label: "Closing Date" 
+                color: internal.colors.dark
+
+                anchors.top:       parent.top
+                anchors.topMargin: 10
+                anchors.left:      parent.left
+
+                validator: IntValidator {
+                    bottom: 1
+                    top: 20
+                }
+            }
+
+            Components.Dropdown {
+                id:         _type
+                label:      "Type"
+                itemWidth:  _closingDay.width
+                itemHeight: _closingDay.height
+
+                model: [ "Expense", "Saving" ]
+
+                anchors.top:       parent.top
+                anchors.topMargin: _closingDay.anchors.topMargin
+                anchors.right:     parent.right
+            }
         }
 
         Item {
             id:    _colors
             width: _name.width
 
-            anchors.top:              _type.bottom
-            anchors.topMargin:        60
+            anchors.top:              _data.bottom
+            anchors.topMargin:        120
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.ColorPicker {

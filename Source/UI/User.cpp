@@ -95,6 +95,7 @@ namespace Financy
 
     void User::createAccount(
         const QString& inName,
+        const QString& inClosingDay,
         const QString& inLimit,
         const QString& inType,
         const QColor& inPrimaryColor,
@@ -110,6 +111,7 @@ namespace Financy
         account->setId(accounts.size());
         account->setUserId(m_id);
         account->setName(inName);
+        account->setClosingDay(std::stoi(inClosingDay.toStdString()));
         account->setLimit(std::stoi(inLimit.toStdString()));
         account->setPrimaryColor(inPrimaryColor);
         account->setSecondaryColor(inSecondaryColor);
