@@ -106,8 +106,12 @@ namespace Financy
         void updateShowcaseTheme(Colors::Theme inTheme);
 
         // Utils
+        QDate addMonths(const QDate& inDate, int inMonths);
+
         QString getLongDate(const QDate& inDate);
         QString getLongMonth(const QDate& inDate);
+
+        float getDueAmount(const QList<Purchase*>& inPurchases);
 
     private:
         // User

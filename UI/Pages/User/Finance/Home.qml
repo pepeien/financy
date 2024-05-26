@@ -10,7 +10,8 @@ import "qrc:/Components" as Components
 Components.Page {
     readonly property var history: internal.selectedAccount.getHistory()
 
-    property var statements: []
+    property var purchases:     []
+    property var subscriptions: []
 
     property int purchaseHeight:       45
     property int statementTitleHeight: 40
@@ -20,15 +21,18 @@ Components.Page {
     title: "Account Home"
 
     function updateListing() {
-        _wrapper.height  = 0;
+        _purchases.height     = 0;
+        _subscriptions.height = _root.statementTitleHeight;
 
         if (!_history.selectedHistory) {
-            _root.statements = [];
-
+            _root.purchases     = [];
+            _root.subscriptions = [];
+    
             return;
         }
 
-        _root.statements = _history.selectedHistory.getDateBasedHistory();
+        _root.purchases     = _history.selectedHistory.getDateBasedHistory();
+        _root.subscriptions = _history.selectedHistory.subscriptions;
     }
 
     Components.FinancyHistory {
@@ -44,7 +48,6 @@ Components.Page {
     }
 
     Components.SquircleContainer {
-        id:     _purchases
         width:  parent.width * 0.55
         height: _root.height - _history.height - 280
 
@@ -59,27 +62,27 @@ Components.Page {
             clip:   true
 
             contentWidth:  0
-            contentHeight: _wrapper.height
+            contentHeight: (_root.subscriptions.length > 0 ? (_purchases.height + _subscriptions.height) : _purchases.height)  + 20
 
             ScrollBar.vertical: Components.ScrollBar {
                 isVertical: true
             }
 
             Repeater {
-                id:     _wrapper
-                model:  _root.statements
+                id:     _purchases
+                model:  _root.purchases
                 width:  parent.width
                 height: 0
 
                 delegate: Components.SquircleContainer {
                     required property int index
 
-                    property var _data:    _root.statements[index]
-                    property var _sibling: _wrapper.itemAt(index - 1)
+                    property var _data:    _purchases.model[index]
+                    property var _sibling: _purchases.itemAt(index - 1)
 
                     id:    _statement
                     width: _scroll.width * 0.96
-                    height: _header.height + _content.height
+                    height: _purchaseHeader.height + _purchaseContent.height
 
                     backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
@@ -87,11 +90,11 @@ Components.Page {
                     anchors.topMargin: 20
 
                     Component.onCompleted: function() {
-                        _wrapper.height += height + 20;
+                        _purchases.height += height + 20;
                     }
 
                     Components.SquircleContainer {
-                        id:     _header
+                        id:     _purchaseHeader
                         width:  parent.width
                         height: _root.statementTitleHeight
 
@@ -158,26 +161,26 @@ Components.Page {
                     }
 
                     Repeater {
-                        id:     _content
+                        id:     _purchaseContent
                         model:  _data.purchases
                         width:  parent.width
                         height: 0
 
-                        anchors.top: _header.bottom
+                        anchors.top: _purchaseHeader.bottom
 
                         delegate: Item {
                             required property int index
 
-                            property var _data:    _content.model[index]
-                            property var _sibling: _content.itemAt(index - 1)
+                            property var _data:    _purchaseContent.model[index]
+                            property var _sibling: _purchaseContent.itemAt(index - 1)
 
-                            width:  _content.width
+                            width:  _purchaseContent.width
                             height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
 
-                            anchors.top: _sibling ? _sibling.bottom : _content.top
+                            anchors.top: _sibling ? _sibling.bottom : _purchaseContent.top
 
                             Component.onCompleted: function() {
-                                _content.height += height;
+                                _purchaseContent.height += height;
                             }
 
                             Rectangle {
@@ -191,7 +194,7 @@ Components.Page {
 
                             Text {
                                 id:   _purchaseName
-                                text: _data.name + " " + (internal.selectedAccount.getPaidInstallments(_data, _history.selectedHistory.date) + 1) + "/" + _data.installments
+                                text: _data.name + " " + internal.selectedAccount.getPaidInstallments(_data, _history.selectedHistory.date) + "/" + _data.installments
                                 color: internal.colors.dark
 
                                 font.family:    "Inter"
@@ -242,6 +245,162 @@ Components.Page {
 
                                     anchors.centerIn: parent
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Components.SquircleContainer {
+                id:      _subscriptions
+                width:   _scroll.width * 0.96
+                height: 0
+                visible: _root.subscriptions.length > 0
+
+                backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+
+                anchors.top:       _purchases.bottom    
+                anchors.topMargin: 20
+
+                Components.SquircleContainer {
+                    id:     _subscriptionsHeader
+                    width:  parent.width
+                    height: _root.statementTitleHeight
+
+                    backgroundColor:             internal.colors.dark
+                    backgroundBottomLeftRadius:  0
+                    backgroundBottomRightRadius: 0
+
+                    anchors.top: parent.top
+
+                    Text {
+                        id:    _headerTitle
+                        text:  "Subscriptions"
+                        color: internal.colors.background
+
+                        font.family:    "Inter"
+                        font.pointSize: 9
+                        font.weight:    Font.Bold
+
+                        anchors.left:          parent.left
+                        anchors.leftMargin:    15
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        id:    _headerTotalTitle
+                        text:  "Total"
+                        color: internal.colors.background
+
+                        font.family:    "Inter"
+                        font.pointSize: 9
+                        font.weight:    Font.Bold
+
+                        anchors.right:          _headerValueTitle.left
+                        anchors.rightMargin:    5
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Text {
+                        id:    _headerValueTitle
+                        text:  internal.getDueAmount(_root.subscriptions).toFixed(2)
+                        color: internal.colors.background
+
+                        font.family:    "Inter"
+                        font.pointSize: 9
+                        font.weight:    Font.Normal
+
+                        anchors.right:          parent.right
+                        anchors.rightMargin:    _headerTitle.anchors.leftMargin
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Repeater {
+                    id:     _subscriptionsContent
+                    model:  _root.subscriptions
+                    width:  parent.width
+                    height: 0
+
+                    anchors.top: _subscriptionsHeader.bottom
+
+                    delegate: Item {
+                        required property int index
+
+                        property var _data:    _subscriptionsContent.model[index]
+                        property var _sibling: _subscriptionsContent.itemAt(index - 1)
+
+                        width:  _subscriptionsContent.width
+                        height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
+
+                        anchors.top: _sibling ? _sibling.bottom : _subscriptionsContent.top
+
+                        Component.onCompleted: function() {
+                            _subscriptionsContent.height += height;
+                            _subscriptions.height        += height;
+                        }
+
+                        Rectangle {
+                            color:   internal.colors.foreground
+                            width:   parent.width
+                            height:  1
+                            visible: index > 0
+
+                            anchors.top: parent.top
+                        }
+
+                        Text {
+                            id:   _subscriptionName
+                            text: _data.name
+                            color: internal.colors.dark
+
+                            font.family:    "Inter"
+                            font.pointSize: 9
+                            font.weight:    Font.Normal
+
+                            anchors.top:            _data.hasDescription() ? parent.top : undefined
+                            anchors.left:           parent.left
+                            anchors.leftMargin:     20
+                            anchors.topMargin:      _data.hasDescription() ? 10 : 0
+                            anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                        }
+
+                        Text {
+                            text:  _data.getInstallmentValue().toFixed(2)
+                            color: _subscriptionName.color
+
+                            font: _subscriptionName.font
+
+                            anchors.top:            _data.hasDescription() ? parent.top : undefined
+                            anchors.right:          parent.right
+                            anchors.rightMargin:     20
+                            anchors.topMargin:      _data.hasDescription() ? 10 : 0
+                            anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                        }
+
+                        Components.SquircleContainer {
+                            id:     _description
+                            height: _text.paintedHeight + 2
+                            width:  _text.paintedWidth + 10
+                            visible: _data.hasDescription()
+
+                            backgroundColor: Qt.lighter(internal.colors.dark, 2)
+
+                            anchors.top:        _subscriptionName.bottom
+                            anchors.left:       parent.left
+                            anchors.topMargin:  7
+                            anchors.leftMargin: _subscriptionName.anchors.leftMargin * 1.5
+
+                            Text {
+                                id:    _text
+                                text:  _data.description
+                                color: internal.colors.background
+
+                                font.family:    "Inter"
+                                font.pointSize: 8
+                                font.weight:    Font.Bold
+
+                                anchors.centerIn: parent
                             }
                         }
                     }

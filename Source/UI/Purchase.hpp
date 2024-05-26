@@ -94,6 +94,10 @@ namespace Financy
         int getInstallments();
         void setInstallments(int inInstallments);
 
+        // Subscription
+        QDate getEndDate();
+        void setEndDate(const QDate& inDate);
+
     private:
         QString m_name;
         QString m_description;
@@ -102,5 +106,8 @@ namespace Financy
 
         float m_value;
         int m_installments;
+
+        // Subscription
+        QDate m_endDate;
     };
 }

@@ -133,7 +133,7 @@ namespace Financy
 
     bool Account::hasFullyPaid(Purchase* inPurchase)
     {
-        return getPaidInstallments(inPurchase) > inPurchase->getInstallments();
+        return (getPaidInstallments(inPurchase) - 1) > inPurchase->getInstallments();
     }
 
     int Account::getPaidInstallments(Purchase* inPurchase)
@@ -143,13 +143,34 @@ namespace Financy
     
     int Account::getPaidInstallments(Purchase* inPurchase, const QDate& inDate)
     {
-        int result       = 1;
+        int result       = 0;
         int installments = inPurchase->getInstallments();
 
         QDate date = inPurchase->getDate();
 
-        QDate closingDate(date.year(), date.month(), m_closingDay);
-        closingDate = closingDate.addMonths(1);
+        QDate closingDate(
+            date.year(),
+            date.month(),
+            m_closingDay
+        );
+
+        if (inPurchase->getType() == Purchase::Type::Subscription)
+        {
+            QDate startDate = inPurchase->getDate();
+            QDate endDate   = inPurchase->getEndDate();
+            endDate.setDate(
+                endDate.year(),
+                endDate.month(),
+                m_closingDay
+            );
+
+            if (inDate.daysTo(startDate) > 0 || inDate.daysTo(endDate) < 0)
+            {
+                return 0;
+            }
+
+            return 1;
+        }
 
         while (date.daysTo(inDate) > 0)
         {
@@ -162,7 +183,7 @@ namespace Financy
             date = date.addDays(1);
         }
 
-        return result - 1;
+        return result;
     }
 
     int Account::getRemainingInstallments(Purchase* inPurchase)
@@ -203,7 +224,7 @@ namespace Financy
 
     QList<Statement> Account::getHistory()
     {
-        QList<Statement> result;
+        QList<Statement> result = {};
 
         QDate earliestDate = QDate::currentDate();
         QDate latestDate   = earliestDate;
@@ -214,8 +235,6 @@ namespace Financy
             if (earliestDate.daysTo(date) < 0)
             {
                 earliestDate = date;
-
-                continue;
             }
 
             date = date.addMonths(purchase->getInstallments());
@@ -223,39 +242,49 @@ namespace Financy
             if (latestDate.daysTo(date) > 0)
             {
                 latestDate = date;
-
-                continue;
             }
         }
 
-        QDate statementDate = earliestDate;
-        statementDate.setDate(
-            statementDate.year(),
-            statementDate.month(),
+        QDate statementDate = QDate(
+            earliestDate.year(),
+            earliestDate.month(),
             m_closingDay
         );
 
-        while(statementDate.daysTo(latestDate) > 0)
+        while(latestDate.daysTo(statementDate) <= 0)
         {
             Statement statement{};
             statement.m_date      = statementDate;
             statement.m_dueAmount = 0;
 
             for (Purchase* purchase : m_purchases) {
-                int daysToStatement = purchase->getDate()
-                    .addMonths(purchase->getInstallments())
-                    .daysTo(statementDate);
+                int paidInstallments = getPaidInstallments(
+                    purchase,
+                    statementDate
+                );
 
-                if (daysToStatement > 0)
+                if (paidInstallments <= 0 || paidInstallments > purchase->getInstallments())
                 {
                     continue;
                 }
 
-                statement.m_purchases.push_back(purchase);
                 statement.m_dueAmount += purchase->getInstallmentValue();
+
+                if (purchase->getType() == Purchase::Type::Subscription)
+                {
+                    statement.m_subscriptions.push_back(purchase);
+
+                    continue;
+                }
+
+                statement.m_purchases.push_back(purchase);
             }
 
             statementDate = statementDate.addMonths(1);
+
+            if (statement.m_purchases.isEmpty() && statement.m_subscriptions.isEmpty()) {
+                continue;
+            }
 
             result.push_back(statement);
         }

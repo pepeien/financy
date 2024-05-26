@@ -309,10 +309,13 @@ namespace Financy
         onShowcaseThemeUpdate();
     }
 
+    QDate Internal::addMonths(const QDate& inDate, int inMonths)
+    {
+        return inDate.addMonths(inMonths);
+    }
+
     QString Internal::getLongDate(const QDate& inDate) {
-        return QString::fromStdString(
-            std::to_string(inDate.day()) + "/" + std::to_string(inDate.month()) + "/" + std::to_string(inDate.year())
-        );
+        return inDate.toString("dd/MM/yyyy");
     }
 
     QString Internal::getLongMonth(const QDate& inDate)
@@ -321,6 +324,18 @@ namespace Financy
             inDate,
             "MMMM"
         );
+    }
+
+    float Internal::getDueAmount(const QList<Purchase*>& inPurchases)
+    {
+        float result = 0;
+
+        for(Purchase* purchase : inPurchases)
+        {
+            result += purchase->getInstallmentValue();
+        }
+
+        return result;
     }
 
     void Internal::loadUsers()

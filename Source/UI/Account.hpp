@@ -22,6 +22,10 @@ namespace Financy
             MEMBER m_purchases
         )
         Q_PROPERTY(
+            QList<Purchase*> subscriptions
+            MEMBER m_subscriptions
+        )
+        Q_PROPERTY(
             float dueAmount
             MEMBER m_dueAmount
         )
@@ -32,6 +36,7 @@ namespace Financy
     public:
         QDate m_date;
         QList<Purchase*> m_purchases;
+        QList<Purchase*> m_subscriptions;
         float m_dueAmount;
     };
 

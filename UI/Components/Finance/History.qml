@@ -20,7 +20,7 @@ Item {
 
     // Vars
     property var _points: []
-    property var _now:     new Date()
+    property var _now:     internal.addMonths(new Date(), 1)
 
     id: _root
 
@@ -126,6 +126,10 @@ Item {
                 borderColor: "transparent"
 
                 Component.onCompleted: function() {
+                    if (history.length === 0) {
+                        return;
+                    }
+
                     for (let i = 0; i < history.length; i++) {
                         _months.model.push(_historyScatter.at(i));
                     }

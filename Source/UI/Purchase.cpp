@@ -100,6 +100,21 @@ namespace Financy
                     (int) inData.at("installments") : 1
                 : 1
         );
+
+        if (m_type != Type::Subscription) {
+            return;
+        }
+
+        setEndDate(
+            inData.find("endDate") != inData.end() ?
+                QDate::fromString(
+                    QString::fromStdString(
+                        (std::string) inData.at("endDate")
+                    ),
+                    "dd/MM/yyyy"
+                ) :
+                QDate::currentDate()
+        );
     }
 
     QString Purchase::getName()
@@ -170,5 +185,15 @@ namespace Financy
         m_installments = inInstallments;
 
         emit onEdit();
+    }
+
+    QDate Purchase::getEndDate()
+    {
+        return m_endDate;
+    }
+
+    void Purchase::setEndDate(const QDate& inDate)
+    {
+        m_endDate = inDate;
     }
 }
