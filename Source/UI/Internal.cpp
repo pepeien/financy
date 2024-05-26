@@ -122,7 +122,7 @@ namespace Financy
         const QColor& inSecondaryColor
     )
     {
-        if (inFirstName.isEmpty() || inLastName.isEmpty() || inPicture.isEmpty())
+        if (inFirstName.isEmpty() || inPicture.isEmpty())
         {
             return nullptr;
         }
@@ -162,17 +162,15 @@ namespace Financy
         {
             return;
         }
-    
-        int index = -1;
 
-        nlohmann::json users = nlohmann::json::parse(std::ifstream(USER_FILE_NAME));
+        nlohmann::ordered_json users = nlohmann::ordered_json::parse(std::ifstream(USER_FILE_NAME));
 
         if (!users.is_array())
         {
             return;
         }
 
-        nlohmann::json updatedUsers = nlohmann::json::array();
+        nlohmann::ordered_json updatedUsers = nlohmann::ordered_json::array();
 
         m_selectedUser->edit(
             inFirstName,
@@ -182,16 +180,16 @@ namespace Financy
             inSecondaryColor
         );
 
-        for (auto& [key, user] : users.items())
+        for (auto& [key, data] : users.items())
         {
-            if (user.find("id") == user.end() || !user.at("id").is_number_unsigned())
+            if (data.find("id") == data.end() || !data.at("id").is_number_unsigned())
             {
                 continue;
             }
 
-            if ((int) user.at("id") != inId)
+            if ((int) data.at("id") != inId)
             {
-                updatedUsers.push_back(user);
+                updatedUsers.push_back(data);
 
                 continue;
             }
@@ -364,9 +362,9 @@ namespace Financy
     void Internal::writeUser(User* inUser)
     {
         std::ifstream file(USER_FILE_NAME);
-        nlohmann::json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
-            nlohmann::json::parse(file):
-            nlohmann::json::array();
+        nlohmann::ordered_json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
+            nlohmann::ordered_json::parse(file):
+            nlohmann::ordered_json::array();
         users.push_back(inUser->toJSON());
 
         // Write

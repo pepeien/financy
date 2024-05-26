@@ -60,7 +60,7 @@ namespace Financy
 
         void onSelectUserUpdate();
         void onUsersUpdate();
-        
+
         void onSelectedAccount();
 
     public:

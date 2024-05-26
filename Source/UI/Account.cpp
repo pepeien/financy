@@ -1,6 +1,12 @@
 #include "Account.hpp"
 
+#include <iostream>
+#include <fstream>
+
 #include <QQmlEngine>
+
+#include "Core/FileSystem.hpp"
+#include "Core/Helper.hpp"
 
 namespace Financy
 {
@@ -35,6 +41,7 @@ namespace Financy
 
     Account::Account()
         : QObject(),
+        m_id(0),
         m_name(""),
         m_closingDay(1),
         m_type(Type::Expense),
@@ -45,7 +52,20 @@ namespace Financy
 
     void Account::fromJSON(const nlohmann::json& inData)
     {
-        // Data
+        setId(
+            inData.find("id") != inData.end() ?
+                inData.at("id").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("id") : 0
+                :
+                0
+        );
+        setUserId(
+            inData.find("userId") != inData.end() ?
+                inData.at("userId").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("userId") : 0
+                :
+                0
+        );
         setName(
             inData.find("name") != inData.end() ?
                 QString::fromStdString((std::string) inData.at("name")) :
@@ -70,24 +90,6 @@ namespace Financy
                 :
                 1.0f
         );
-
-        if (inData.find("purchases") != inData.end())
-        {
-            auto& purchases = inData.at("purchases");
-
-            if (purchases.is_array())
-            {
-                for (auto& it : purchases.items())
-                {
-                    Purchase* purchase = new Purchase();
-                    purchase->fromJSON(it.value());
-
-                    m_purchases.push_back(purchase);
-                }
-            }
-        }
-
-        // Colors
         setPrimaryColor(
             inData.find("primaryColor") != inData.end() ?
                 QString::fromStdString((std::string) inData.at("primaryColor"))
@@ -100,6 +102,22 @@ namespace Financy
                 :
                 "#000000"
         );
+
+        fetchPurchases();
+    }
+
+    nlohmann::ordered_json Account::toJSON()
+    {
+        return nlohmann::ordered_json{
+            { "id",             m_id },
+            { "userId",         m_userId },
+            { "name",           m_name.toStdString() },
+            { "closingDay",     m_closingDay },
+            { "type",           m_type },
+            { "limit",          m_limit },
+            { "primaryColor",   m_primaryColor.name().toStdString() },
+            { "secondaryColor", m_secondaryColor.name().toStdString() }
+        };
     }
 
     float Account::getUsedLimit()
@@ -292,6 +310,26 @@ namespace Financy
         return result;
     }
 
+    std::uint32_t Account::getId()
+    {
+        return m_id;
+    }
+
+    void Account::setId(std::uint32_t inId)
+    {
+        m_id = inId;
+    }
+
+    std::uint32_t Account::getUserId()
+    {
+        return m_userId;
+    }
+
+    void Account::setUserId(std::uint32_t inId)
+    {
+        m_userId = inId;
+    }
+
     QString Account::getName()
     {
         return m_name;
@@ -374,5 +412,39 @@ namespace Financy
         m_secondaryColor = inColor;
 
         emit onEdit();
+    }
+
+    void Account::fetchPurchases()
+    {
+        if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::json purchases = nlohmann::json::parse(std::ifstream(PURCHASE_FILE_NAME));
+
+        if (!purchases.is_array())
+        {
+            return;
+        }
+
+
+        for (auto& [key, data] : purchases.items())
+        {
+            if (data.find("accountId") == data.end() || !data.at("accountId").is_number_unsigned())
+            {
+                continue;
+            }
+
+            if ((std::uint32_t) data.at("accountId") != m_id)
+            {
+                continue;
+            }
+
+            Purchase* purchase = new Purchase();
+            purchase->fromJSON(data);
+
+            m_purchases.push_back(purchase);
+        }
     }
 }

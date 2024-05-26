@@ -1,5 +1,8 @@
 #include "User.hpp"
 
+#include <iostream>
+#include <fstream>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -37,7 +40,6 @@ namespace Financy
 
     void User::fromJSON(const nlohmann::json& inData)
     {
-        // Data'
         setId(
             inData.find("id") != inData.end() ?
                 inData.at("id").is_number_unsigned() ?
@@ -60,8 +62,6 @@ namespace Financy
                 QString::fromStdString((std::string) inData.at("picture")) :
                 ""
         );
-
-        // Colors
         setPrimaryColor(
             inData.find("primaryColor") != inData.end() ?
                 QString::fromStdString((std::string) inData.at("primaryColor")) :
@@ -73,43 +73,12 @@ namespace Financy
                 "#000000"
         );
 
-        // Finances
-        if (inData.find("cards") != inData.end())
-        {
-            auto& cards = inData.at("cards");
-
-            if (cards.is_array())
-            {
-                for (auto& it : cards.items())
-                {
-                    Account* card = new Account();
-                    card->fromJSON(it.value());
-
-                    m_cards.push_back(card);
-                }
-            }
-        }
-
-        if (inData.find("goals") != inData.end())
-        {
-            auto& goals = inData.at("goals");
-
-            if (goals.is_array())
-            {
-                for (auto& it : goals.items())
-                {
-                    Account* goal = new Account();
-                    goal->fromJSON(it.value());
-
-                    m_goals.push_back(goal);
-                }
-            }
-        }
+        fetchAccounts();
     }
 
-    nlohmann::json User::toJSON()
+    nlohmann::ordered_json User::toJSON()
     {
-        return {
+        return nlohmann::ordered_json{
             { "id",             m_id },
             { "firstName",      m_firstName.toStdString() },
             { "lastName",       m_lastName.toStdString() },
@@ -122,6 +91,50 @@ namespace Financy
     QString User::getFullName()
     {
         return m_firstName + " " + m_lastName;
+    }
+
+    void User::createAccount(
+        const QString& inName,
+        const QString& inLimit,
+        const QString& inType,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        std::ifstream file(ACCOUNT_FILE_NAME);
+        nlohmann::ordered_json accounts = FileSystem::doesFileExist(ACCOUNT_FILE_NAME) ? 
+            nlohmann::ordered_json::parse(file):
+            nlohmann::ordered_json::array();
+
+        Account* account = new Account();
+        account->setId(accounts.size());
+        account->setUserId(m_id);
+        account->setName(inName);
+        account->setLimit(std::stoi(inLimit.toStdString()));
+        account->setPrimaryColor(inPrimaryColor);
+        account->setSecondaryColor(inSecondaryColor);
+
+        if (inType.contains("Expense"))
+        {
+            account->setType(Account::Type::Expense);
+
+            m_cards.push_back(account);
+        }
+
+        if (inType.contains("Saving"))
+        {
+            account->setType(Account::Type::Saving);
+
+            m_goals.push_back(account);
+        }
+
+        accounts.push_back(account->toJSON());
+
+        emit onEdit();
+
+        // Write
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << accounts << std::endl;
     }
 
     uint32_t User::getId()
@@ -295,5 +308,46 @@ namespace Financy
         return QString::fromLatin1(
             "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
         );
+    }
+
+    void User::fetchAccounts()
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::json accounts = nlohmann::json::parse(std::ifstream(ACCOUNT_FILE_NAME));
+
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+
+        for (auto& [key, data] : accounts.items())
+        {
+            if (data.find("userId") == data.end() || !data.at("userId").is_number_unsigned())
+            {
+                continue;
+            }
+
+            if ((std::uint32_t) data.at("userId") != m_id)
+            {
+                continue;
+            }
+
+            Account* account = new Account();
+            account->fromJSON(data);
+
+            if (account->getType() == Account::Type::Expense)
+            {
+                m_cards.push_back(account);
+
+                continue;
+            }
+
+            m_goals.push_back(account);
+        }
     }
 }

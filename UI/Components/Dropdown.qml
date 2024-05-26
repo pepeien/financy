@@ -9,8 +9,9 @@ import "qrc:/Components" as Components
 
 ComboBox {
     // Props
-    property real itemWidth:  120
     property real itemHeight: 40
+
+    property string backgroundColor: internal.colors.foreground
 
     id: control
 
@@ -20,7 +21,7 @@ ComboBox {
 
         id:     delegate
         height: control.itemHeight
-        width:  control.itemWidth
+        width:  control.width
 
         highlighted: control.highlightedIndex === index
 
@@ -42,7 +43,7 @@ ComboBox {
 
     indicator: Canvas {
         id:     canvas
-        x:      control.itemWidth - width - control.rightPadding
+        x:      control.width - width - control.rightPadding
         y:      control.topPadding + (control.availableHeight - height) / 2
         width:  12
         height: 8
@@ -83,8 +84,8 @@ ComboBox {
     }
 
     background: Rectangle {
-        color:          internal.colors.background
-        implicitWidth:  control.itemWidth
+        color:          control.backgroundColor
+        implicitWidth:  control.width
         implicitHeight: control.itemHeight
         border.color:   "transparent"
         border.width:   0
@@ -97,7 +98,7 @@ ComboBox {
 
     popup: Popup {
         y:              control.height + 1
-        width:          control.itemWidth
+        width:          control.width
         implicitHeight: contentItem.implicitHeight
         padding:        0
 

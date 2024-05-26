@@ -74,8 +74,15 @@ namespace Financy
 
     public:
         void fromJSON(const nlohmann::json& inData);
+        nlohmann::ordered_json toJSON();
 
     public:
+        std::uint32_t getId();
+        void setId(std::uint32_t inId);
+
+        std::uint32_t getAccountId();
+        void setAccountId(std::uint32_t inId);
+
         QString getName();
         void setName(const QString& inName);
 
@@ -99,6 +106,9 @@ namespace Financy
         void setEndDate(const QDate& inDate);
 
     private:
+        std::uint32_t m_id;
+        std::uint32_t m_accountId;
+
         QString m_name;
         QString m_description;
         QDate m_date;

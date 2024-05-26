@@ -44,6 +44,7 @@ Item {
         width:           parent.width
         height:          parent.height * 0.9
         backgroundColor: _dialog.currentColor
+        hasShadow:       true
 
         anchors.top:       _label.bottom
         anchors.topMargin: _label.text == "" ? 0 : 15

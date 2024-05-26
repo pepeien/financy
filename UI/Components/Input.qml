@@ -9,8 +9,10 @@ import "qrc:/Components" as Components
 
 Components.SquircleContainer {
     // Alias Props
-    property alias color: _input.color
-    property alias text:  _input.text
+    property alias color:     _input.color
+    property alias text:      _input.text
+    property alias validator: _input.validator
+
     property alias label: inputLabel.text
 
     // Value Props

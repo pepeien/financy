@@ -110,8 +110,15 @@ namespace Financy
 
     public:
         void fromJSON(const nlohmann::json& inData);
+        nlohmann::ordered_json toJSON();
 
     public:
+        std::uint32_t getId();
+        void setId(std::uint32_t inId);
+    
+        std::uint32_t getUserId();
+        void setUserId(std::uint32_t inId);
+
         QString getName();
         void setName(const QString& inName);
 
@@ -134,6 +141,14 @@ namespace Financy
         void setSecondaryColor(const QColor& inColor);
 
     private:
+        void fetchPurchases();
+
+    private:
+        // consts
+        std::string PURCHASE_FILE_NAME = "Purchases.json";
+
+        std::uint32_t m_id;
+        std::uint32_t m_userId;
         QString m_name;
         std::uint32_t m_closingDay;
         Type m_type;

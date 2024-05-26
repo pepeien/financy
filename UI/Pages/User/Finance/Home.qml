@@ -18,7 +18,7 @@ Components.Page {
     property int statementHeight:      purchaseHeight + statementTitleHeight
 
     id:    _root
-    title: "Account Home"
+    title: internal.selectedAccount.name
 
     function updateListing() {
         _purchases.height     = 0;

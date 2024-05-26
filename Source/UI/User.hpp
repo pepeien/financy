@@ -72,9 +72,17 @@ namespace Financy
     public slots:
         QString getFullName();
 
+        void createAccount(
+            const QString& inName,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+
     public:
         void fromJSON(const nlohmann::json& inData);
-        nlohmann::json toJSON();
+        nlohmann::ordered_json toJSON();
 
     public:
         uint32_t getId();
@@ -113,7 +121,12 @@ namespace Financy
     private:
         QString formatPicture(const QUrl& inUrl);
 
+        void fetchAccounts();
+
     private:
+        // consts
+        std::string ACCOUNT_FILE_NAME = "Accounts.json";
+
         uint32_t m_id;
 
         QString m_firstName;

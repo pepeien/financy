@@ -53,6 +53,20 @@ namespace Financy
 
     void Purchase::fromJSON(const nlohmann::json& inData)
     {
+        setId(
+            inData.find("id") != inData.end() ?
+                inData.at("id").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("id") : 0
+                :
+                0
+        );
+        setAccountId(
+            inData.find("accountId") != inData.end() ?
+                inData.at("accountId").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("accountId") : 0
+                :
+                0
+        );
         setName(
             QString::fromStdString(
                 inData.find("name") != inData.end() ?
@@ -60,7 +74,6 @@ namespace Financy
                     ""
             )
         );
-
         setDescription(
             QString::fromStdString(
                 inData.find("description") != inData.end() ?
@@ -68,7 +81,6 @@ namespace Financy
                     ""
             )
         );
-
         setDate(
             inData.find("date") != inData.end() ?
                 QDate::fromString(
@@ -79,13 +91,11 @@ namespace Financy
                 ) :
                 QDate::currentDate()
         );
-
         setType(
             inData.find("type") != inData.end() ?
                 inData.at("type").is_number_unsigned() ? (Type) inData.at("type") : Type::Other
             : Type::Other
         );
-
         setValue(
             inData.find("value") != inData.end() ?
                 inData.at("value").is_number() ?
@@ -93,7 +103,6 @@ namespace Financy
                 :
                 0.0f
         );
-
         setInstallments(
             inData.find("installments") != inData.end() ?
                 inData.at("installments").is_number_unsigned() ?
@@ -115,6 +124,47 @@ namespace Financy
                 ) :
                 QDate::currentDate()
         );
+    }
+
+    nlohmann::ordered_json Purchase::toJSON()
+    {
+        nlohmann::ordered_json result = {
+            { "id",           m_id },
+            { "accountId",    m_accountId },
+            { "name",         m_name.toStdString() },
+            { "description",  m_description.toStdString() },
+            { "date",         m_date.toString("dd/MM/yyyy").toStdString() },
+            { "type",         m_type },
+            { "value",        m_value },
+            { "installments", m_installments }
+        };
+
+        if (m_type == Type::Subscription)
+        {
+            result["endDate"] = m_endDate.toString("dd/MM/yyyy").toStdString();
+        }
+
+        return result;
+    }
+
+    std::uint32_t Purchase::getId()
+    {
+        return m_id;
+    }
+
+    void Purchase::setId(std::uint32_t inId)
+    {
+        m_id = inId;
+    }
+
+    std::uint32_t Purchase::getAccountId()
+    {
+        return m_accountId;
+    }
+
+    void Purchase::setAccountId(std::uint32_t inId)
+    {
+        m_accountId = inId;
     }
 
     QString Purchase::getName()
