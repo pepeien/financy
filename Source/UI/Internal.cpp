@@ -114,7 +114,7 @@ namespace Financy
         return result;
     }
 
-    User* Internal::addUser(
+    User* Internal::createUser(
         const QString& inFirstName,
         const QString& inLastName,
         const QUrl& inPicture,
@@ -158,7 +158,9 @@ namespace Financy
             return;
         }
 
-        if (!m_selectedUser)
+        User* user = getUser(inId);
+
+        if (!user)
         {
             return;
         }
@@ -170,15 +172,15 @@ namespace Financy
             return;
         }
 
-        nlohmann::ordered_json updatedUsers = nlohmann::ordered_json::array();
-
-        m_selectedUser->edit(
+        user->edit(
             inFirstName,
             inLastName,
             inPicture,
             inPrimaryColor,
             inSecondaryColor
         );
+
+        nlohmann::ordered_json updatedUsers = nlohmann::ordered_json::array();
 
         for (auto& [key, data] : users.items())
         {
@@ -203,16 +205,16 @@ namespace Financy
         std::ofstream stream(USER_FILE_NAME);
         stream << std::setw(4) << updatedUsers << std::endl;
 
-        onSelectUserUpdate();
-        onUsersUpdate();
+        emit onSelectUserUpdate();
+        emit onUsersUpdate();
     }
 
-    void Internal::removeUser(std::uint32_t inId)
+    void Internal::deleteUser(std::uint32_t inId)
     {
         int userCount = m_users.size();
 
-        removeUserFromFile(  inId);
-        removeUserFromMemory(inId);
+        deleteUserFromFile(  inId);
+        deleteUserFromMemory(inId);
 
         if (userCount == m_users.size())
         {
@@ -236,7 +238,7 @@ namespace Financy
 
         m_selectedUser = inUser;
 
-        onSelectUserUpdate();
+        emit onSelectUserUpdate();
     }
 
     void Internal::logout()
@@ -248,7 +250,7 @@ namespace Financy
 
         m_selectedUser = nullptr;
 
-        onSelectUserUpdate();
+        emit onSelectUserUpdate();
     }
 
     std::uint32_t Internal::getMonthlyDue()
@@ -260,7 +262,7 @@ namespace Financy
 
         std::uint32_t result = 0;
 
-        for (Account* card : m_selectedUser->getCards())
+        for (Account* card : m_selectedUser->getAccounts(Account::Type::Expense))
         {
             result += card->getDueAmount();
         }
@@ -277,14 +279,14 @@ namespace Financy
 
         m_selectedAccount = inAccount;
 
-        onSelectedAccount();
+        emit onSelectedAccountUpdate();
     }
 
     void Internal::accountLogout()
     {
         m_selectedAccount = nullptr;
 
-        onSelectedAccount();
+        emit onSelectedAccountUpdate();
     }
 
     void Internal::updateTheme(Colors::Theme inTheme)
@@ -294,9 +296,9 @@ namespace Financy
         writeSettings();
 
         reloadTheme();
-        onThemeUpdate();
 
-        updateShowcaseTheme(m_colorsTheme);
+        emit onThemeUpdate();
+        emit updateShowcaseTheme(m_colorsTheme);
     }
 
     void Internal::updateShowcaseTheme(Colors::Theme inTheme)
@@ -304,7 +306,8 @@ namespace Financy
         m_showcaseColorsTheme = inTheme;
 
         reloadShowcaseTheme();
-        onShowcaseThemeUpdate();
+
+        emit onShowcaseThemeUpdate();
     }
 
     QDate Internal::addMonths(const QDate& inDate, int inMonths)
@@ -334,6 +337,18 @@ namespace Financy
         }
 
         return result;
+    }
+
+    QList<QString> Internal::getPurchaseTypes()
+    {
+        return {
+            "Utility",
+            "Subscription",
+            "Travel",
+            "Debt",
+            "Food",
+            "Other"
+        };
     }
 
     void Internal::loadUsers()
@@ -372,7 +387,23 @@ namespace Financy
         stream << std::setw(4) << users << std::endl;
     }
 
-    void Internal::removeUserFromFile(std::uint32_t inId)
+    User* Internal::getUser(std::uint32_t inId)
+    {
+        auto iterator = std::find_if(
+            m_users.begin(),
+            m_users.end(),
+            [inId](User* _) { return _->getId() == inId; }
+        );
+
+        if (iterator == m_users.end())
+        {
+            return nullptr;
+        }
+
+        return m_users[iterator - m_users.begin()];
+    }
+
+    void Internal::deleteUserFromFile(std::uint32_t inId)
     {
         // Remove from file
         if (!FileSystem::doesFileExist(USER_FILE_NAME))
@@ -415,7 +446,7 @@ namespace Financy
         stream << std::setw(4) << storedUsers << std::endl;
     }
 
-    void Internal::removeUserFromMemory(std::uint32_t inId)
+    void Internal::deleteUserFromMemory(std::uint32_t inId)
     {
         auto iterator = std::find_if(
             m_users.begin(),

@@ -51,6 +51,11 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
+            Type type
+            MEMBER m_type
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             std::uint32_t closingDay
             MEMBER m_closingDay
             NOTIFY onEdit
@@ -83,6 +88,7 @@ namespace Financy
             Expense = 0,
             Saving  = 1
         };
+        Q_ENUM(Type)
 
     signals:
         void onEdit();
@@ -107,6 +113,15 @@ namespace Financy
         float getDueAmount();
 
         QList<Statement> getHistory();
+
+        void createPurchase(
+            const QString& inName,
+            const QString& inDescription,
+            const QDate& inDate,
+            Purchase::Type inType,
+            const QString& inValue,
+            const QString& inInstallments
+        );
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -139,6 +154,15 @@ namespace Financy
 
         QColor getSecondaryColor();
         void setSecondaryColor(const QColor& inColor);
+
+        void edit(
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
 
     private:
         void fetchPurchases();

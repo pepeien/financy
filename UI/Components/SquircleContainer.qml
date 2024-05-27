@@ -41,6 +41,7 @@ Rectangle {
     Item {
         id: content
         z: 1
+        clip: true
 
         anchors.left: base.left
         anchors.fill: base

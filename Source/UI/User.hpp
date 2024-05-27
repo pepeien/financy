@@ -47,16 +47,9 @@ namespace Financy
             MEMBER m_secondaryColor
             NOTIFY onEdit
         )
-
-        // Finances
         Q_PROPERTY(
-            QList<Account*> cards
-            MEMBER m_cards
-            NOTIFY onEdit
-        )
-        Q_PROPERTY(
-            QList<Account*> goals
-            MEMBER m_goals
+            QList<Account*> accounts
+            MEMBER m_accounts
             NOTIFY onEdit
         )
 
@@ -73,6 +66,15 @@ namespace Financy
         QString getFullName();
 
         void createAccount(
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void editAccount(
+            std::uint32_t inId,
             const QString& inName,
             const QString& inClosingDay,
             const QString& inLimit,
@@ -105,11 +107,9 @@ namespace Financy
         QColor getSecondaryColor();
         void setSecondaryColor(const QColor& inColor);
 
-        QList<Account*> getCards();
-        void setCards(const QList<Account*>& inCards);
-        
-        QList<Account*> getGoals();
-        void setGoals(const QList<Account*>& inGoals);
+        QList<Account*> getAccounts();
+        QList<Account*> getAccounts(Account::Type inType);
+        void setAccounts(const QList<Account*>& inAccounts);
 
         void edit(
             const QString& inFirstName,
@@ -137,7 +137,6 @@ namespace Financy
         QColor m_primaryColor;
         QColor m_secondaryColor;
 
-        QList<Account*> m_cards;
-        QList<Account*> m_goals;
+        QList<Account*> m_accounts;
     };
 }

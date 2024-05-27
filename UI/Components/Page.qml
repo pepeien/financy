@@ -23,6 +23,9 @@ Item {
     property alias rightButtonOnClick: footer.rightButtonOnClick
     property alias rightButtonIcon:   footer.rightButtonIcon
 
+    readonly property alias headerComponent: header
+    readonly property alias footerComponent: footer
+
     Components.Header {
         id: header
 

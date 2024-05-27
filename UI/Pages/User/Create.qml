@@ -20,7 +20,7 @@ Components.Page {
 
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
-        var user = internal.addUser(
+        var user = internal.createUser(
             firstName.text,
             lastName.text,
             profilePicture,

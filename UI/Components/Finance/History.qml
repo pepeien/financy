@@ -24,8 +24,8 @@ Item {
 
     id: _root
 
-    function _onSelectedHistoryUpdate(data, index) {
-        _root.selectedHistory = data;
+    function select(index) {
+        _root.selectedHistory = _root.history[index];
         _root.selectedIndex   = index;
 
         if (!_root.onSelectedHistoryUpdate) {
@@ -48,7 +48,7 @@ Item {
             const date = statement.date;
 
             if (date.getUTCMonth() === _now.getUTCMonth() && date.getUTCFullYear() === _now.getUTCFullYear()) {
-                _root._onSelectedHistoryUpdate(statement, index);
+                _root.select(index);
             }
             
             if (statement.dueAmount <= maxValue) {
@@ -185,7 +185,7 @@ Item {
 
                             _chart.centerOn(_position);
 
-                            _root._onSelectedHistoryUpdate(_data, index);
+                            _root.select(index);
                         }
                     }
 

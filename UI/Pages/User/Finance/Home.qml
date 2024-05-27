@@ -4,18 +4,30 @@
 import QtQuick
 import QtQuick.Controls
 
+// Types
+import Financy.Types 1.0
+
 // Components
 import "qrc:/Components" as Components
 
 Components.Page {
-    readonly property var history: internal.selectedAccount.getHistory()
-
+    property var history:       internal.selectedAccount.getHistory()
     property var purchases:     []
     property var subscriptions: []
 
     property int purchaseHeight:       45
     property int statementTitleHeight: 40
     property int statementHeight:      purchaseHeight + statementTitleHeight
+
+    leftButtonIcon: "qrc:/Icons/Edit.svg" 
+    leftButtonOnClick: function() {
+        stack.push("qrc:/Pages/UserFinanceEdit.qml");
+    }
+
+    centerButtonIcon: "qrc:/Icons/Plus.svg" 
+    centerButtonOnClick: function() {
+        _popup.open();
+    }
 
     id:    _root
     title: internal.selectedAccount.name
@@ -39,15 +51,14 @@ Components.Page {
         id:     _history
         width:  parent.width * 0.95
         height: parent.height * 0.4
+        history: _root.history
 
         anchors.horizontalCenter: parent.horizontalCenter
-
-        history: _root.history
 
         onSelectedHistoryUpdate: _root.updateListing
     }
 
-    Components.SquircleContainer {
+    Item {
         width:  parent.width * 0.55
         height: _root.height - _history.height - 280
 
@@ -55,46 +66,235 @@ Components.Page {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin:        30
 
-        ScrollView {
-            id:     _scroll
-            height: parent.height
+        Behavior on width {
+            PropertyAnimation {
+                easing.type: Easing.InOutQuad
+            }
+        }
+
+        Components.SquircleContainer {
+            id:     _purchasesWrapper
             width:  parent.width
-            clip:   true
+            height: parent.height
 
-            contentWidth:  0
-            contentHeight: (_root.subscriptions.length > 0 ? (_purchases.height + _subscriptions.height) : _purchases.height)  + 20
+            anchors.left: parent.left
+            anchors.top:  parent.top
 
-            ScrollBar.vertical: Components.ScrollBar {
-                isVertical: true
+            Behavior on width {
+                PropertyAnimation {
+                    easing.type: Easing.InOutQuad
+                }
             }
 
-            Repeater {
-                id:     _purchases
-                model:  _root.purchases
+            ScrollView {
+                id:     _scroll
+                height: parent.height
                 width:  parent.width
-                height: 0
+                clip:   true
 
-                delegate: Components.SquircleContainer {
-                    required property int index
+                contentWidth:  0
+                contentHeight: (_root.subscriptions.length > 0 ? (_purchases.height + _subscriptions.height) : _purchases.height) + 20
 
-                    property var _data:    _purchases.model[index]
-                    property var _sibling: _purchases.itemAt(index - 1)
+                ScrollBar.vertical: Components.ScrollBar {
+                    isVertical: true
+                }
 
-                    id:    _statement
-                    width: _scroll.width * 0.96
-                    height: _purchaseHeader.height + _purchaseContent.height
+                Repeater {
+                    id:     _purchases
+                    model:  _root.purchases
+                    width:  parent.width
+                    height: 0
+
+                    delegate: Components.SquircleContainer {
+                        required property int index
+
+                        property var _data:    _purchases.model[index]
+                        property var _sibling: _purchases.itemAt(index - 1)
+
+                        id:    _statement
+                        width: _scroll.width * 0.96
+                        height: _purchaseHeader.height + _purchaseContent.height
+
+                        backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+
+                        anchors.top:       _sibling ? _sibling.bottom : parent.top
+                        anchors.topMargin: 20
+
+                        Component.onCompleted: function() {
+                            _purchases.height += height + 20;
+                        }
+
+                        Components.SquircleContainer {
+                            id:     _purchaseHeader
+                            width:  parent.width
+                            height: _root.statementTitleHeight
+
+                            backgroundColor:             internal.colors.dark
+                            backgroundBottomLeftRadius:  0
+                            backgroundBottomRightRadius: 0
+
+                            anchors.top: parent.top
+
+                            Text {
+                                id:    _headerDateTitle
+                                text:  "Date"
+                                color: internal.colors.background
+
+                                font.family:    "Inter"
+                                font.pointSize: 9
+                                font.weight:    Font.Bold
+
+                                anchors.left:           parent.left
+                                anchors.leftMargin:     20
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            Text {
+                                text:  internal.getLongDate(_data.date)
+                                color: internal.colors.background
+
+                                font.family:    "Inter"
+                                font.pointSize: 9
+                                font.weight:    Font.Normal
+
+                                anchors.left:           _headerDateTitle.right
+                                anchors.leftMargin:     5
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            Text {
+                                id:    _headerTotalTitle
+                                text:  "Total"
+                                color: internal.colors.background
+
+                                font.family:    "Inter"
+                                font.pointSize: 9
+                                font.weight:    Font.Bold
+
+                                anchors.right:          _headerValueTitle.left
+                                anchors.rightMargin:    5
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+
+                            Text {
+                                id:    _headerValueTitle
+                                text:  _data.dueAmount.toFixed(2)
+                                color: internal.colors.background
+
+                                font.family:    "Inter"
+                                font.pointSize: 9
+                                font.weight:    Font.Normal
+
+                                anchors.right:          parent.right
+                                anchors.rightMargin:    _headerDateTitle.anchors.leftMargin
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        Repeater {
+                            id:     _purchaseContent
+                            model:  _data.purchases
+                            width:  parent.width
+                            height: 0
+
+                            anchors.top: _purchaseHeader.bottom
+
+                            delegate: Item {
+                                required property int index
+
+                                property var _data:    _purchaseContent.model[index]
+                                property var _sibling: _purchaseContent.itemAt(index - 1)
+
+                                width:  _purchaseContent.width
+                                height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
+
+                                anchors.top: _sibling ? _sibling.bottom : _purchaseContent.top
+
+                                Component.onCompleted: function() {
+                                    _purchaseContent.height += height;
+                                }
+
+                                Rectangle {
+                                    color:   internal.colors.foreground
+                                    width:   parent.width
+                                    height:  1
+                                    visible: index > 0
+
+                                    anchors.top: parent.top
+                                }
+
+                                Text {
+                                    id:   _purchaseName
+                                    text: _data.name + " " + internal.selectedAccount.getPaidInstallments(_data, _history.selectedHistory.date) + "/" + _data.installments
+                                    color: internal.colors.dark
+
+                                    font.family:    "Inter"
+                                    font.pointSize: 9
+                                    font.weight:    Font.Normal
+
+                                    anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                    anchors.left:           parent.left
+                                    anchors.leftMargin:     20
+                                    anchors.topMargin:      _data.hasDescription() ? 10 : 0
+                                    anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                }
+
+                                Text {
+                                    text:  _data.getInstallmentValue().toFixed(2)
+                                    color: _purchaseName.color
+
+                                    font: _purchaseName.font
+
+                                    anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                    anchors.right:          parent.right
+                                    anchors.rightMargin:     20
+                                    anchors.topMargin:      _data.hasDescription() ? 10 : 0
+                                    anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                }
+
+                                Components.SquircleContainer {
+                                    id:     _description
+                                    height: _text.paintedHeight + 2
+                                    width:  _text.paintedWidth + 10
+                                    visible: _data.hasDescription()
+
+                                    backgroundColor: Qt.lighter(internal.colors.dark, 2)
+
+                                    anchors.top:        _purchaseName.bottom
+                                    anchors.left:       parent.left
+                                    anchors.topMargin:  7
+                                    anchors.leftMargin: _purchaseName.anchors.leftMargin * 1.5
+
+                                    Text {
+                                        id:    _text
+                                        text:  _data.description
+                                        color: internal.colors.background
+
+                                        font.family:    "Inter"
+                                        font.pointSize: 8
+                                        font.weight:    Font.Bold
+
+                                        anchors.centerIn: parent
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Components.SquircleContainer {
+                    id:      _subscriptions
+                    width:   _scroll.width * 0.96
+                    height: 0
+                    visible: _root.subscriptions.length > 0
 
                     backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
-                    anchors.top:       _sibling ? _sibling.bottom : parent.top
+                    anchors.top:       _purchases.bottom    
                     anchors.topMargin: 20
 
-                    Component.onCompleted: function() {
-                        _purchases.height += height + 20;
-                    }
-
                     Components.SquircleContainer {
-                        id:     _purchaseHeader
+                        id:     _subscriptionsHeader
                         width:  parent.width
                         height: _root.statementTitleHeight
 
@@ -105,29 +305,16 @@ Components.Page {
                         anchors.top: parent.top
 
                         Text {
-                            id:    _headerDateTitle
-                            text:  "Date"
+                            id:    _headerTitle
+                            text:  "Subscriptions"
                             color: internal.colors.background
 
                             font.family:    "Inter"
                             font.pointSize: 9
                             font.weight:    Font.Bold
 
-                            anchors.left:           parent.left
-                            anchors.leftMargin:     20
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        Text {
-                            text:  internal.getLongDate(_data.date)
-                            color: internal.colors.background
-
-                            font.family:    "Inter"
-                            font.pointSize: 9
-                            font.weight:    Font.Normal
-
-                            anchors.left:           _headerDateTitle.right
-                            anchors.leftMargin:     5
+                            anchors.left:          parent.left
+                            anchors.leftMargin:    15
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
@@ -147,7 +334,7 @@ Components.Page {
 
                         Text {
                             id:    _headerValueTitle
-                            text:  _data.dueAmount.toFixed(2)
+                            text:  internal.getDueAmount(_root.subscriptions).toFixed(2)
                             color: internal.colors.background
 
                             font.family:    "Inter"
@@ -155,32 +342,33 @@ Components.Page {
                             font.weight:    Font.Normal
 
                             anchors.right:          parent.right
-                            anchors.rightMargin:    _headerDateTitle.anchors.leftMargin
+                            anchors.rightMargin:    _headerTitle.anchors.leftMargin
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
 
                     Repeater {
-                        id:     _purchaseContent
-                        model:  _data.purchases
+                        id:     _subscriptionsContent
+                        model:  _root.subscriptions
                         width:  parent.width
                         height: 0
 
-                        anchors.top: _purchaseHeader.bottom
+                        anchors.top: _subscriptionsHeader.bottom
 
                         delegate: Item {
                             required property int index
 
-                            property var _data:    _purchaseContent.model[index]
-                            property var _sibling: _purchaseContent.itemAt(index - 1)
+                            property var _data:    _subscriptionsContent.model[index]
+                            property var _sibling: _subscriptionsContent.itemAt(index - 1)
 
-                            width:  _purchaseContent.width
+                            width:  _subscriptionsContent.width
                             height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
 
-                            anchors.top: _sibling ? _sibling.bottom : _purchaseContent.top
+                            anchors.top: _sibling ? _sibling.bottom : _subscriptionsContent.top
 
                             Component.onCompleted: function() {
-                                _purchaseContent.height += height;
+                                _subscriptionsContent.height += height;
+                                _subscriptions.height        += height;
                             }
 
                             Rectangle {
@@ -193,8 +381,8 @@ Components.Page {
                             }
 
                             Text {
-                                id:   _purchaseName
-                                text: _data.name + " " + internal.selectedAccount.getPaidInstallments(_data, _history.selectedHistory.date) + "/" + _data.installments
+                                id:   _subscriptionName
+                                text: _data.name
                                 color: internal.colors.dark
 
                                 font.family:    "Inter"
@@ -210,9 +398,9 @@ Components.Page {
 
                             Text {
                                 text:  _data.getInstallmentValue().toFixed(2)
-                                color: _purchaseName.color
+                                color: _subscriptionName.color
 
-                                font: _purchaseName.font
+                                font: _subscriptionName.font
 
                                 anchors.top:            _data.hasDescription() ? parent.top : undefined
                                 anchors.right:          parent.right
@@ -229,10 +417,10 @@ Components.Page {
 
                                 backgroundColor: Qt.lighter(internal.colors.dark, 2)
 
-                                anchors.top:        _purchaseName.bottom
+                                anchors.top:        _subscriptionName.bottom
                                 anchors.left:       parent.left
                                 anchors.topMargin:  7
-                                anchors.leftMargin: _purchaseName.anchors.leftMargin * 1.5
+                                anchors.leftMargin: _subscriptionName.anchors.leftMargin * 1.5
 
                                 Text {
                                     id:    _text
@@ -250,160 +438,169 @@ Components.Page {
                     }
                 }
             }
+        }
+    }
 
-            Components.SquircleContainer {
-                id:      _subscriptions
-                width:   _scroll.width * 0.96
-                height: 0
-                visible: _root.subscriptions.length > 0
+    Components.Popup {
+        id: _popup
 
-                backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+        Components.SquircleContainer {
+            width:  parent.width * 0.6
+            height: parent.height * 0.5
 
-                anchors.top:       _purchases.bottom    
-                anchors.topMargin: 20
+            hasShadow:       true
+            backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
-                Components.SquircleContainer {
-                    id:     _subscriptionsHeader
-                    width:  parent.width
-                    height: _root.statementTitleHeight
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter:   parent.verticalCenter
 
-                    backgroundColor:             internal.colors.dark
-                    backgroundBottomLeftRadius:  0
-                    backgroundBottomRightRadius: 0
+            Components.Text {
+                id:   _title
+                color: internal.colors.dark
+                text:  "New Purchase"
 
-                    anchors.top: parent.top
+                font.pointSize: 30
+                font.weight:    Font.Bold
 
-                    Text {
-                        id:    _headerTitle
-                        text:  "Subscriptions"
-                        color: internal.colors.background
+                anchors.top:              parent.top
+                anchors.topMargin:        10
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-                        font.family:    "Inter"
-                        font.pointSize: 9
-                        font.weight:    Font.Bold
+            Item {
+                id: _firstInput
 
-                        anchors.left:          parent.left
-                        anchors.leftMargin:    15
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
+                width: parent.width * 0.8
 
-                    Text {
-                        id:    _headerTotalTitle
-                        text:  "Total"
-                        color: internal.colors.background
+                anchors.top:              _title.top
+                anchors.topMargin:        70
+                anchors.horizontalCenter: parent.horizontalCenter
 
-                        font.family:    "Inter"
-                        font.pointSize: 9
-                        font.weight:    Font.Bold
+                Components.Input {
+                    id:    _name
+                    width: (parent.width * 0.5) - 5
 
-                        anchors.right:          _headerValueTitle.left
-                        anchors.rightMargin:    5
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
+                    label:     "Name"
+                    color:     internal.colors.dark
+                    minLength: 1
+                    maxLength: 50
 
-                    Text {
-                        id:    _headerValueTitle
-                        text:  internal.getDueAmount(_root.subscriptions).toFixed(2)
-                        color: internal.colors.background
+                    anchors.left: parent.left
 
-                        font.family:    "Inter"
-                        font.pointSize: 9
-                        font.weight:    Font.Normal
-
-                        anchors.right:          parent.right
-                        anchors.rightMargin:    _headerTitle.anchors.leftMargin
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
+                    KeyNavigation.tab: _description.input
                 }
 
-                Repeater {
-                    id:     _subscriptionsContent
-                    model:  _root.subscriptions
-                    width:  parent.width
-                    height: 0
+                Components.Input {
+                    id:    _description
+                    width: _name.width
 
-                    anchors.top: _subscriptionsHeader.bottom
+                    label:     "Description"
+                    color:     internal.colors.dark
+                    minLength: 0
+                    maxLength: 50
 
-                    delegate: Item {
-                        required property int index
+                    anchors.right: parent.right
 
-                        property var _data:    _subscriptionsContent.model[index]
-                        property var _sibling: _subscriptionsContent.itemAt(index - 1)
+                    KeyNavigation.tab: _installments.input
+                }
+            }
 
-                        width:  _subscriptionsContent.width
-                        height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
+            Item {
+                id:    _secondInput
+                width: _firstInput.width
 
-                        anchors.top: _sibling ? _sibling.bottom : _subscriptionsContent.top
+                anchors.top:              _firstInput.bottom
+                anchors.topMargin:        90
+                anchors.horizontalCenter: parent.horizontalCenter
+    
+                Components.Input {
+                    id:    _installments
+                    width: (parent.width * 0.5) - 5
 
-                        Component.onCompleted: function() {
-                            _subscriptionsContent.height += height;
-                            _subscriptions.height        += height;
-                        }
+                    label:     "Installments"
+                    color:     internal.colors.dark
 
-                        Rectangle {
-                            color:   internal.colors.foreground
-                            width:   parent.width
-                            height:  1
-                            visible: index > 0
+                    anchors.left: parent.left
 
-                            anchors.top: parent.top
-                        }
-
-                        Text {
-                            id:   _subscriptionName
-                            text: _data.name
-                            color: internal.colors.dark
-
-                            font.family:    "Inter"
-                            font.pointSize: 9
-                            font.weight:    Font.Normal
-
-                            anchors.top:            _data.hasDescription() ? parent.top : undefined
-                            anchors.left:           parent.left
-                            anchors.leftMargin:     20
-                            anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                            anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
-                        }
-
-                        Text {
-                            text:  _data.getInstallmentValue().toFixed(2)
-                            color: _subscriptionName.color
-
-                            font: _subscriptionName.font
-
-                            anchors.top:            _data.hasDescription() ? parent.top : undefined
-                            anchors.right:          parent.right
-                            anchors.rightMargin:     20
-                            anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                            anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
-                        }
-
-                        Components.SquircleContainer {
-                            id:     _description
-                            height: _text.paintedHeight + 2
-                            width:  _text.paintedWidth + 10
-                            visible: _data.hasDescription()
-
-                            backgroundColor: Qt.lighter(internal.colors.dark, 2)
-
-                            anchors.top:        _subscriptionName.bottom
-                            anchors.left:       parent.left
-                            anchors.topMargin:  7
-                            anchors.leftMargin: _subscriptionName.anchors.leftMargin * 1.5
-
-                            Text {
-                                id:    _text
-                                text:  _data.description
-                                color: internal.colors.background
-
-                                font.family:    "Inter"
-                                font.pointSize: 8
-                                font.weight:    Font.Bold
-
-                                anchors.centerIn: parent
-                            }
-                        }
+                    validator: IntValidator {
+                        bottom: 1
                     }
+
+                    KeyNavigation.tab: _value.input
+                }
+
+                Components.Input {
+                    id:    _value
+                    width: (parent.width * 0.5) - 5
+
+                    label: "Value"
+                    color: internal.colors.dark
+
+                    anchors.right: parent.right
+
+                    validator: IntValidator {
+                        bottom: 1
+                    }
+                }
+            }
+
+            Item {
+                id:    _thirdInput
+                width: _firstInput.width
+
+                anchors.top:              _secondInput.bottom
+                anchors.topMargin:        90
+                anchors.horizontalCenter: parent.horizontalCenter
+    
+                Components.Dropdown {
+                    id:    _type
+                    label: "Type"
+                    model: internal.getPurchaseTypes() ?? []
+
+                    itemWidth: (parent.width * 0.5) - 5
+                    itemHeight: _value.height
+
+                    anchors.left: parent.left
+                }
+            }
+
+            Components.SquircleButton {
+                width:  parent.width * 0.45
+                height: 60
+
+                backgroundColor: internal.colors.dark
+
+                anchors.bottom:           parent.bottom
+                anchors.bottomMargin:     25
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onClick: function() {
+                    internal.selectedAccount.createPurchase(
+                        _name.text,
+                        _description.text,
+                        new Date(),
+                        Purchase.Other,
+                        _value.text,
+                        _installments.text
+                    );
+
+                    _root.history = internal.selectedAccount.getHistory();
+                    _history.select(_history.selectedIndex);
+
+                    _root.updateListing();
+
+                    _popup.close();
+                }
+
+                Components.Text {
+                    text:  "Create"
+                    color: internal.colors.background
+
+                    font.weight:    Font.Bold
+                    font.pointSize: 15
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter:   parent.verticalCenter
                 }
             }
         }

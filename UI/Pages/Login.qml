@@ -81,7 +81,7 @@ Components.Page {
 
                     backgroundColor: "#F2665A"
                     onClick: function() {
-                        internal.removeUser(user.id);
+                        internal.deleteUser(user.id);
                     }
 
                     Image {

@@ -48,7 +48,15 @@ namespace Financy
         m_limit(1.0f),
         m_primaryColor("#FFFFFF"),
         m_secondaryColor("#000000")
-    {}
+    {
+        qmlRegisterUncreatableType<Account>(
+            "Financy.Types",
+            1,
+            0,
+            "Account",
+            "Internal use only"
+        );
+    }
 
     void Account::fromJSON(const nlohmann::json& inData)
     {
@@ -140,7 +148,7 @@ namespace Financy
     
             result += getRemainingValue(purchase);
         }
-
+    qDebug() << result;
         return result;
     }
 
@@ -310,6 +318,46 @@ namespace Financy
         return result;
     }
 
+    void Account::createPurchase(
+        const QString& inName,
+        const QString& inDescription,
+        const QDate& inDate,
+        Purchase::Type inType,
+        const QString& inValue,
+        const QString& inInstallments
+    )
+    {
+        std::ifstream file(PURCHASE_FILE_NAME);
+        nlohmann::ordered_json purchases = FileSystem::doesFileExist(PURCHASE_FILE_NAME) ? 
+            nlohmann::ordered_json::parse(file):
+            nlohmann::ordered_json::array();
+
+        if (!purchases.is_array())
+        {
+            return;
+        }
+
+        Purchase* purchase = new Purchase();
+        purchase->setId(          purchases.size());
+        purchase->setAccountId(   m_id);
+        purchase->setName(        inName);
+        purchase->setDescription( inDescription);
+        purchase->setDate(        inDate);
+        purchase->setType(        inType);
+        purchase->setValue(       std::stof(inValue.toStdString()));
+        purchase->setInstallments(std::stoi(inInstallments.toStdString()));
+
+        m_purchases.push_back(purchase);
+
+        purchases.push_back(purchase->toJSON());
+
+        emit onEdit();
+
+        // Write
+        std::ofstream stream(PURCHASE_FILE_NAME);
+        stream << std::setw(4) << purchases << std::endl;
+    }
+
     std::uint32_t Account::getId()
     {
         return m_id;
@@ -410,6 +458,55 @@ namespace Financy
     void Account::setSecondaryColor(const QColor& inColor)
     {
         m_secondaryColor = inColor;
+
+        emit onEdit();
+    }
+
+    void Account::edit(
+        const QString& inName,
+        const QString& inClosingDay,
+        const QString& inLimit,
+        const QString& inType,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (m_name.compare(inName) != 0)
+        {
+            m_name = inName;
+        }
+
+        if (m_closingDay != std::stoi(inClosingDay.toStdString()))
+        {
+            m_closingDay = std::stoi(inClosingDay.toStdString());
+        }
+
+        if (m_limit != std::stoi(inLimit.toStdString()))
+        {
+            m_limit = std::stoi(inLimit.toStdString());
+        }
+
+        Type type = Type::Expense;
+
+        if (inType.contains("Saving"))
+        {
+            type = Type::Saving;
+        }
+
+        if (m_type != type)
+        {
+            m_type = type;
+        }
+
+        if (m_primaryColor.name().compare(inPrimaryColor.name()) != 0)
+        {
+            m_primaryColor = inPrimaryColor;
+        }
+
+        if (m_secondaryColor.name().compare(inSecondaryColor.name()) != 0)
+        {
+            m_secondaryColor = inSecondaryColor;
+        }
 
         emit onEdit();
     }

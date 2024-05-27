@@ -50,9 +50,8 @@ namespace Financy
         Q_PROPERTY(
             Account* selectedAccount
             MEMBER m_selectedAccount
-            NOTIFY onSelectedAccount
+            NOTIFY onSelectedAccountUpdate
         )
-
 
     signals:
         void onThemeUpdate();
@@ -61,7 +60,7 @@ namespace Financy
         void onSelectUserUpdate();
         void onUsersUpdate();
 
-        void onSelectedAccount();
+        void onSelectedAccountUpdate();
 
     public:
         Internal(QObject* parent = nullptr);
@@ -76,7 +75,7 @@ namespace Financy
         QList<QColor> getUserColorsFromImage(const QString& inImage);
 
         // User
-        User* addUser(
+        User* createUser(
             const QString& inFirstName,
             const QString& inLastName,
             const QUrl& inPicture,
@@ -91,7 +90,8 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
-        void removeUser(std::uint32_t inId);
+        void deleteUser(std::uint32_t inId);
+
         void login(User* inUser);
         void logout();
 
@@ -113,12 +113,15 @@ namespace Financy
 
         float getDueAmount(const QList<Purchase*>& inPurchases);
 
+        QList<QString> getPurchaseTypes();
+
     private:
         // User
         void loadUsers();
         void writeUser(User* inUser);
-        void removeUserFromFile(std::uint32_t inId);
-        void removeUserFromMemory(std::uint32_t inId);
+        User* getUser(std::uint32_t inId);
+        void deleteUserFromFile(std::uint32_t inId);
+        void deleteUserFromMemory(std::uint32_t inId);
 
         // Settings
         void loadSettings();

@@ -6,12 +6,17 @@ import QtQuick
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 
+// Types
+import Financy.Types 1.0
+
 // Components
 import "qrc:/Components" as Components
 
 Components.Page {
+    readonly property var selectedUser: internal.selectedUser
+
     id:    _root
-    title: internal.selectedUser ? internal.selectedUser.getFullName() : ""
+    title: selectedUser ? selectedUser.getFullName() : ""
 
     leftButtonIcon:   "qrc:/Icons/Profile.svg"
     leftButtonOnClick: function() {
@@ -29,6 +34,9 @@ Components.Page {
 
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
+
+    readonly property var expenseAccounts: selectedUser ? selectedUser.accounts.filter((account) => account.type == Account.Expense) : []
+    readonly property var savingAccounts:  selectedUser ? selectedUser.accounts.filter((account) => account.type == Account.Saving) : []
 
     Item {
         id:     _selector
@@ -64,7 +72,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internal.selectedUser?.cards ?? []
+                model: _root.expenseAccounts
 
                 anchors.top:              _cardsTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -99,7 +107,7 @@ Components.Page {
             }
 
             Components.Accounts {
-                model: internal.selectedUser?.goals ?? []
+                model: _root.savingAccounts
 
                 anchors.top:              _goalTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -142,7 +150,7 @@ Components.Page {
                 height:       parent.height - _overviewTitle.height
                 width:        parent.width - _overviewTitle.height
                 antialiasing: true
-                visible:      internal.selectedUser?.cards.length > 0
+                visible:      _root.expenseAccounts.length > 0
 
                 backgroundColor:  "transparent"
                 plotAreaColor:    "transparent"
@@ -162,7 +170,7 @@ Components.Page {
                 Component.onCompleted: function() {
                     const expensesMap = {};
 
-                    internal.selectedUser.cards.forEach((card) => {
+                    _root.expenseAccounts.forEach((card) => {
                         card.purchases.forEach((purchase) => {
                             if (card.hasFullyPaid(purchase)) {
                                 return;

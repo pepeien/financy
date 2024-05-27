@@ -27,14 +27,9 @@ namespace Financy
 
     User::~User()
     {
-        for (auto card : m_cards)
+        for (Account* account : m_accounts)
         {
-            delete card;
-        }
-
-        for (auto goals : m_goals)
-        {
-            delete goals;
+            delete account;
         }
     }
 
@@ -119,16 +114,14 @@ namespace Financy
         if (inType.contains("Expense"))
         {
             account->setType(Account::Type::Expense);
-
-            m_cards.push_back(account);
         }
 
         if (inType.contains("Saving"))
         {
             account->setType(Account::Type::Saving);
-
-            m_goals.push_back(account);
         }
+
+        m_accounts.push_back(account);
 
         accounts.push_back(account->toJSON());
 
@@ -137,6 +130,73 @@ namespace Financy
         // Write
         std::ofstream stream(ACCOUNT_FILE_NAME);
         stream << std::setw(4) << accounts << std::endl;
+    }
+
+    void User::editAccount(
+        std::uint32_t inId,
+        const QString& inName,
+        const QString& inClosingDay,
+        const QString& inLimit,
+        const QString& inType,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::ordered_json accounts = nlohmann::ordered_json::parse(std::ifstream(ACCOUNT_FILE_NAME));
+
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+        nlohmann::ordered_json updatedAccounts = nlohmann::ordered_json::array();
+
+        auto foundIterator = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [inId](Account* _) { return _->getId() == inId; }
+        );
+
+        if (foundIterator == m_accounts.end())
+        {
+            return;
+        }
+
+        Account* foundAccount = m_accounts[foundIterator - m_accounts.begin()];
+        foundAccount->edit(
+            inName,
+            inClosingDay,
+            inLimit,
+            inType,
+            inPrimaryColor,
+            inSecondaryColor
+        );
+
+        for (auto& [key, data] : accounts.items())
+        {
+            if (data.find("id") == data.end() || !data.at("id").is_number_unsigned())
+            {
+                continue;
+            }
+
+            if ((std::uint32_t) data.at("id") != inId)
+            {
+                updatedAccounts.push_back(data);
+
+                continue;
+            }
+
+            updatedAccounts.push_back(foundAccount->toJSON());
+        }
+
+        // Write
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << updatedAccounts << std::endl;
     }
 
     uint32_t User::getId()
@@ -221,24 +281,31 @@ namespace Financy
         m_secondaryColor = inColor;
     }
 
-    QList<Account*> User::getCards()
+    QList<Account*> User::getAccounts()
     {
-        return m_cards;
+        return m_accounts;
     }
 
-    void User::setCards(const QList<Account*>& inCards)
+    QList<Account*> User::getAccounts(Account::Type inType)
     {
-        m_cards = inCards;
-    }
-        
-    QList<Account*> User::getGoals()
-    {
-        return m_goals;
+        QList<Account*> result{};
+
+        for (Account* account : m_accounts)
+        {
+            if (account->getType() != inType)
+            {
+                continue;
+            }
+
+            result.push_back(account);
+        }
+
+        return result;
     }
 
-    void User::setGoals(const QList<Account*>& inGoals)
+    void User::setAccounts(const QList<Account*>& inAccounts)
     {
-        m_goals = inGoals;
+        m_accounts = inAccounts;
     }
 
     void User::edit(
@@ -342,14 +409,7 @@ namespace Financy
             Account* account = new Account();
             account->fromJSON(data);
 
-            if (account->getType() == Account::Type::Expense)
-            {
-                m_cards.push_back(account);
-
-                continue;
-            }
-
-            m_goals.push_back(account);
+            m_accounts.push_back(account);
         }
     }
 }
