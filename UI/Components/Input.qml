@@ -13,6 +13,10 @@ Item {
     property alias text:      _input.text
     property alias validator: _input.validator
 
+    function clear() {
+        _input.clear();
+    }
+
     property alias label: inputLabel.text
     property alias hint:  inputHint.text
 

@@ -45,17 +45,21 @@ Item {
 
             highlighted: _control.highlightedIndex === index
 
+            HoverHandler {
+                id: mouse
+                acceptedDevices: PointerDevice.Mouse
+            }
+
             contentItem: Components.Text {
                 text:              delegate.model[_control.textRole]
-                color:             internal.colors.dark
+                color:             mouse.hovered ? internal.colors.background : internal.colors.dark
                 font:              _control.font
                 verticalAlignment: Text.AlignVCenter
                 padding:           _root.textPadding
             }
 
             background: Components.SquircleButton {
-                topLeftRadius:  index === 0 ? _root.radius : 0
-                topRightRadius: index === 0 ? _root.radius : 0
+                color: mouse.hovered ? internal.colors.light : "transparent"
 
                 bottomLeftRadius:  index === (_control.model.length - 1) ? _root.radius : 0
                 bottomRightRadius: index === (_control.model.length - 1) ? _root.radius : 0
@@ -79,6 +83,10 @@ Item {
             }
 
             onPaint: {
+                if (!context) {
+                    return
+                }
+
                 context.reset();
 
                 context.moveTo(0, 0);
@@ -133,24 +141,25 @@ Item {
         }
 
         popup: Popup {
-            y:              _control.height + 1
+            y:              _control.height - 0.5
             width:          _control.width
-            implicitHeight: contentItem.implicitHeight
             padding:        0
+            clip:           true
 
             contentItem: ListView {
                 implicitHeight: contentHeight
                 model:          _control.popup.visible ? _control.delegateModel : null
                 currentIndex:   _control.highlightedIndex
+                highlightFollowsCurrentItem: false
 
-                ScrollIndicator.vertical: ScrollIndicator { }
+                ScrollIndicator.vertical: ScrollIndicator {}
             }
 
             enter: Transition {
                 NumberAnimation {
                     property: "height"
-                    from: 0
-                    to: itemHeight * _control.model.length
+                    from:     0
+                    to:       Math.min(itemHeight * _control.model.length, 200)
                     duration: 100
                 }
             }
@@ -158,14 +167,14 @@ Item {
             exit: Transition {
                 NumberAnimation {
                     property: "height"
-                    from: itemHeight * _control.model.length
-                    to: 0
+                    from:     Math.min(itemHeight * _control.model.length, 200)
+                    to:       0
                     duration: 100
                 }
             }
 
             background: Components.SquircleContainer {
-                backgroundColor: internal.colors.background
+                backgroundColor: internal.colors.foreground
                 backgroundRadius: 0
                 hasShadow: true
 
