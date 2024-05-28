@@ -160,7 +160,7 @@ Components.Page {
             maxLength: 20
 
             anchors.top:              firstName.bottom
-            anchors.topMargin:        30
+            anchors.topMargin:        10
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
@@ -169,7 +169,7 @@ Components.Page {
             width: lastName.width
 
             anchors.top:              lastName.bottom
-            anchors.topMargin:        60
+            anchors.topMargin:        30
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.ColorPicker {

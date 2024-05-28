@@ -99,8 +99,8 @@ namespace Financy
         void createPurchase(
             const QString& inName,
             const QString& inDescription,
-            const QDate& inDate,
-            Purchase::Type inType,
+            const QString& inDate,
+            const QString& inType,
             const QString& inValue,
             const QString& inInstallments
         );

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include <QtCore>
 #include <QDate>
 
@@ -49,7 +51,7 @@ namespace Financy
         {
             Utility       = 0, // Light, Water, Internet, Gas, School bills
             Subscription  = 1,
-            Travel        = 2,
+            Transport     = 2,
             Debt          = 3,
             Food          = 4,
             Other         = 5
@@ -65,11 +67,14 @@ namespace Financy
 
         Purchase& operator=(const Purchase&) = default;
 
+    public:
+        static Type getTypeValue(const QString& inName);
+        static QString getTypeName(Type inType);
+
     public slots:
         bool hasDescription();
 
         float getInstallmentValue();
-
         QString getTypeName();
 
     public:
@@ -119,5 +124,14 @@ namespace Financy
 
         // Subscription
         QDate m_endDate;
+    };
+
+    static std::unordered_map<std::string, Purchase::Type> PURCHASE_TYPES = {
+        { "Debt",         Purchase::Type::Debt },
+        { "Food",         Purchase::Type::Food},
+        { "Subscription", Purchase::Type::Subscription },
+        { "Transport",    Purchase::Type::Transport },
+        { "Utility",      Purchase::Type::Utility },
+        { "Other",        Purchase::Type::Other }
     };
 }

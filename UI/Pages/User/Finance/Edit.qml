@@ -28,7 +28,7 @@ Components.Page {
             _name.text,
             _closingDay.text,
             _limit.text,
-            _type.currentValue,
+            _type.value,
             _primaryColor.picker.color,
             _secondaryColor.picker.color
         );
@@ -69,7 +69,7 @@ Components.Page {
             color: internal.colors.dark
 
             anchors.top:              _name.bottom
-            anchors.topMargin:        30
+            anchors.topMargin:        10
             anchors.horizontalCenter: parent.horizontalCenter
 
             validator: IntValidator {
@@ -78,24 +78,23 @@ Components.Page {
         }
 
         Item {
-            id:    _data
-            width: _name.width
+            id:     _data
+            width:  _name.width
+            height: _closingDay.height
 
             anchors.top:       _limit.bottom
-            anchors.topMargin: 15
+            anchors.topMargin: 10
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.Input {
                 id:     _closingDay
                 width:  (parent.width / 2) - 10
-                height: _limit.height
                 text:   account.closingDay
 
-                label: "Closing Date" 
-                color: internal.colors.dark
+                label:       "Closing Date" 
+                color:       internal.colors.dark
+                inputHeight: _limit.inputHeight
 
-                anchors.top:       parent.top
-                anchors.topMargin: 10
                 anchors.left:      parent.left
 
                 validator: IntValidator {
@@ -108,12 +107,10 @@ Components.Page {
                 id:         _type
                 label:      "Type"
                 itemWidth:  _closingDay.width
-                itemHeight: _closingDay.height
+                itemHeight: _closingDay.inputHeight
 
                 model: [ "Expense", "Saving" ]
 
-                anchors.top:       parent.top
-                anchors.topMargin: _closingDay.anchors.topMargin
                 anchors.right:     parent.right
             }
         }
@@ -123,7 +120,7 @@ Components.Page {
             width: _name.width
 
             anchors.top:              _data.bottom
-            anchors.topMargin:        120
+            anchors.topMargin:        30
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.ColorPicker {

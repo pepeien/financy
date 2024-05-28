@@ -22,6 +22,35 @@ namespace Financy
         );
     }
 
+    Purchase::Type Purchase::getTypeValue(const QString& inName)
+    {
+        if (PURCHASE_TYPES.find(inName.toStdString()) == PURCHASE_TYPES.end())
+        {
+            return Type::Other;
+        }
+    
+        return PURCHASE_TYPES.at(inName.toStdString());
+    }
+
+    QString Purchase::getTypeName(Type inType)
+    {
+        switch (inType)
+        {
+        case Type::Utility:
+            return "Utilities";
+        case Type::Subscription:
+            return "Subscriptions";
+        case Type::Transport:
+            return "Transport";
+        case Type::Debt:
+            return "Debts";
+        case Type::Food:
+            return "Food";
+        default:
+            return "Others";
+        }
+    }
+
     bool Purchase::hasDescription()
     {
         return !m_description.isEmpty();
@@ -34,21 +63,7 @@ namespace Financy
 
     QString Purchase::getTypeName()
     {
-        switch (m_type)
-        {
-        case Type::Utility:
-            return "Utilities";
-        case Type::Subscription:
-            return "Subscriptions";
-        case Type::Travel:
-            return "Travels";
-        case Type::Debt:
-            return "Debts";
-        case Type::Food:
-            return "Food";
-        default:
-            return "Others";
-        }
+        return getTypeName(m_type);
     }
 
     void Purchase::fromJSON(const nlohmann::json& inData)

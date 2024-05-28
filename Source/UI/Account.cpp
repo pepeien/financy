@@ -222,8 +222,8 @@ namespace Financy
     void Account::createPurchase(
         const QString& inName,
         const QString& inDescription,
-        const QDate& inDate,
-        Purchase::Type inType,
+        const QString& inDate,
+        const QString& inType,
         const QString& inValue,
         const QString& inInstallments
     )
@@ -243,22 +243,25 @@ namespace Financy
         purchase->setAccountId(   m_id);
         purchase->setName(        inName);
         purchase->setDescription( inDescription);
-        purchase->setDate(        inDate);
-        purchase->setType(        inType);
+        purchase->setDate(        QDate::fromString(inDate, "dd/MM/yyyy"));
+        purchase->setType(        Purchase::getTypeValue(inType));
         purchase->setValue(       std::stof(inValue.toStdString()));
         purchase->setInstallments(std::stoi(inInstallments.toStdString()));
 
-        m_purchases.push_back(purchase);
+        QList<Purchase*> newPurchases = m_purchases;
+        newPurchases.push_back(purchase);
+
+        setPurchases(newPurchases);
 
         refreshHistory();
 
         emit onEdit();
 
         // Write
-        //purchases.push_back(purchase->toJSON());
+        purchases.push_back(purchase->toJSON());
 
-        //std::ofstream stream(PURCHASE_FILE_NAME);
-        //stream << std::setw(4) << purchases << std::endl;
+        std::ofstream stream(PURCHASE_FILE_NAME);
+        stream << std::setw(4) << purchases << std::endl;
     }
 
     std::uint32_t Account::getId()
@@ -337,6 +340,12 @@ namespace Financy
     void Account::setPurchases(const QList<Purchase*>& inPurchases)
     {
         m_purchases = inPurchases;
+
+        std::sort(
+            m_purchases.begin(),
+            m_purchases.end(),
+            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
+        );
 
         refreshHistory();
 
@@ -430,6 +439,7 @@ namespace Financy
             return;
         }
 
+        QList<Purchase*> newPurchases{};
 
         for (auto& [key, data] : purchases.items())
         {
@@ -446,8 +456,10 @@ namespace Financy
             Purchase* purchase = new Purchase();
             purchase->fromJSON(data);
 
-            m_purchases.push_back(purchase);
+            newPurchases.push_back(purchase);
         }
+
+        setPurchases(newPurchases);
 
         refreshHistory();
     }
@@ -456,23 +468,24 @@ namespace Financy
     {
         m_history.clear();
 
-        QDate earliestDate = QDate::currentDate();
+        if (m_purchases.isEmpty())
+        {
+            return;
+        }
+
+        QDate earliestDate = m_purchases[0]->getDate();
         QDate latestDate   = earliestDate;
 
-        for (Purchase* purchase : m_purchases) {
-            QDate date = purchase->getDate();
+        for (Purchase* purchase : m_purchases)
+        {
+            QDate date = purchase->getDate().addMonths(purchase->getInstallments());
 
-            if (earliestDate.daysTo(date) < 0)
+            if (latestDate.daysTo(date) <= 0)
             {
-                earliestDate = date;
+                continue;
             }
 
-            date = date.addMonths(purchase->getInstallments());
-
-            if (latestDate.daysTo(date) > 0)
-            {
-                latestDate = date;
-            }
+            latestDate = date;
         }
 
         QDate statementDate = QDate(
@@ -528,5 +541,13 @@ namespace Financy
 
             m_history.push_back(statement);
         }
+
+        std::sort(
+            m_history.begin(),
+            m_history.end(),
+            [](Statement* a, Statement* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
+        );
+
+        emit onEdit();
     }
 }

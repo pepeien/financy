@@ -23,6 +23,12 @@ namespace Financy
     void Statement::setPurchases(const QList<Purchase*>& inPurchases)
     {
         m_purchases = inPurchases;
+
+        std::sort(
+            m_purchases.begin(),
+            m_purchases.end(),
+            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
+        );
     }
 
     QList<Purchase*> Statement::getPurchases()
@@ -52,9 +58,9 @@ namespace Financy
 
     void Statement::refreshDateBasedHistory()
     {
-        m_dateBasedHistory = {};
+        m_dateBasedHistory.clear();
 
-        for (Purchase* purchase : m_purchases) {
+        for (Purchase* purchase :  m_purchases) {
             auto foundItem = std::find_if(
                 m_dateBasedHistory.begin(),
                 m_dateBasedHistory.end(),

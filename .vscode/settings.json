@@ -112,6 +112,7 @@
         "qtdebug": "cpp",
         "qmetatype": "cpp",
         "qqmlengine": "cpp",
-        "qscatterseries": "cpp"
+        "qscatterseries": "cpp",
+        "qdate": "cpp"
     }
 }

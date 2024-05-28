@@ -18,7 +18,7 @@ Components.Page {
     id:    _root
     title: user ? user.getFullName() : ""
 
-    leftButtonIcon:   "qrc:/Icons/Profile.svg"
+    leftButtonIcon:   "qrc:/Icons/Edit.svg"
     leftButtonOnClick: function() {
         stack.push("qrc:/Pages/UserEdit.qml");
     }

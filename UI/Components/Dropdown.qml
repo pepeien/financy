@@ -19,6 +19,9 @@ Item {
     property alias model: _control.model
     property alias label: _label.text
 
+    // Output
+    readonly property alias value: _control.currentValue
+
     // Vars
     readonly property real textPadding: 16
 

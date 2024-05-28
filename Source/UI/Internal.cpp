@@ -312,14 +312,20 @@ namespace Financy
 
     QList<QString> Internal::getPurchaseTypes()
     {
-        return {
-            "Utility",
-            "Subscription",
-            "Travel",
-            "Debt",
-            "Food",
-            "Other"
-        };
+        QList<QString> result{};
+
+        for (auto [key, value] : PURCHASE_TYPES)
+        {
+            result.push_back(QString::fromStdString(key));
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](QString& a, QString& b) { return Purchase::getTypeValue(a) < Purchase::getTypeValue(b); }
+        );
+
+        return result;
     }
 
     void Internal::loadUsers()

@@ -21,8 +21,7 @@ Item {
     property int selectedIndex:   0
 
     // Vars
-    property var _points: []
-    property var _now:     internal.addMonths(new Date(), 1)
+    property var _now: internal.addMonths(new Date(), 1)
 
     readonly property var _xAxis: ValueAxis {
         labelsVisible: false
@@ -39,12 +38,16 @@ Item {
     property var _historyScatter
 
     function select(index) {
+        if (_root.history.length <= 0) {
+            return;
+        }
+
         _root.selectedHistory = _root.history[index];
         _root.selectedIndex   = index;
 
         _chart.centerOn(
             _chart.mapToPosition(
-                _months.model[_root.selectedIndex],
+                _historyScatter.at(_root.selectedIndex),
                 _historyScatter
             )
         );
@@ -57,40 +60,34 @@ Item {
     }
 
     function refresh() {
+        _root._createChart();
+
         if (_root.history.length <= 0) {
             return;
         }
 
-        _root._createChart();
-
         let x = (_chart.width / _root.history.length) / (_chart.width * 2);
         let y = 0;
 
-        const maxValue = _root.history.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
+        const sortedHistory = _root.history.slice();
+        const maxValue      = sortedHistory.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
+
         _root.history.forEach((statement, index) => {
             y = statement.dueAmount / (maxValue * 1.45);
 
             _historyLine.append(   x, y);
             _historyScatter.append(x, y);
 
-            _months.model.push(_historyLine.at(index));
-
             x += (_chart.width / _root.history.length) / _chart.width;
         });
+
+        _months.model = _root.history.length;
 
         this._centerOnCurrentStatement();
     }
 
     function _createChart() {
-        _months.model = [];
-        _root._points = [];
-
-        if (_root.history.length <= 0) {
-            return;
-        }
-
-        _root.selectedIndex   = 0;
-        _root.selectedHistory = _root.history[0];
+        _months.model = 0;
 
         _chart.removeAllSeries();
         _chart.width = 200 * _root.history.length;
@@ -116,6 +113,13 @@ Item {
         _historyScatter.color       = "transparent";
         _historyScatter.borderWidth = 2;
         _historyScatter.borderColor = "transparent";
+
+        if (_root.history.length <= 0) {
+            return;
+        }
+
+        _root.selectedIndex   = 0;
+        _root.selectedHistory = _root.history[0];
     }
 
     function _centerOnCurrentStatement() {
@@ -164,12 +168,12 @@ Item {
 
             Repeater {
                 id:    _months
-                model: []
+                model: 0
 
                 delegate: Item {
                     required property int index
 
-                    readonly property var _position: _chart.mapToPosition(_months.model[index], _historyScatter)
+                    readonly property var _position: _chart.mapToPosition(_historyScatter.at(index), _historyScatter)
                     readonly property var _data:     _root.history[index]
 
                     property bool _isSelected: _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
