@@ -408,10 +408,17 @@ namespace Financy
             return "";
         }
 
-        std::vector<std::string> splittedUrl = Helper::splitString(
-            inUrl.toString().toStdString(),
-            "file:///"
-        );
+        #ifdef OS_WINDOWS
+            std::vector<std::string> splittedUrl = Helper::splitString(
+                inUrl.toString().toStdString(),
+                "file:///"
+            );
+        #else
+            std::vector<std::string> splittedUrl = Helper::splitString(
+                inUrl.toString().toStdString(),
+                "file://"
+            );
+        #endif
 
         std::string filePath = splittedUrl[splittedUrl.size() - 1];
         std::vector<std::string> splittedFilepath = Helper::splitString(

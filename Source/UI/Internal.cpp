@@ -58,7 +58,7 @@ namespace Financy
             inTitle,
             QUrl::fromLocalFile("/"),
             fileExtensions
-        ).toString();
+        ).url();
     }
 
     QList<QColor> Internal::getUserColorsFromImage(const QString& inImage)
@@ -68,10 +68,17 @@ namespace Financy
             return { "#000000", "#FFFFFF" };
         }
 
-        std::vector<std::string> splittedUrl = Helper::splitString(
-            inImage.toStdString(),
-            "file:///"
-        );
+        #ifdef OS_WINDOWS
+            std::vector<std::string> splittedUrl = Helper::splitString(
+                inImage.toStdString(),
+                "file:///"
+            );
+        #else
+            std::vector<std::string> splittedUrl = Helper::splitString(
+                inImage.toStdString(),
+                "file://"
+            );
+        #endif
 
         std::string filePath = splittedUrl[splittedUrl.size() - 1];
         std::vector<std::string> splittedFilepath = Helper::splitString(
