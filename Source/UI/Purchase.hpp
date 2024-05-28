@@ -54,7 +54,8 @@ namespace Financy
             Transport     = 2,
             Debt          = 3,
             Food          = 4,
-            Other         = 5
+            Bill          = 5,
+            Other         = 999,
         };
         Q_ENUM(Type)
 
@@ -132,6 +133,7 @@ namespace Financy
         { "Subscription", Purchase::Type::Subscription },
         { "Transport",    Purchase::Type::Transport },
         { "Utility",      Purchase::Type::Utility },
+        { "Bill",         Purchase::Type::Bill },
         { "Other",        Purchase::Type::Other }
     };
 }

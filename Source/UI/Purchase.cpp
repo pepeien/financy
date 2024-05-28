@@ -46,6 +46,8 @@ namespace Financy
             return "Debts";
         case Type::Food:
             return "Food";
+        case Type::Bill:
+            return "Bills";
         default:
             return "Others";
         }
@@ -125,7 +127,7 @@ namespace Financy
                 : 1
         );
 
-        if (m_type != Type::Subscription) {
+        if (m_type != Type::Subscription && m_type != Type::Bill) {
             return;
         }
 
@@ -154,7 +156,7 @@ namespace Financy
             { "installments", m_installments }
         };
 
-        if (m_type == Type::Subscription)
+        if (m_type == Type::Subscription || m_type == Type::Bill)
         {
             result["endDate"] = m_endDate.toString("dd/MM/yyyy").toStdString();
         }

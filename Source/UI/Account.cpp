@@ -105,7 +105,7 @@ namespace Financy
 
         for (Purchase* purchase : m_purchases)
         {
-            if (purchase->getType() == Purchase::Type::Subscription)
+            if (purchase->getType() == Purchase::Type::Subscription || purchase->getType() == Purchase::Type::Bill)
             {
                 result += purchase->getValue();
 
@@ -151,7 +151,7 @@ namespace Financy
             m_closingDay
         );
 
-        if (inPurchase->getType() == Purchase::Type::Subscription)
+        if (inPurchase->getType() == Purchase::Type::Subscription || inPurchase->getType() == Purchase::Type::Bill)
         {
             QDate startDate = inPurchase->getDate();
             QDate endDate   = inPurchase->getEndDate();
@@ -486,6 +486,25 @@ namespace Financy
             }
 
             latestDate = date;
+        }
+
+        bool isOnlyRecurring = true;
+
+        for (Purchase* purchase : m_purchases)
+        {
+            Purchase::Type type = purchase->getType();
+
+            if (type != Purchase::Type::Subscription && type != Purchase::Type::Bill)
+            {
+                isOnlyRecurring = false;
+
+                break;
+            }
+        }
+
+        if (isOnlyRecurring)
+        {
+            latestDate = QDate::currentDate().addMonths(1);
         }
 
         QDate statementDate = QDate(
