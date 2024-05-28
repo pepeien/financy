@@ -6,39 +6,11 @@
 #include <nlohmann/json.hpp>
 
 #include "Purchase.hpp"
+#include "Statement.hpp"
 
 namespace Financy
 {
-    struct Statement
-    {
-        Q_GADGET
-
-        Q_PROPERTY(
-            QDate date
-            MEMBER m_date
-        )
-        Q_PROPERTY(
-            QList<Purchase*> purchases
-            MEMBER m_purchases
-        )
-        Q_PROPERTY(
-            QList<Purchase*> subscriptions
-            MEMBER m_subscriptions
-        )
-        Q_PROPERTY(
-            float dueAmount
-            MEMBER m_dueAmount
-        )
-
-    public slots:
-        QList<Statement> getDateBasedHistory();
-
-    public:
-        QDate m_date;
-        QList<Purchase*> m_purchases;
-        QList<Purchase*> m_subscriptions;
-        float m_dueAmount;
-    };
+    constexpr auto PURCHASE_FILE_NAME = "Purchases.json";
 
     class Account : public QObject
     {
@@ -80,6 +52,23 @@ namespace Financy
             MEMBER m_secondaryColor
             NOTIFY onEdit
         )
+        Q_PROPERTY(
+            QList<Statement*> history
+            MEMBER m_history
+            NOTIFY onEdit
+        )
+
+        // Stats
+        Q_PROPERTY(
+            float usedLimit
+            READ getUsedLimit
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
+            float dueAmount
+            READ getDueAmount
+            NOTIFY onEdit
+        )
 
     // Types
     public:
@@ -100,19 +89,12 @@ namespace Financy
         Account& operator=(const Account&) = default;
 
     public slots:
-        float getUsedLimit();
-        float getRemainingLimit();
-
         bool hasFullyPaid(Purchase* inPurchase);
         int getPaidInstallments(Purchase* inPurchase);
         int getPaidInstallments(Purchase* inPurchase, const QDate& inDate);
         int getRemainingInstallments(Purchase* inPurchase);
 
         float getRemainingValue(Purchase* inPurchase);
-
-        float getDueAmount();
-
-        QList<Statement> getHistory();
 
         void createPurchase(
             const QString& inName,
@@ -164,15 +146,19 @@ namespace Financy
             const QColor& inSecondaryColor
         );
 
-    private:
-        void fetchPurchases();
+        // Stats
+        float getUsedLimit();
+        float getRemainingLimit();
+        float getDueAmount();
 
     private:
-        // consts
-        std::string PURCHASE_FILE_NAME = "Purchases.json";
+        void refreshPurchases();
+        void refreshHistory();
 
+    private:
         std::uint32_t m_id;
         std::uint32_t m_userId;
+
         QString m_name;
         std::uint32_t m_closingDay;
         Type m_type;
@@ -182,5 +168,7 @@ namespace Financy
 
         QColor m_primaryColor;
         QColor m_secondaryColor;
+
+        QList<Statement*> m_history;
     };
 }

@@ -36,7 +36,7 @@ ScrollView {
 
         delegate: Item {
             readonly property var _item:          _grid.model[index]
-            readonly property real _ultilization: _item.getUsedLimit() / _item.limit
+            readonly property real _ultilization: _item.usedLimit / _item.limit
 
             id:     _root
             height: _grid.cellHeight
@@ -57,11 +57,11 @@ ScrollView {
 
                 title:     _item.name
                 limit:     _item.limit
-                usedLimit: _item.getUsedLimit()
-                dueAmount: _item.getDueAmount()
+                usedLimit: _item.usedLimit
+                dueAmount: _item.dueAmount
 
                 onClick: function() {
-                    internal.accountLogin(_item);
+                    internal.selectedUser.selectAccount(_item.id);
 
                     stack.push("qrc:/Pages/UserFinanceHome.qml");
                 }

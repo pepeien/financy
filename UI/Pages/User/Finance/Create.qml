@@ -11,16 +11,18 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
+    readonly property var user: internal.selectedUser
+
     id: _root
     title: "Create Account"
 
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
-        if (!internal.selectedUser) {
+        if (!user) {
             return;
         }
 
-        internal.selectedUser.createAccount(
+        user.createAccount(
             _name.text,
             _closingDay.text,
             _limit.text,

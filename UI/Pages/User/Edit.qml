@@ -11,13 +11,15 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
+    readonly property var user: internal.selectedUser
+
     id:    _root
     title: "Edit"
 
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         internal.editUser(
-            internal.selectedUser.id,
+            user.id,
             firstName.text,
             lastName.text,
             profilePicture,
@@ -31,17 +33,15 @@ Components.Page {
     property var profilePicture:  ""
 
     Component.onCompleted: function() {
-        if (!internal.selectedUser) {
+        if (!user) {
             return;
         }
 
-        const selectedUser = internal.selectedUser;
-
-        _root.profilePicture  = selectedUser.picture;
-        firstName.text        = selectedUser.firstName;
-        lastName.text         = selectedUser.lastName;
-        _primaryColor.color   = selectedUser.primaryColor;
-        _secondaryColor.color = selectedUser.secondaryColor;
+        _root.profilePicture  = user.picture;
+        firstName.text        = user.firstName;
+        lastName.text         = user.lastName;
+        _primaryColor.color   = user.primaryColor;
+        _secondaryColor.color = user.secondaryColor;
     }
 
     Item {

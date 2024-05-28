@@ -10,6 +10,8 @@
 
 namespace Financy
 {
+    constexpr auto  ACCOUNT_FILE_NAME = "Accounts.json";
+
     class User : public QObject
     {
         Q_OBJECT
@@ -48,8 +50,20 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
+            Account* selectedAccount
+            MEMBER m_selectedAccount
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QList<Account*> accounts
             MEMBER m_accounts
+            NOTIFY onEdit
+        )
+
+        // Stats
+        Q_PROPERTY(
+            float dueAmount
+            READ getDueAmount
             NOTIFY onEdit
         )
 
@@ -82,6 +96,9 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+        void selectAccount(std::uint32_t inId);
+
+        void refresh();
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -107,6 +124,8 @@ namespace Financy
         QColor getSecondaryColor();
         void setSecondaryColor(const QColor& inColor);
 
+        Account* getAccount(std::uint32_t inId);
+
         QList<Account*> getAccounts();
         QList<Account*> getAccounts(Account::Type inType);
         void setAccounts(const QList<Account*>& inAccounts);
@@ -119,15 +138,14 @@ namespace Financy
             const QColor& inSecondaryColor
         );
 
+        float getDueAmount();
+
     private:
         QString formatPicture(const QUrl& inUrl);
 
         void fetchAccounts();
 
     private:
-        // consts
-        std::string ACCOUNT_FILE_NAME = "Accounts.json";
-
         uint32_t m_id;
 
         QString m_firstName;
@@ -137,6 +155,7 @@ namespace Financy
         QColor m_primaryColor;
         QColor m_secondaryColor;
 
+        Account* m_selectedAccount;
         QList<Account*> m_accounts;
     };
 }

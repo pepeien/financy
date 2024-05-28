@@ -11,7 +11,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    property var history:       internal.selectedAccount.getHistory()
+    property var user:          internal.selectedUser
+    property var account:       user.selectedAccount
     property var purchases:     []
     property var subscriptions: []
 
@@ -30,7 +31,7 @@ Components.Page {
     }
 
     id:    _root
-    title: internal.selectedAccount.name
+    title: account.name
 
     function updateListing() {
         _purchases.height     = 0;
@@ -43,7 +44,7 @@ Components.Page {
             return;
         }
 
-        _root.purchases     = _history.selectedHistory.getDateBasedHistory();
+        _root.purchases     = _history.selectedHistory.dateBasedHistory;
         _root.subscriptions = _history.selectedHistory.subscriptions;
     }
 
@@ -51,7 +52,7 @@ Components.Page {
         id:     _history
         width:  parent.width * 0.95
         height: parent.height * 0.4
-        history: _root.history
+        history: account.history
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -225,7 +226,7 @@ Components.Page {
 
                                 Text {
                                     id:   _purchaseName
-                                    text: _data.name + " " + internal.selectedAccount.getPaidInstallments(_data, _history.selectedHistory.date) + "/" + _data.installments
+                                    text: _data.name + " " + account.getPaidInstallments(_data, _history.selectedHistory.date) + "/" + _data.installments
                                     color: internal.colors.dark
 
                                     font.family:    "Inter"
@@ -575,7 +576,7 @@ Components.Page {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 onClick: function() {
-                    internal.selectedAccount.createPurchase(
+                    user.selectedAccount.createPurchase(
                         _name.text,
                         _description.text,
                         new Date(),
@@ -583,8 +584,9 @@ Components.Page {
                         _value.text,
                         _installments.text
                     );
+                    user.onEdit();
 
-                    _root.history = internal.selectedAccount.getHistory();
+                    _history.refresh();
                     _history.select(_history.selectedIndex);
 
                     _root.updateListing();

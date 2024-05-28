@@ -22,7 +22,8 @@ namespace Financy
         m_lastName(""),
         m_picture(""),
         m_primaryColor("#FFFFFF"),
-        m_secondaryColor("#000000")
+        m_secondaryColor("#000000"),
+        m_selectedAccount(nullptr)
     {}
 
     User::~User()
@@ -194,9 +195,30 @@ namespace Financy
             updatedAccounts.push_back(foundAccount->toJSON());
         }
 
+        emit onEdit();
+
         // Write
         std::ofstream stream(ACCOUNT_FILE_NAME);
         stream << std::setw(4) << updatedAccounts << std::endl;
+    }
+
+    void User::selectAccount(std::uint32_t inId)
+    {
+        Account* account = getAccount(inId);
+
+        if (account == nullptr)
+        {
+            return;
+        }
+
+        m_selectedAccount = account;
+
+        emit onEdit();
+    }
+
+    void User::refresh()
+    {
+        emit onEdit();
     }
 
     uint32_t User::getId()
@@ -281,6 +303,22 @@ namespace Financy
         m_secondaryColor = inColor;
     }
 
+    Account* User::getAccount(std::uint32_t inId)
+    {
+        auto iterator = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [inId](Account* _) { return _->getId() == inId; }
+        );
+
+        if (iterator == m_accounts.end())
+        {
+            return nullptr;
+        }
+
+        return m_accounts[iterator - m_accounts.begin()];
+    }
+
     QList<Account*> User::getAccounts()
     {
         return m_accounts;
@@ -349,6 +387,18 @@ namespace Financy
         }
 
         onEdit();
+    }
+
+    float User::getDueAmount()
+    {
+        float result = 0;
+
+        for (Account* card : getAccounts(Account::Type::Expense))
+        {
+            result += card->getDueAmount();
+        }
+
+        return result;
     }
 
     QString User::formatPicture(const QUrl& inUrl)

@@ -11,18 +11,19 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    readonly property var account: internal.selectedAccount
+    readonly property var user:    internal.selectedUser
+    readonly property var account: user.selectedAccount
 
     id:    _root
     title: account.name
 
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
-        if (!internal.selectedUser) {
+        if (!user) {
             return;
         }
 
-        internal.selectedUser.editAccount(
+        user.editAccount(
             account.id,
             _name.text,
             _closingDay.text,

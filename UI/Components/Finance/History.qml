@@ -9,6 +9,8 @@ import QtQuick.Controls.Basic
 import "qrc:/Components" as Components
 
 Item {
+    id: _root
+
     // Input
     property var history: []
 
@@ -22,11 +24,30 @@ Item {
     property var _points: []
     property var _now:     internal.addMonths(new Date(), 1)
 
-    id: _root
+    readonly property var _xAxis: ValueAxis {
+        labelsVisible: false
+        gridVisible:   false
+        lineVisible:   false
+    }
+    readonly property var _yAxis: ValueAxis {
+        labelsVisible: false
+        gridVisible:   false
+        lineVisible:   false
+    }
+
+    property var _historyLine
+    property var _historyScatter
 
     function select(index) {
         _root.selectedHistory = _root.history[index];
         _root.selectedIndex   = index;
+
+        _chart.centerOn(
+            _chart.mapToPosition(
+                _months.model[_root.selectedIndex],
+                _historyScatter
+            )
+        );
 
         if (!_root.onSelectedHistoryUpdate) {
             return;
@@ -35,39 +56,80 @@ Item {
         _root.onSelectedHistoryUpdate();
     }
 
-    Component.onCompleted: function() {
-        if (history.length <= 0) {
+    function refresh() {
+        if (_root.history.length <= 0) {
             return;
         }
 
-        _chart.width = 200 * history.length
+        _root._createChart();
 
-        let maxValue = 0;
+        let x = (_chart.width / _root.history.length) / (_chart.width * 2);
+        let y = 0;
 
-        history.forEach((statement, index) => {
-            const date = statement.date;
-
-            if (date.getUTCMonth() === _now.getUTCMonth() && date.getUTCFullYear() === _now.getUTCFullYear()) {
-                _root.select(index);
-            }
-            
-            if (statement.dueAmount <= maxValue) {
-                return;
-            }
-
-            maxValue = statement.dueAmount;
-        });
-
-        let x = (_chart.width / history.length) / (_chart.width * 2)
-
-        history.forEach((statement) => {
-            const y = statement.dueAmount / (maxValue * 1.45);
+        const maxValue = _root.history.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
+        _root.history.forEach((statement, index) => {
+            y = statement.dueAmount / (maxValue * 1.45);
 
             _historyLine.append(   x, y);
             _historyScatter.append(x, y);
 
-            x += (_chart.width / history.length) / _chart.width;
+            _months.model.push(_historyLine.at(index));
+
+            x += (_chart.width / _root.history.length) / _chart.width;
         });
+
+        this._centerOnCurrentStatement();
+    }
+
+    function _createChart() {
+        _months.model = [];
+        _root._points = [];
+
+        if (_root.history.length <= 0) {
+            return;
+        }
+
+        _root.selectedIndex   = 0;
+        _root.selectedHistory = _root.history[0];
+
+        _chart.removeAllSeries();
+        _chart.width = 200 * _root.history.length;
+
+        // Line
+        _historyLine = _chart.createSeries(
+            ChartView.SeriesTypeSpline,
+            "Line",
+            _root._xAxis,
+            _root._yAxis
+        );
+        _historyLine.color = internal.colors.foreground;
+        _historyLine.width = 2;
+
+        // Scatter
+        _historyScatter = _chart.createSeries(
+            ChartView.SeriesTypeScatter,
+            "Scatter",
+            _root._xAxis,
+            _root._yAxis
+        );
+        _historyScatter.markerSize  = 30;
+        _historyScatter.color       = "transparent";
+        _historyScatter.borderWidth = 2;
+        _historyScatter.borderColor = "transparent";
+    }
+
+    function _centerOnCurrentStatement() {
+        const currentIndex = _root.history.findIndex((statement) => {
+            const date = statement.date;
+
+            return date.getUTCMonth() === _root._now.getUTCMonth() && date.getUTCFullYear() === _root._now.getUTCFullYear();
+        });
+
+        _root.select(currentIndex);
+    }
+
+    Component.onCompleted: function() {
+        _root.refresh();
     }
   
     Item {
@@ -98,55 +160,6 @@ Item {
 
             function centerOn(point) {
                 _chart.x = ((_chartScroll.width / 2) - point.x) - ((_chart.width / history.length) / (_chart.width * 2)) - 50;
-            }
-
-            SplineSeries {
-                id:    _historyLine
-                color: internal.colors.foreground
-                width: 2
-
-                axisX: ValueAxis {
-                    labelsVisible: false
-                    gridVisible:   false
-                    lineVisible:   false
-                }
-                axisY: ValueAxis {
-                    labelsVisible: false
-                    gridVisible:   false
-                    lineVisible:   false
-                }
-            }
-
-            ScatterSeries {
-                id: _historyScatter
-
-                markerSize:  30
-                color:       "transparent"
-                borderWidth: 2
-                borderColor: "transparent"
-
-                Component.onCompleted: function() {
-                    if (history.length === 0) {
-                        return;
-                    }
-
-                    for (let i = 0; i < history.length; i++) {
-                        _months.model.push(_historyScatter.at(i));
-                    }
-
-                    _chart.centerOn(_chart.mapToPosition(_months.model[_root.selectedIndex], _historyScatter));
-                }
-
-                axisX: ValueAxis {
-                    labelsVisible: false
-                    gridVisible:   false
-                    lineVisible:   false
-                }
-                axisY: ValueAxis {
-                    labelsVisible: false
-                    gridVisible:   false
-                    lineVisible:   false
-                }
             }
 
             Repeater {
@@ -182,8 +195,6 @@ Item {
                             if (_isSelected) {
                                 return;
                             }
-
-                            _chart.centerOn(_position);
 
                             _root.select(index);
                         }

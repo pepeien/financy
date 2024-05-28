@@ -8,6 +8,9 @@
 
 namespace Financy
 {
+    constexpr auto USER_FILE_NAME     = "Users.json";
+    constexpr auto SETTINGS_FILE_NAME = "Settings.json";
+
     class Internal : public QObject
     {
         Q_OBJECT
@@ -46,21 +49,12 @@ namespace Financy
             NOTIFY onUsersUpdate
         )
 
-        // Finance
-        Q_PROPERTY(
-            Account* selectedAccount
-            MEMBER m_selectedAccount
-            NOTIFY onSelectedAccountUpdate
-        )
-
     signals:
         void onThemeUpdate();
         void onShowcaseThemeUpdate();
 
         void onSelectUserUpdate();
         void onUsersUpdate();
-
-        void onSelectedAccountUpdate();
 
     public:
         Internal(QObject* parent = nullptr);
@@ -95,12 +89,6 @@ namespace Financy
         void login(User* inUser);
         void logout();
 
-        // Finance
-        std::uint32_t getMonthlyDue();
-
-        void accountLogin(Account* inAccount);
-        void accountLogout();
-
         // Theme
         void updateTheme(Colors::Theme inTheme);
         void updateShowcaseTheme(Colors::Theme inTheme);
@@ -132,10 +120,6 @@ namespace Financy
         void reloadShowcaseTheme();
 
     private:
-        // consts
-        std::string USER_FILE_NAME     = "Users.json";
-        std::string SETTINGS_FILE_NAME = "Settings.json";
-
         // Settings
         Colors::Theme m_colorsTheme;
 
@@ -148,8 +132,5 @@ namespace Financy
         // User
         User* m_selectedUser;
         QList<User*> m_users;
-
-        // Finance
-        Account* m_selectedAccount;
     };
 }

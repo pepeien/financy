@@ -10,35 +10,6 @@
 
 namespace Financy
 {
-    QList<Statement> Statement::getDateBasedHistory()
-    {
-        QList<Statement> result;
-
-        for (Purchase* purchase : m_purchases) {
-            auto foundItem = std::find_if(
-                result.begin(),
-                result.end(),
-                [purchase](Statement& _) { return _.m_date.daysTo(purchase->getDate()) == 0; }
-            );
-
-            int foundIndex = foundItem - result.begin();
-
-            if (foundItem == result.end()) {
-                foundIndex = result.size();
-
-                result.push_back({});
-
-                result[foundIndex].m_date      = purchase->getDate();
-                result[foundIndex].m_purchases = {};
-            }
-
-            result[foundIndex].m_purchases.push_back(purchase);
-            result[foundIndex].m_dueAmount += purchase->getInstallmentValue();
-        }
-
-        return result;
-    }
-
     Account::Account()
         : QObject(),
         m_id(0),
@@ -111,7 +82,7 @@ namespace Financy
                 "#000000"
         );
 
-        fetchPurchases();
+        refreshPurchases();
     }
 
     nlohmann::ordered_json Account::toJSON()
@@ -148,7 +119,7 @@ namespace Financy
     
             result += getRemainingValue(purchase);
         }
-    qDebug() << result;
+
         return result;
     }
 
@@ -248,76 +219,6 @@ namespace Financy
         return result;
     }
 
-    QList<Statement> Account::getHistory()
-    {
-        QList<Statement> result = {};
-
-        QDate earliestDate = QDate::currentDate();
-        QDate latestDate   = earliestDate;
-
-        for (Purchase* purchase : m_purchases) {
-            QDate date = purchase->getDate();
-
-            if (earliestDate.daysTo(date) < 0)
-            {
-                earliestDate = date;
-            }
-
-            date = date.addMonths(purchase->getInstallments());
-
-            if (latestDate.daysTo(date) > 0)
-            {
-                latestDate = date;
-            }
-        }
-
-        QDate statementDate = QDate(
-            earliestDate.year(),
-            earliestDate.month(),
-            m_closingDay
-        );
-
-        while(latestDate.daysTo(statementDate) <= 0)
-        {
-            Statement statement{};
-            statement.m_date      = statementDate;
-            statement.m_dueAmount = 0;
-
-            for (Purchase* purchase : m_purchases) {
-                int paidInstallments = getPaidInstallments(
-                    purchase,
-                    statementDate
-                );
-
-                if (paidInstallments <= 0 || paidInstallments > purchase->getInstallments())
-                {
-                    continue;
-                }
-
-                statement.m_dueAmount += purchase->getInstallmentValue();
-
-                if (purchase->getType() == Purchase::Type::Subscription)
-                {
-                    statement.m_subscriptions.push_back(purchase);
-
-                    continue;
-                }
-
-                statement.m_purchases.push_back(purchase);
-            }
-
-            statementDate = statementDate.addMonths(1);
-
-            if (statement.m_purchases.isEmpty() && statement.m_subscriptions.isEmpty()) {
-                continue;
-            }
-
-            result.push_back(statement);
-        }
-
-        return result;
-    }
-
     void Account::createPurchase(
         const QString& inName,
         const QString& inDescription,
@@ -349,13 +250,15 @@ namespace Financy
 
         m_purchases.push_back(purchase);
 
-        purchases.push_back(purchase->toJSON());
+        refreshHistory();
 
         emit onEdit();
 
         // Write
-        std::ofstream stream(PURCHASE_FILE_NAME);
-        stream << std::setw(4) << purchases << std::endl;
+        //purchases.push_back(purchase->toJSON());
+
+        //std::ofstream stream(PURCHASE_FILE_NAME);
+        //stream << std::setw(4) << purchases << std::endl;
     }
 
     std::uint32_t Account::getId()
@@ -435,6 +338,8 @@ namespace Financy
     {
         m_purchases = inPurchases;
 
+        refreshHistory();
+
         emit onEdit();
     }
 
@@ -511,7 +416,7 @@ namespace Financy
         emit onEdit();
     }
 
-    void Account::fetchPurchases()
+    void Account::refreshPurchases()
     {
         if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
         {
@@ -542,6 +447,86 @@ namespace Financy
             purchase->fromJSON(data);
 
             m_purchases.push_back(purchase);
+        }
+
+        refreshHistory();
+    }
+
+    void Account::refreshHistory()
+    {
+        m_history.clear();
+
+        QDate earliestDate = QDate::currentDate();
+        QDate latestDate   = earliestDate;
+
+        for (Purchase* purchase : m_purchases) {
+            QDate date = purchase->getDate();
+
+            if (earliestDate.daysTo(date) < 0)
+            {
+                earliestDate = date;
+            }
+
+            date = date.addMonths(purchase->getInstallments());
+
+            if (latestDate.daysTo(date) > 0)
+            {
+                latestDate = date;
+            }
+        }
+
+        QDate statementDate = QDate(
+            earliestDate.year(),
+            earliestDate.month(),
+            m_closingDay
+        );
+
+        while(latestDate.daysTo(statementDate) <= 0)
+        {
+            Statement* statement = new Statement();
+            statement->setDate(statementDate);
+
+            QList<Purchase*> purchases{};
+            QList<Purchase*> subscriptions{};
+            float dueAmount = 0.0f;
+    
+            for (Purchase* purchase : m_purchases) {
+                int paidInstallments = getPaidInstallments(
+                    purchase,
+                    statementDate
+                );
+
+                if (paidInstallments <= 0 || paidInstallments > purchase->getInstallments())
+                {
+                    continue;
+                }
+
+                dueAmount += purchase->getInstallmentValue();
+
+                if (purchase->getType() == Purchase::Type::Subscription)
+                {
+                    subscriptions.push_back(purchase);
+
+                    continue;
+                }
+
+                purchases.push_back(purchase);
+            }
+
+            statementDate = statementDate.addMonths(1);
+
+            if (purchases.isEmpty() && subscriptions.isEmpty()) {
+                delete statement;
+
+                continue;
+            }
+
+            statement->setDueAmount(dueAmount);
+            statement->setPurchases(purchases);
+            statement->setSubscritions(subscriptions);
+            statement->refreshDateBasedHistory();
+
+            m_history.push_back(statement);
         }
     }
 }

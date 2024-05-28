@@ -13,10 +13,10 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    readonly property var selectedUser: internal.selectedUser
+    readonly property var user: internal.selectedUser
 
     id:    _root
-    title: selectedUser ? selectedUser.getFullName() : ""
+    title: user ? user.getFullName() : ""
 
     leftButtonIcon:   "qrc:/Icons/Profile.svg"
     leftButtonOnClick: function() {
@@ -35,8 +35,8 @@ Components.Page {
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
 
-    readonly property var expenseAccounts: selectedUser ? selectedUser.accounts.filter((account) => account.type == Account.Expense) : []
-    readonly property var savingAccounts:  selectedUser ? selectedUser.accounts.filter((account) => account.type == Account.Saving) : []
+    readonly property var expenseAccounts: user ? user.accounts.filter((account) => account.type == Account.Expense) : []
+    readonly property var savingAccounts:  user ? user.accounts.filter((account) => account.type == Account.Saving) : []
 
     Item {
         id:     _selector
@@ -217,7 +217,7 @@ Components.Page {
                 }
 
                 Text {
-                    text:  internal.getMonthlyDue()
+                    text:  user.dueAmount.toFixed(2)
                     color: Qt.lighter(internal.colors.dark, 1.1)
 
                     font.family:    "Inter"
