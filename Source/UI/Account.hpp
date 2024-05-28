@@ -18,6 +18,11 @@ namespace Financy
 
         // Properties
         Q_PROPERTY(
+            std::uint32_t id
+            MEMBER m_id
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QString name
             MEMBER m_name
             NOTIFY onEdit
