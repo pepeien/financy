@@ -217,7 +217,7 @@ Components.Page {
                 }
 
                 Text {
-                    text:  user.dueAmount.toFixed(2)
+                    text:  user?.dueAmount.toFixed(2) ?? "0.0"
                     color: Qt.lighter(internal.colors.dark, 1.1)
 
                     font.family:    "Inter"

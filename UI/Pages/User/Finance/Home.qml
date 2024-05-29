@@ -55,9 +55,9 @@ Components.Page {
     }
 
     Components.FinancyHistory {
-        id:     _history
-        width:  parent.width * 0.95
-        height: parent.height * 0.4
+        id:      _history
+        width:   parent.width * 0.95
+        height:  parent.height * 0.4
         history: account.history
 
         anchors.horizontalCenter: parent.horizontalCenter
@@ -575,6 +575,7 @@ Components.Page {
                     hint:        "dd/mm/yyyy"
                     color:       internal.colors.dark
                     inputHeight: _name.inputHeight
+                    minLength:   "00/00/0000".length
 
                     anchors.left: parent.left
 
@@ -596,16 +597,21 @@ Components.Page {
             }
 
             Components.SquircleButton {
+                id:     _submitButton
                 width:  parent.width * 0.45
                 height: 60
 
-                backgroundColor: internal.colors.dark
+                isDisabled: _name.hasError || _description.hasError || _date.hasError || _value.hasError || _installments.hasError
 
                 anchors.bottom:           parent.bottom
                 anchors.bottomMargin:     25
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 onClick: function() {
+                    if (_submitButton.isDisabled) {
+                        return;
+                    }
+
                     user.selectedAccount.createPurchase(
                         _name.text,
                         _description.text,
@@ -625,7 +631,7 @@ Components.Page {
 
                 Components.Text {
                     text:  "Create"
-                    color: internal.colors.background
+                    color: _submitButton.isDisabled ? internal.colors.foreground : internal.colors.background
 
                     font.weight:    Font.Bold
                     font.pointSize: 15

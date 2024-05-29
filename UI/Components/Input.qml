@@ -8,26 +8,30 @@ import QtQuick.Controls
 import "qrc:/Components" as Components
 
 Item {
-    // Alias Props
-    property alias color:     _input.color
-    property alias text:      _input.text
-    property alias validator: _input.validator
-
-    function clear() {
-        _input.clear();
-    }
-
-    property alias label: inputLabel.text
-    property alias hint:  inputHint.text
-
     // Value Props
     property int minLength: 0
     property int maxLength: 0
 
+    property bool isRequired: true
+    property bool hasError: false
+
     property real inputHeight: 60
+
+    // Alias Props
+    property alias color:     _input.color
+    property alias text:      _input.text
+    property alias validator: _input.validator
+    property alias mask:      _input.inputMask
+    property alias label:     inputLabel.text
+    property alias hint:      inputHint.text
 
     // Out Props
     readonly property var input: _input
+
+    // Out Methods
+    function clear() {
+        _input.clear();
+    }
 
     // Vars
     readonly property real textPadding: 16
@@ -37,6 +41,10 @@ Item {
     id:     root
     width:  120 + root.textPadding
     height: root.inputHeight + 20
+
+    Component.onCompleted: function() {
+        _input.updateErrorStatus();
+    }
 
     Components.SquircleContainer {
         id:     _inputContainer
@@ -59,6 +67,14 @@ Item {
             font.weight:    Font.Bold
 
             anchors.verticalCenter: parent.verticalCenter
+
+            Component.onCompleted: function() {
+                if (!root.isRequired) {
+                    return;
+                }
+
+                inputLabel.text = inputLabel.text.trim() + "*";
+            }
 
             states: [
                 State {
@@ -113,6 +129,17 @@ Item {
             anchors.left:           parent.left
             anchors.leftMargin:     root.textPadding
             anchors.verticalCenter: parent.verticalCenter
+
+            function updateErrorStatus() {
+                const isTextWithinSizes  = _input.text.length >= root.minLength;
+                const isTextEmpty        = root.isRequired ? _input.text.trim() === "" : false;
+
+                root.hasError = isTextEmpty || isTextWithinSizes == false || _input.acceptableInput == false;
+            }
+
+            onTextEdited: function() {
+                _input.updateErrorStatus();
+            }
         }
     }
 

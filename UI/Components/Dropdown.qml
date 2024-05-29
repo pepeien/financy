@@ -43,26 +43,21 @@ Item {
             height: _root.itemHeight
             width:  _root.itemWidth
 
-            highlighted: _control.highlightedIndex === index
-
-            HoverHandler {
-                id: mouse
-                acceptedDevices: PointerDevice.Mouse
-            }
+            hoverEnabled: true
 
             contentItem: Components.Text {
                 text:              delegate.model[_control.textRole]
-                color:             mouse.hovered ? internal.colors.background : internal.colors.dark
+                color:             delegate.hovered ? internal.colors.background : internal.colors.dark
                 font:              _control.font
                 verticalAlignment: Text.AlignVCenter
                 padding:           _root.textPadding
             }
 
-            background: Components.SquircleButton {
-                color: mouse.hovered ? internal.colors.light : "transparent"
+            background: Components.Button {
+                color: delegate.hovered ? internal.colors.light : "transparent"
+                clip:  true
 
-                bottomLeftRadius:  index === (_control.model.length - 1) ? _root.radius : 0
-                bottomRightRadius: index === (_control.model.length - 1) ? _root.radius : 0
+                anchors.fill: delegate
             }
         }
 
@@ -112,17 +107,12 @@ Item {
             anchors.topMargin: _root.itemHeight * 0.1
         }
 
-        background: Rectangle {
-            color:          _root.backgroundColor
-            implicitWidth:  _root.itemWidth
-            implicitHeight: _root.itemHeight
-            border.color:   "transparent"
-            border.width:   0
+        background: Components.SquircleContainer {
+            width:  _root.itemWidth
+            height: _root.itemHeight
+            clip:   true
 
-            topLeftRadius:     _root.radius
-            topRightRadius:    _root.radius
-            bottomLeftRadius:  _control.popup.visible ? 0 : _root.radius
-            bottomRightRadius: _control.popup.visible ? 0 : _root.radius
+            backgroundColor: _root.backgroundColor
 
             Components.Text {
                 id:     _label
@@ -141,7 +131,7 @@ Item {
         }
 
         popup: Popup {
-            y:              _control.height - 0.5
+            y:              _control.height + 10
             width:          _control.width
             padding:        0
             clip:           true
@@ -150,9 +140,15 @@ Item {
                 implicitHeight: contentHeight
                 model:          _control.popup.visible ? _control.delegateModel : null
                 currentIndex:   _control.highlightedIndex
-                highlightFollowsCurrentItem: false
 
                 ScrollIndicator.vertical: ScrollIndicator {}
+            }
+
+            background: Components.SquircleContainer {
+                backgroundColor:  internal.colors.foreground
+                backgroundRadius: _root.radius
+                hasShadow:        true
+                clip:             true
             }
 
             enter: Transition {
@@ -171,15 +167,6 @@ Item {
                     to:       0
                     duration: 100
                 }
-            }
-
-            background: Components.SquircleContainer {
-                backgroundColor: internal.colors.foreground
-                backgroundRadius: 0
-                hasShadow: true
-
-                backgroundBottomLeftRadius:  _root.radius
-                backgroundBottomRightRadius: _root.radius
             }
         }
     }

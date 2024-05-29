@@ -13,13 +13,18 @@ import "qrc:/Components" as Components
 Components.Page {
     // Vars
     property bool wasPictureSelected
-    property url profilePicture: "qrc:/Icons/Profile.svg"
+    property string profilePicture: "qrc:/Icons/Profile.svg"
 
     id: _root
     title: "Create User"
 
+    centerButton.isDisabled: _root.profilePicture == "qrc:/Icons/Profile.svg" || _root.profilePicture.trim().length <= 0 || firstName.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
+        if (centerButton.isDisabled) {
+            return;
+        }
+
         var user = internal.createUser(
             firstName.text,
             lastName.text,
@@ -154,10 +159,11 @@ Components.Page {
             id:    lastName
             width: firstName.width
 
-            label:     "Last name"
-            color:     internal.colors.dark
-            minLength: 2
-            maxLength: 20
+            label:      "Last name"
+            color:      internal.colors.dark
+            minLength:  2
+            maxLength:  20
+            isRequired: false
 
             anchors.top:              firstName.bottom
             anchors.topMargin:        10

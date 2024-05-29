@@ -11,6 +11,7 @@ Rectangle {
     default property alias data: click.data
 
     property string backgroundColor: "transparent"
+    property bool isDisabled:        false
 
     color: backgroundColor
 
@@ -34,13 +35,13 @@ Rectangle {
     }
 
     MouseArea {
-        id: click
-        hoverEnabled: true
+        id:           click
+        hoverEnabled: !isDisabled
 
         anchors.fill: parent
 
         onClicked: {
-            if (!onClick) {
+            if (!onClick || isDisabled) {
                 return;
             }
 
@@ -48,6 +49,10 @@ Rectangle {
         }
 
         onEntered: {
+            if (isDisabled) {
+                return;
+            }
+
             cursorShape = Qt.PointingHandCursor;
 
             if (!onHover) {
@@ -58,6 +63,10 @@ Rectangle {
         }
 
         onExited: {
+            if (isDisabled) {
+                return;
+            }
+
             cursorShape = Qt.ArrowCursor;
 
             if (!onLeave) {

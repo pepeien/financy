@@ -9,14 +9,23 @@ import Qt5Compat.GraphicalEffects
 import "qrc:/Components" as Components
 
 Components.Button {
-    default property alias data: content.data
+    default property alias data: _content.data
 
     // Container Props
-    property alias hasShadow:       content.hasShadow
-    property alias backgroundColor: content.backgroundColor
+    property alias backgroundBorder: _content.backgroundBorder
+
+    property bool hasShadow:       false
+    property var backgroundColor:  "transparent"
+
+    id: _root
 
     Components.SquircleContainer {
-        id: content
+        id: _content
+        
+        hasShadow:              isDisabled ? false : _root.hasShadow
+        backgroundColor:        isDisabled ? "transparent" : _root.backgroundColor
+        backgroundBorder.width: isDisabled ? 2.5 :  0
+        backgroundBorder.color: isDisabled ? internal.colors.foreground : "transparent"
 
         anchors.fill: parent
     }

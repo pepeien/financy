@@ -14,14 +14,17 @@ Item {
     property alias onReturn: header.onReturn
 
     // Footer
+    property alias leftButton:        footer.leftButton
     property alias leftButtonOnClick: footer.leftButtonOnClick
     property alias leftButtonIcon:    footer.leftButtonIcon
 
+    property alias centerButton:        footer.centerButton
     property alias centerButtonOnClick: footer.centerButtonOnClick
     property alias centerButtonIcon:    footer.centerButtonIcon
 
+    property alias rightButton:        footer.rightButton
     property alias rightButtonOnClick: footer.rightButtonOnClick
-    property alias rightButtonIcon:   footer.rightButtonIcon
+    property alias rightButtonIcon:    footer.rightButtonIcon
 
     readonly property alias headerComponent: header
     readonly property alias footerComponent: footer

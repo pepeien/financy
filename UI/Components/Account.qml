@@ -11,8 +11,8 @@ Components.SquircleButton {
     id: _root
 
     property alias textColor: _title.color
+    property alias title:     _title.text
 
-    property alias title:    _title.text
     property real limit:     0
     property real usedLimit: 0
     property real dueAmount: 0

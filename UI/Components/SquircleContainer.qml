@@ -17,6 +17,8 @@ Rectangle {
     property real backgroundBottomLeftRadius:  backgroundRadius
     property real backgroundBottomRightRadius: backgroundRadius
 
+    property alias backgroundBorder: base.border
+
     color: "transparent"
 
     Rectangle {

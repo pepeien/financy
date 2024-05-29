@@ -13,11 +13,18 @@ import "qrc:/Components" as Components
 Components.Page {
     readonly property var user: internal.selectedUser
 
+    property var profilePicture:  ""
+
     id:    _root
     title: "Edit"
 
+    centerButton.isDisabled: profilePicture.trim().length <= 0 || firstName.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
+        if (centerButton.isDisabled) {
+            return;
+        }
+
         internal.editUser(
             user.id,
             firstName.text,
@@ -29,8 +36,6 @@ Components.Page {
 
         stack.pop();
     }
-
-    property var profilePicture:  ""
 
     Component.onCompleted: function() {
         if (!user) {
@@ -153,10 +158,11 @@ Components.Page {
             id:    lastName
             width: firstName.width
 
-            label:     "Last name"
-            color:     internal.colors.dark
-            minLength: 2
-            maxLength: 20
+            label:      "Last name"
+            color:      internal.colors.dark
+            minLength:  2
+            maxLength:  20
+            isRequired: false
 
             anchors.top:              firstName.bottom
             anchors.topMargin:        10

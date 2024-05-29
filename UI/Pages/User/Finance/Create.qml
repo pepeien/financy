@@ -16,8 +16,13 @@ Components.Page {
     id: _root
     title: "Create Account"
 
+    centerButton.isDisabled: _name.hasError || _limit.hasError || _data.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
+        if (centerButton.isDisabled) {
+            return;
+        }
+
         if (!user) {
             return;
         }

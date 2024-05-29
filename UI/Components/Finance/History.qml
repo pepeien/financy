@@ -74,6 +74,7 @@ Item {
 
         _root.history.forEach((statement, index) => {
             y = statement.dueAmount / (maxValue * 1.45);
+            y += 0.025;
 
             _historyLine.append(   x, y);
             _historyScatter.append(x, y);

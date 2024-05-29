@@ -138,7 +138,7 @@ namespace Financy
         return getPaidInstallments(inPurchase, QDate::currentDate());
     }
     
-    int Account::getPaidInstallments(Purchase* inPurchase, const QDate& inDate)
+    int Account::getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate)
     {
         int result       = 0;
         int installments = inPurchase->getInstallments();
@@ -161,7 +161,7 @@ namespace Financy
                 m_closingDay
             );
 
-            if (inDate.daysTo(startDate) > 0 || inDate.daysTo(endDate) < 0)
+            if (inStatementDate.daysTo(startDate) > 0 || inStatementDate.daysTo(endDate) < 0)
             {
                 return 0;
             }
@@ -169,7 +169,7 @@ namespace Financy
             return 1;
         }
 
-        while (date.daysTo(inDate) > 0)
+        while (date.daysTo(inStatementDate) > 0)
         {
             if (date.daysTo(closingDate) <= 0) {
                 closingDate = closingDate.addMonths(1);
@@ -208,6 +208,28 @@ namespace Financy
 
         for(Purchase* purchase : m_purchases)
         {
+            if (hasFullyPaid(purchase))
+            {
+                continue;
+            }
+
+            result += purchase->getInstallmentValue();
+        }
+
+        return result;
+    }
+
+    float Account::getDueAmount(Purchase::Type inType)
+    {
+        float result = 0.0f;
+
+        for(Purchase* purchase : m_purchases)
+        {
+            if (purchase->getType() != inType)
+            {
+                continue;
+            }
+
             if (hasFullyPaid(purchase))
             {
                 continue;
@@ -512,6 +534,11 @@ namespace Financy
             earliestDate.month(),
             m_closingDay
         );
+
+        if (earliestDate.daysTo(statementDate) < 0)
+        {
+            statementDate = statementDate.addMonths(-1);
+        }
 
         while(latestDate.daysTo(statementDate) <= 0)
         {

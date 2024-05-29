@@ -96,7 +96,7 @@ namespace Financy
     public slots:
         bool hasFullyPaid(Purchase* inPurchase);
         int getPaidInstallments(Purchase* inPurchase);
-        int getPaidInstallments(Purchase* inPurchase, const QDate& inDate);
+        int getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate);
         int getRemainingInstallments(Purchase* inPurchase);
 
         float getRemainingValue(Purchase* inPurchase);
@@ -155,6 +155,7 @@ namespace Financy
         float getUsedLimit();
         float getRemainingLimit();
         float getDueAmount();
+        float getDueAmount(Purchase::Type inType);
 
     private:
         void refreshPurchases();

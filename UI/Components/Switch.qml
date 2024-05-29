@@ -38,15 +38,14 @@ Item {
     Button {
         id:      _switch
         width:   _root.width
-        height:  20
+        height:  25
         display: AbstractButton.IconOnly
 
         readonly property int _radius: _switch.height / 2
 
-        anchors.top:              _label.bottom
+        anchors.top:              _label.visible ? _label.bottom : _root.top
         anchors.topMargin:        _label.visible ? 10 : 0
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill:             _label.visible ? undefined : parent
 
         layer.enabled: true
         layer.effect:  OpacityMask {

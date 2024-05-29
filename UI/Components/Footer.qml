@@ -9,12 +9,15 @@ import Qt5Compat.GraphicalEffects
 import "qrc:/Components" as Components
 
 Rectangle {
+    property alias leftButton:        _leftButton
     property alias leftButtonOnClick: _leftButton.onClick
     property alias leftButtonIcon:    _leftButtonIcon.source
 
+    property alias centerButton:        _centerButton
     property alias centerButtonOnClick: _centerButton.onClick
     property alias centerButtonIcon:    _centerButtonIcon.source
 
+    property alias rightButton:        _rightButton
     property alias rightButtonOnClick: _rightButton.onClick
     property alias rightButtonIcon:    _rightButtonIcon.source
 
@@ -26,13 +29,13 @@ Rectangle {
     anchors.left:         parent.left
 
     Components.SquircleButton {
-        id:     _leftButton
-        width:  42
-        height: 42
+        id:      _leftButton
+        width:   42
+        height:  42
         visible: leftButtonIcon != ""
 
-        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
         hasShadow:       true
+        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
         anchors.right:          _centerButton.left
         anchors.rightMargin:    30
@@ -52,7 +55,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _leftButtonIcon
             source:       _leftButtonIcon
-            color:        internal.colors.light
+            color:        _leftButton.isDisabled ? internal.colors.foreground : internal.colors.light
             antialiasing: true
         }
     }
@@ -63,8 +66,8 @@ Rectangle {
         height: 50
         visible: centerButtonIcon != ""
 
-        backgroundColor: _leftButton.backgroundColor
         hasShadow:       true
+        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
         anchors.verticalCenter:   parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
@@ -83,7 +86,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _centerButtonIcon
             source:       _centerButtonIcon
-            color:        internal.colors.light
+            color:        _centerButton.isDisabled ? internal.colors.foreground : internal.colors.light
             antialiasing: true
         }
     }
@@ -94,8 +97,8 @@ Rectangle {
         height:  _leftButton.height
         visible: rightButtonIcon != ""
 
-        backgroundColor: _leftButton.backgroundColor
         hasShadow:       true
+        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
         anchors.left:           _centerButton.right
         anchors.leftMargin:     _leftButton.anchors.rightMargin
@@ -115,7 +118,7 @@ Rectangle {
         ColorOverlay {
             anchors.fill: _rightButtonIcon
             source:       _rightButtonIcon
-            color:        internal.colors.light
+            color:        _rightButtonIcon.isDisabled ? internal.colors.foreground : internal.colors.light
             antialiasing: true
         }
     }
