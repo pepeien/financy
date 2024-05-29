@@ -15,3 +15,7 @@ __pycache__/
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+
+# CQtDeployer
+[Ss]nap/
+[Dd]istro/

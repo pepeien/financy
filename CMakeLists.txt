@@ -12,7 +12,7 @@ set(NAME "Financy")
 project(${NAME} VERSION 0.0.1)
 
 ##############  Set values  #######################
-set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin/${CMAKE_SYSTEM_NAME}")
+set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set(SOURCES_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 set(UI_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/UI")
 set(VENDOR_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/Vendors")
@@ -91,21 +91,21 @@ set_target_properties(
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}/Financy"
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}/Financy"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}/Financy"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}/Financy"
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}/Financy"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}/Financy"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}/Financy"
 )
 
 ##############  Set compiler  #######################
@@ -134,3 +134,30 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
         )
     endif()
 endif()
+
+
+add_subdirectory(Vendors/CQtDeployer)
+
+set(CMAKE_INSTALL_LIBDIR "${BUILD_DIR}/Deployer")
+
+set_target_properties(
+    "CQtDeployer" "Deploy" "pe-parse" "QtELFReader" "QuasarApp" "zip"
+    PROPERTIES
+
+    VS_DEBUGGER_WORKING_DIRECTORY
+    "${BUILD_DIR}/Deployer"
+
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}/Deployer"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}/Deployer"
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE
+    "${BUILD_DIR}/Deployer"
+
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Deployer"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Deployer"
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG
+    "${BUILD_DIR}/Deployer"
+)

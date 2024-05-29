@@ -8,3 +8,6 @@
 [submodule "Vendors/json"]
 	path = Vendors/json
 	url = https://github.com/pepeien/json.git
+[submodule "Vendors/CQtDeployer"]
+	path = Vendors/CQtDeployer
+	url = https://github.com/pepeien/CQtDeployer.git
