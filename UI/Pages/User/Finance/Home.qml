@@ -40,8 +40,7 @@ Components.Page {
     title: account.name
 
     function updateListing() {
-        _purchases.height     = 0;
-        _subscriptions.height = _root.statementTitleHeight;
+        _purchases.height = 0;
 
         if (!_history.selectedHistory) {
             _root.purchases     = [];
@@ -100,7 +99,7 @@ Components.Page {
                 clip:   true
 
                 contentWidth:  0
-                contentHeight: (_root.subscriptions.length > 0 ? (_purchases.height + _subscriptions.height) : _purchases.height) + 20
+                contentHeight: (_root.subscriptions.length > 0 ? _subscriptions.height : 0) + _purchases.height + 20
 
                 ScrollBar.vertical: Components.ScrollBar {
                     isVertical: true
@@ -110,7 +109,6 @@ Components.Page {
                     id:     _purchases
                     model:  _root.purchases
                     width:  parent.width
-                    height: 0
 
                     delegate: Components.SquircleContainer {
                         required property int index
@@ -212,8 +210,10 @@ Components.Page {
                                 property var _data:    _purchaseContent.model[index]
                                 property var _sibling: _purchaseContent.itemAt(index - 1)
 
+                                property bool hasDescription: _data.hasDescription()
+
                                 width:  _purchaseContent.width
-                                height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
+                                height: hasDescription ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
 
                                 anchors.top: _sibling ? _sibling.bottom : _purchaseContent.top
 
@@ -239,11 +239,11 @@ Components.Page {
                                     font.pointSize: 9
                                     font.weight:    Font.Normal
 
-                                    anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                    anchors.top:            hasDescription ? parent.top : undefined
                                     anchors.left:           parent.left
                                     anchors.leftMargin:     20
-                                    anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                                    anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                    anchors.topMargin:      hasDescription ? 10 : 0
+                                    anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
                                 }
 
                                 Text {
@@ -252,18 +252,18 @@ Components.Page {
 
                                     font: _purchaseName.font
 
-                                    anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                    anchors.top:            hasDescription ? parent.top : undefined
                                     anchors.right:          parent.right
                                     anchors.rightMargin:     20
-                                    anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                                    anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                    anchors.topMargin:      hasDescription ? 10 : 0
+                                    anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
                                 }
 
                                 Components.SquircleContainer {
                                     id:     _description
                                     height: _text.paintedHeight + 2
                                     width:  _text.paintedWidth + 10
-                                    visible: _data.hasDescription()
+                                    visible: hasDescription
 
                                     backgroundColor: Qt.lighter(internal.colors.dark, 2)
 
@@ -292,7 +292,7 @@ Components.Page {
                 Components.SquircleContainer {
                     id:      _subscriptions
                     width:   _scroll.width * 0.96
-                    height: 0
+                    height:  _root.statementTitleHeight
                     visible: _root.subscriptions.length > 0
 
                     backgroundColor: Qt.lighter(internal.colors.background, 0.965)
@@ -368,8 +368,10 @@ Components.Page {
                             property var _data:    _subscriptionsContent.model[index]
                             property var _sibling: _subscriptionsContent.itemAt(index - 1)
 
+                            property bool hasDescription: _data.hasDescription()
+
                             width:  _subscriptionsContent.width
-                            height: _data.hasDescription() ?  _root.purchaseHeight + _description.height :  _root.purchaseHeight
+                            height: hasDescription ? _root.purchaseHeight + _description.height :  _root.purchaseHeight
 
                             anchors.top: _sibling ? _sibling.bottom : _subscriptionsContent.top
 
@@ -396,11 +398,11 @@ Components.Page {
                                 font.pointSize: 9
                                 font.weight:    Font.Normal
 
-                                anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                anchors.top:            hasDescription ? parent.top : undefined
                                 anchors.left:           parent.left
                                 anchors.leftMargin:     20
-                                anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                                anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                anchors.topMargin:      hasDescription ? 10 : 0
+                                anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
                             }
 
                             Text {
@@ -409,18 +411,18 @@ Components.Page {
 
                                 font: _subscriptionName.font
 
-                                anchors.top:            _data.hasDescription() ? parent.top : undefined
+                                anchors.top:            hasDescription ? parent.top : undefined
                                 anchors.right:          parent.right
                                 anchors.rightMargin:     20
-                                anchors.topMargin:      _data.hasDescription() ? 10 : 0
-                                anchors.verticalCenter: _data.hasDescription() ? undefined : parent.verticalCenter
+                                anchors.topMargin:      hasDescription ? 10 : 0
+                                anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
                             }
 
                             Components.SquircleContainer {
                                 id:     _description
                                 height: _text.paintedHeight + 2
                                 width:  _text.paintedWidth + 10
-                                visible: _data.hasDescription()
+                                visible: hasDescription
 
                                 backgroundColor: Qt.lighter(internal.colors.dark, 2)
 

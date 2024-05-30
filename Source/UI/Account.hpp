@@ -95,9 +95,9 @@ namespace Financy
 
     public slots:
         bool hasFullyPaid(Purchase* inPurchase);
-        int getPaidInstallments(Purchase* inPurchase);
-        int getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate);
-        int getRemainingInstallments(Purchase* inPurchase);
+        std::uint32_t getPaidInstallments(Purchase* inPurchase);
+        std::uint32_t getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate);
+        std::uint32_t getRemainingInstallments(Purchase* inPurchase);
 
         float getRemainingValue(Purchase* inPurchase);
 
@@ -158,6 +158,9 @@ namespace Financy
         float getDueAmount(Purchase::Type inType);
 
     private:
+        QDate getEarliestStatementDate();
+        QDate getLatestStatementDate();
+
         void refreshPurchases();
         void refreshHistory();
 

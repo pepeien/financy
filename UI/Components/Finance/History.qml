@@ -21,7 +21,7 @@ Item {
     property int selectedIndex:   0
 
     // Vars
-    property var _now: internal.addMonths(new Date(), 1)
+    property var _now: new Date()
 
     readonly property var _xAxis: ValueAxis {
         labelsVisible: false
@@ -124,11 +124,11 @@ Item {
     }
 
     function _centerOnCurrentStatement() {
-        const currentIndex = _root.history.findIndex((statement) => {
-            const date = statement.date;
+        const currentIndex = _root.history.findIndex((statement) => statement.isCurrentStatement(_root._now));
 
-            return date.getUTCMonth() === _root._now.getUTCMonth() && date.getUTCFullYear() === _root._now.getUTCFullYear();
-        });
+        if (currentIndex < 0) {
+            return;
+        }
 
         _root.select(currentIndex);
     }
@@ -178,7 +178,7 @@ Item {
                     readonly property var _data:     _root.history[index]
 
                     property bool _isSelected: _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
-                    property bool _isFuture:   _data.date > _root._now
+                    property bool _isFuture:   _data.isFuture(_root._now)
 
                     x: _position.x
                     y: _position.y

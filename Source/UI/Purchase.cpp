@@ -53,6 +53,11 @@ namespace Financy
         }
     }
 
+    bool Purchase::isRecurring()
+    {
+        return m_type == Type::Bill || m_type == Type::Subscription;
+    }
+
     bool Purchase::hasDescription()
     {
         return !m_description.isEmpty();
@@ -123,7 +128,7 @@ namespace Financy
         setInstallments(
             inData.find("installments") != inData.end() ?
                 inData.at("installments").is_number_unsigned() ?
-                    (int) inData.at("installments") : 1
+                    (std::uint32_t) inData.at("installments") : 1
                 : 1
         );
 
@@ -155,11 +160,6 @@ namespace Financy
             { "value",        m_value },
             { "installments", m_installments }
         };
-
-        if (m_type == Type::Subscription || m_type == Type::Bill)
-        {
-            result["endDate"] = m_endDate.toString("dd/MM/yyyy").toStdString();
-        }
 
         return result;
     }
@@ -242,12 +242,47 @@ namespace Financy
         emit onEdit();
     }
 
-    int Purchase::getInstallments()
+    bool Purchase::isFullyPaid(const QDate& inFinalDate, std::uint32_t inStatementClosingDay)
+    {
+        if (isRecurring())
+        {
+            return QDate::currentDate().daysTo(getEndDate()) < 0;
+        }
+
+        return getPaidInstallments(inFinalDate, inStatementClosingDay) >= m_installments;
+    }
+
+    std::uint32_t Purchase::getPaidInstallments(const QDate& inFinalDate, std::uint32_t inStatementClosingDay)
+    {
+        std::uint32_t paidInstallments = 0;
+
+        // Credit card purchases takes 1 ~ 3 days to process 
+        std::uint32_t closingDayWithProcessing = inStatementClosingDay - 2;
+
+        QDate currentDate = QDate(
+            m_date.year(),
+            m_date.month(),
+            inStatementClosingDay
+        ).addMonths(m_date.day() < (closingDayWithProcessing) ? -1 : 0);
+
+        while (currentDate.daysTo(isRecurring() ? getEndDate() : inFinalDate) >= 0)
+        {
+            if (currentDate.day() == inStatementClosingDay) {
+                paidInstallments++;
+            }
+
+            currentDate = currentDate.addDays(1);
+        }
+
+        return paidInstallments;
+    }
+
+    std::uint32_t Purchase::getInstallments()
     {
         return m_installments;
     }
 
-    void Purchase::setInstallments(int inInstallments)
+    void Purchase::setInstallments(std::uint32_t inInstallments)
     {
         m_installments = inInstallments;
 

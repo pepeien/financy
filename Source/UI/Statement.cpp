@@ -10,6 +10,16 @@ namespace Financy
         m_dueAmount(0.0f)
     {}
 
+    bool Statement::isCurrentStatement(const QDate& inDate)
+    {
+        return m_date.month() == inDate.month() && m_date.year() == inDate.year();
+    }
+
+    bool Statement::isFuture(const QDate& inDate)
+    {
+        return m_date > inDate;
+    }
+
     void Statement::setDate(const QDate& inDate)
     {
         m_date = inDate;

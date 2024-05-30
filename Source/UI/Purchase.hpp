@@ -35,7 +35,7 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
-            int installments
+            std::uint32_t installments
             MEMBER m_installments
             NOTIFY onEdit
         )
@@ -73,6 +73,8 @@ namespace Financy
         static QString getTypeName(Type inType);
 
     public slots:
+        bool isRecurring();
+
         bool hasDescription();
 
         float getInstallmentValue();
@@ -104,8 +106,11 @@ namespace Financy
         float getValue();
         void setValue(float inValue);
 
-        int getInstallments();
-        void setInstallments(int inInstallments);
+        bool isFullyPaid(const QDate& inFinalDate, std::uint32_t inStatementClosingDay);
+        std::uint32_t getPaidInstallments(const QDate& inFinalDate, std::uint32_t inStatementClosingDay);
+
+        std::uint32_t getInstallments();
+        void setInstallments(std::uint32_t inInstallments);
 
         // Subscription
         QDate getEndDate();
@@ -121,7 +126,7 @@ namespace Financy
         Type m_type;
 
         float m_value;
-        int m_installments;
+        std::uint32_t m_installments;
 
         // Subscription
         QDate m_endDate;

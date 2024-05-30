@@ -45,6 +45,10 @@ namespace Financy
     signals:
         void onEdit();
 
+    public slots:
+        bool isCurrentStatement(const QDate& inDate);
+        bool isFuture(const QDate& inDate);
+
     public:
         void setDate(const QDate& inDate);
         QDate getDate();
