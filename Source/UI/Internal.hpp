@@ -102,6 +102,7 @@ namespace Financy
         float getDueAmount(const QList<Purchase*>& inPurchases);
 
         QList<QString> getPurchaseTypes();
+        QString getPurchaseTypeName(Purchase::Type inType);
 
     private:
         // User

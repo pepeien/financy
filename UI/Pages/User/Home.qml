@@ -25,7 +25,7 @@ Components.Page {
 
     centerButtonIcon: "qrc:/Icons/Plus.svg"
     centerButtonOnClick: function() {
-        stack.push("qrc:/Pages/UserFinanceCreate.qml");
+        stack.push("qrc:/Pages/UserAccountCreate.qml");
     }
 
     onReturn: function() {

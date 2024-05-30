@@ -20,6 +20,8 @@
 
         <file alias="ChartCircle.qml">Chart/Circle.qml</file>
 
-        <file alias="FinancyHistory.qml">Finance/History.qml</file>
+        <file alias="FinanceHistory.qml">Finance/History.qml</file>
+        <file alias="FinancePurchaseCreate.qml">Finance/Purchase/Create.qml</file>
+        <file alias="FinancePurchaseEdit.qml">Finance/Purchase/Edit.qml</file>
     </qresource>
 </RCC>

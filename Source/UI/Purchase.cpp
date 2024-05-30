@@ -11,7 +11,9 @@ namespace Financy
         m_date(QDate::currentDate()),
         m_type(Type::Other),
         m_value(0.0f),
-        m_installments(1)
+        m_installments(1),
+        m_endDate(QDate::currentDate()),
+        m_isDeleted(false)
     {
         qmlRegisterUncreatableType<Purchase>(
             "Financy.Types",
@@ -55,21 +57,41 @@ namespace Financy
 
     bool Purchase::isRecurring()
     {
+        if (m_isDeleted)
+        {
+            return false;
+        }
+
         return m_type == Type::Bill || m_type == Type::Subscription;
     }
 
     bool Purchase::hasDescription()
     {
+        if (m_isDeleted)
+        {
+            return false;
+        }
+
         return !m_description.isEmpty();
     }
 
     float Purchase::getInstallmentValue()
     {
+        if (m_isDeleted)
+        {
+            return 0.0f;
+        }
+
         return m_value / m_installments;
     }
 
     QString Purchase::getTypeName()
     {
+        if (m_isDeleted)
+        {
+            return "";
+        }
+
         return getTypeName(m_type);
     }
 
@@ -132,6 +154,13 @@ namespace Financy
                 : 1
         );
 
+        if (inData.find("isDeleted") != inData.end())
+        {
+            deleteIt();
+
+            return;
+        }
+
         if (m_type != Type::Subscription && m_type != Type::Bill) {
             return;
         }
@@ -160,6 +189,11 @@ namespace Financy
             { "value",        m_value },
             { "installments", m_installments }
         };
+
+        if (m_isDeleted)
+        {
+            result["isDeleted"] = true;
+        }
 
         return result;
     }
@@ -191,7 +225,7 @@ namespace Financy
 
     void Purchase::setName(const QString& inName)
     {
-        m_name = inName;
+        m_name = inName.trimmed();
 
         emit onEdit();
     }
@@ -203,7 +237,7 @@ namespace Financy
 
     void Purchase::setDescription(const QString& inDescription)
     {
-        m_description = inDescription;
+        m_description = inDescription.trimmed();
 
         emit onEdit();
     }
@@ -244,6 +278,11 @@ namespace Financy
 
     bool Purchase::isFullyPaid(const QDate& inFinalDate, std::uint32_t inStatementClosingDay)
     {
+        if (m_isDeleted)
+        {
+            return false;
+        }
+
         if (isRecurring())
         {
             return QDate::currentDate().daysTo(getEndDate()) < 0;
@@ -254,6 +293,11 @@ namespace Financy
 
     std::uint32_t Purchase::getPaidInstallments(const QDate& inFinalDate, std::uint32_t inStatementClosingDay)
     {
+        if (m_isDeleted)
+        {
+            return 0;
+        }
+
         std::uint32_t paidInstallments = 0;
 
         // Credit card purchases takes 1 ~ 3 days to process 
@@ -297,5 +341,67 @@ namespace Financy
     void Purchase::setEndDate(const QDate& inDate)
     {
         m_endDate = inDate;
+    }
+
+    bool Purchase::isDeleted()
+    {
+        return m_isDeleted;
+    }
+
+    void Purchase::deleteIt()
+    {
+        if (m_isDeleted)
+        {
+            return;
+        }
+
+        m_isDeleted = true;
+    }
+
+    void Purchase::edit(
+        const QString& inName,
+        const QString& inDescription,
+        const QDate& inDate,
+        Type inType,
+        float inValue,
+        std::uint32_t inInstallments
+    )
+    {
+        if (m_isDeleted)
+        {
+            return;
+        }
+
+        if (inName.trimmed() != m_name.trimmed())
+        {
+            m_name = inName.trimmed();
+        }
+
+        if (inDescription.trimmed() != m_description.trimmed())
+        {
+            m_description = inDescription.trimmed();
+        }
+
+        if (inDate != m_date)
+        {
+            m_date = inDate;
+        }
+
+        if (inType != m_type)
+        {
+            m_type = inType;
+        }
+
+        if (inValue != m_value)
+        {
+            m_value = inValue;
+        }
+
+        if (inInstallments != m_installments)
+        {
+            m_installments = inInstallments;
+        }
+
+        emit onEdit();
     }
 }

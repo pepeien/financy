@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import Qt5Compat.GraphicalEffects
 
 // Types
 import Financy.Types 1.0
@@ -22,22 +23,20 @@ Components.Page {
 
     leftButtonIcon: "qrc:/Icons/Edit.svg" 
     leftButtonOnClick: function() {
-        stack.push("qrc:/Pages/UserFinanceEdit.qml");
+        stack.push("qrc:/Pages/UserAccountEdit.qml");
     }
 
     centerButtonIcon: "qrc:/Icons/Plus.svg" 
     centerButtonOnClick: function() {
-        _name.clear();
-        _description.clear();
-        _date.clear();
-        _value.clear();
-        _installments.clear();
-
-        _popup.open();
+        _purchaseCreation.open();
     }
 
     id:    _root
     title: account.name
+
+    Component.onCompleted: function() {
+        _history.refresh(_root.account.history);
+    }
 
     function updateListing() {
         _purchases.height = 0;
@@ -53,11 +52,26 @@ Components.Page {
         _root.subscriptions = _history.selectedHistory.subscriptions;
     }
 
-    Components.FinancyHistory {
+    function deletePurchase(id) {
+        _purchases.model = [];
+
+        _history.refresh([]);
+
+        _root.account.deletePurchase(id);
+        _root.account.onEdit();
+        _root.user.onEdit();
+
+        _history.refresh(_root.account.history);
+
+        _root.updateListing();
+
+        _purchases.model = _root.purchases;
+    }
+
+    Components.FinanceHistory {
         id:      _history
         width:   parent.width * 0.95
         height:  parent.height * 0.4
-        history: account.history
 
         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -246,19 +260,6 @@ Components.Page {
                                     anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
                                 }
 
-                                Text {
-                                    text:  _data.getInstallmentValue().toFixed(2)
-                                    color: _purchaseName.color
-
-                                    font: _purchaseName.font
-
-                                    anchors.top:            hasDescription ? parent.top : undefined
-                                    anchors.right:          parent.right
-                                    anchors.rightMargin:     20
-                                    anchors.topMargin:      hasDescription ? 10 : 0
-                                    anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
-                                }
-
                                 Components.SquircleContainer {
                                     id:     _description
                                     height: _text.paintedHeight + 2
@@ -282,6 +283,224 @@ Components.Page {
                                         font.weight:    Font.Bold
 
                                         anchors.centerIn: parent
+                                    }
+                                }
+
+                                Text {
+                                    text:  _data.getInstallmentValue().toFixed(2)
+                                    color: _purchaseName.color
+
+                                    font: _purchaseName.font
+
+                                    anchors.right:          _actions.left
+                                    anchors.rightMargin:    20
+                                    anchors.verticalCenter:  parent.verticalCenter
+                                }
+
+                                Item {
+                                    id: _actions
+                                    height: parent.height
+
+                                    anchors.top:            hasDescription ? parent.top : undefined
+                                    anchors.right:          parent.right
+                                    anchors.rightMargin:    20
+
+                                    Components.Button {
+                                        id:     _actionButton
+                                        height: 25
+                                        width:  25
+
+                                        anchors.verticalCenter:   parent.verticalCenter
+                                        anchors.horizontalCenter: parent.horizontalCenter
+
+                                        onClick: function() {
+                                            if (popup.isClosed == false) {
+                                                return;
+                                            }
+
+                                            popup.open();
+                                        }
+
+                                        Image {
+                                            id:                _leftButtonIcon
+                                            source:            "qrc:/Icons/More.svg"
+                                            sourceSize.width:  parent.height
+                                            sourceSize.height: parent.height
+                                            antialiasing:      true
+                                            visible:           false
+
+                                            anchors.verticalCenter:   parent.verticalCenter
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+
+                                        ColorOverlay {
+                                            anchors.fill: _leftButtonIcon
+                                            source:       _leftButtonIcon
+                                            color:        internal.colors.dark
+                                            antialiasing: true
+                                        }
+
+                                        Popup {
+                                            property bool isClosed: true
+     
+                                            id:          popup
+                                            width:       100
+                                            height:      80
+                                            focus:       true
+                                            closePolicy: Popup.CloseOnPressOutsideParent
+                                            padding:     0
+
+                                            x: _actionButton.x + _actionButton.width + 10
+                                            y: _actionButton.y - 10
+
+                                            background: Components.SquircleContainer {
+                                                hasShadow:       true
+                                                backgroundColor: internal.colors.background
+                                            }
+
+                                            Timer {
+                                                id: timer
+                                            }
+
+                                            function setTimeout(cb, delayTime) {
+                                                timer.interval = delayTime;
+                                                timer.repeat = false;
+                                                timer.triggered.connect(cb);
+                                                timer.start();
+                                            }
+
+                                            onOpened: function() {
+                                                popup.isClosed = false;
+                                            }
+
+                                            onClosed: function() {
+                                                setTimeout(() => {
+                                                    popup.isClosed = true;
+                                                }, 200);
+                                            }
+
+                                            Item {
+                                                anchors.fill: parent
+
+                                                Components.Button {
+                                                    id:     _editButton
+                                                    width:  parent.width
+                                                    height: 40
+
+                                                    anchors.top: parent.top
+
+                                                    topLeftRadius:  popup.background.backgroundRadius
+                                                    topRightRadius: popup.background.backgroundRadius
+
+                                                    onClick: function() {
+                                                        _purchaseEdition.purchase = _data;
+
+                                                        _purchaseEdition.open();
+                                                    }
+
+                                                    onHover: function() {
+                                                        _editButton.color         = internal.colors.dark;
+                                                        _editButtonIconFill.color = internal.colors.background;
+                                                        _editButtonText.color     = internal.colors.background;
+                                                    }
+
+                                                    onLeave: function() {
+                                                        _editButton.color         = internal.colors.background;
+                                                        _editButtonIconFill.color = internal.colors.dark;
+                                                        _editButtonText.color     = internal.colors.dark;
+                                                    }
+
+                                                    Image {
+                                                        id:                _editButtonIcon
+                                                        source:            "qrc:/Icons/Edit.svg"
+                                                        sourceSize.width:  parent.height * 0.35
+                                                        sourceSize.height: parent.height * 0.35
+                                                        antialiasing:      true
+                                                        visible:           false
+
+                                                        anchors.left:           parent.left
+                                                        anchors.leftMargin:     15
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+
+                                                    ColorOverlay {
+                                                        id:           _editButtonIconFill
+                                                        anchors.fill: _editButtonIcon
+                                                        source:       _editButtonIcon
+                                                        color:        internal.colors.dark
+                                                        antialiasing: true
+                                                    }
+
+                                                    Components.Text {
+                                                        id:    _editButtonText
+                                                        text:  "Edit"
+                                                        color: internal.colors.dark
+
+                                                        anchors.left:           _editButtonIcon.right
+                                                        anchors.leftMargin:     5
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+                                                }
+
+                                                Components.Button {
+                                                    id:     _deleteButton
+                                                    width:  parent.width
+                                                    height: 40
+
+                                                    anchors.top: _editButton.bottom
+
+                                                    bottomLeftRadius:  popup.background.backgroundRadius
+                                                    bottomRightRadius: popup.background.backgroundRadius
+
+                                                    onClick: function() {
+                                                        _root.deletePurchase(_data.id);
+                                                    }
+
+                                                    onHover: function() {
+                                                        _deleteButton.color         = internal.colors.dark;
+                                                        _deleteButtonIconFill.color = internal.colors.background;
+                                                        _deleteButtonText.color     = internal.colors.background;
+                                                    }
+
+                                                    onLeave: function() {
+                                                        _deleteButton.color         = internal.colors.background;
+                                                        _deleteButtonIconFill.color = internal.colors.dark;
+                                                        _deleteButtonText.color     = internal.colors.dark;
+                                                    }
+
+                                                    Image {
+                                                        id:                _deleteButtonIcon
+                                                        source:            "qrc:/Icons/Trash.svg"
+                                                        sourceSize.width:  parent.height * 0.4
+                                                        sourceSize.height: parent.height * 0.4
+                                                        antialiasing:      true
+                                                        visible:           false
+
+                                                        anchors.left:           parent.left
+                                                        anchors.leftMargin:     13
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+
+                                                    ColorOverlay {
+                                                        id:           _deleteButtonIconFill
+                                                        anchors.fill: _deleteButtonIcon
+                                                        source:       _deleteButtonIcon
+                                                        color:        internal.colors.dark
+                                                        antialiasing: true
+                                                    }
+
+                                                    Components.Text {
+                                                        id:    _deleteButtonText
+                                                        text:  "Delete"
+                                                        color: internal.colors.dark
+
+                                                        anchors.left:           _deleteButtonIcon.right
+                                                        anchors.leftMargin:     5
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -313,7 +532,7 @@ Components.Page {
 
                         Text {
                             id:    _headerTitle
-                            text:  "Subscriptions"
+                            text:  "Recurring"
                             color: internal.colors.background
 
                             font.family:    "Inter"
@@ -450,198 +669,27 @@ Components.Page {
         }
     }
 
-    Components.Popup {
-        id: _popup
+    Components.FinancePurchaseCreate {
+        id: _purchaseCreation
 
-        Components.SquircleContainer {
-            width:  parent.width * 0.6
-            height: parent.height * 0.5
+        onSubmit: function() {
+            _history.refresh(_root.account.history);
 
-            hasShadow:       true
-            backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+            _root.updateListing();
+        }
+    }
 
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter:   parent.verticalCenter
+    Components.FinancePurchaseEdit {
+        id: _purchaseEdition
 
-            Components.Text {
-                id:   _title
-                color: internal.colors.dark
-                text:  "New Purchase"
+        onSubmit: function() {
+            _purchases.model = [];
 
-                font.pointSize: 30
-                font.weight:    Font.Bold
+            _history.refresh(_root.account.history);
 
-                anchors.top:              parent.top
-                anchors.topMargin:        10
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+            _root.updateListing();
 
-            Item {
-                id: _firstInput
-
-                width: parent.width * 0.8
-                height: _name.height
-
-                anchors.top:              _title.bottom
-                anchors.topMargin:        10
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                Components.Input {
-                    id:    _name
-                    width: (parent.width * 0.5) - 5
-
-                    label:       "Name"
-                    color:       internal.colors.dark
-                    minLength:   1
-                    maxLength:   50
-                    inputHeight: 60
-
-                    anchors.left: parent.left
-
-                    KeyNavigation.tab: _description.input
-                }
-
-                Components.Input {
-                    id:     _description
-                    width:  _name.width
-
-                    label:      "Description"
-                    color:      internal.colors.dark
-                    minLength:  0
-                    maxLength:  50
-                    inputHeight: _name.inputHeight
-
-                    anchors.right: parent.right
-
-                    KeyNavigation.tab: _installments.input
-                }
-            }
-
-            Item {
-                id:     _secondInput
-                width:  _firstInput.width
-                height: _installments.height
-
-                anchors.top:              _firstInput.bottom
-                anchors.topMargin:        10
-                anchors.horizontalCenter: parent.horizontalCenter
-    
-                Components.Input {
-                    id:    _installments
-                    width: (parent.width * 0.5) - 5
-
-                    label:       "Installments"
-                    color:       internal.colors.dark
-                    inputHeight: _name.inputHeight
-
-                    anchors.left: parent.left
-
-                    validator: IntValidator {
-                        bottom: 1
-                        top: 999
-                    }
-
-                    KeyNavigation.tab: _value.input
-                }
-
-                Components.Input {
-                    id:     _value
-                    width:  _installments.width
-
-                    label:       "Value"
-                    color:       internal.colors.dark
-                    inputHeight: _name.inputHeight
-
-                    anchors.right: parent.right
-
-                    validator: DoubleValidator {
-                        bottom: 0.1
-                    }
-                }
-            }
-
-            Item {
-                id:     _thirdInput
-                width:  _firstInput.width
-                height: _date.height
-
-                anchors.top:              _secondInput.bottom
-                anchors.topMargin:        10
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                Components.Input {
-                    id:    _date
-                    width: (parent.width * 0.5) - 5
-
-                    label:       "Date"
-                    hint:        "dd/mm/yyyy"
-                    color:       internal.colors.dark
-                    inputHeight: _name.inputHeight
-                    minLength:   "00/00/0000".length
-
-                    anchors.left: parent.left
-
-                    validator: RegularExpressionValidator {
-                        regularExpression: /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{4})$/
-                    }
-                }
-
-                Components.Dropdown {
-                    id:    _type
-                    label: "Type"
-                    model: internal.getPurchaseTypes() ?? []
-
-                    itemWidth: (parent.width * 0.5) - 5
-                    itemHeight: _value.inputHeight
-
-                    anchors.right: parent.right
-                }
-            }
-
-            Components.SquircleButton {
-                id:     _submitButton
-                width:  parent.width * 0.45
-                height: 60
-
-                isDisabled: _name.hasError || _description.hasError || _date.hasError || _value.hasError || _installments.hasError
-
-                anchors.bottom:           parent.bottom
-                anchors.bottomMargin:     25
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                onClick: function() {
-                    if (_submitButton.isDisabled) {
-                        return;
-                    }
-
-                    user.selectedAccount.createPurchase(
-                        _name.text,
-                        _description.text,
-                        _date.text,
-                        _type.value,
-                        _value.text,
-                        _installments.text
-                    );
-                    user.onEdit();
-
-                    _history.refresh();
-
-                    _root.updateListing();
-
-                    _popup.close();
-                }
-
-                Components.Text {
-                    text:  "Create"
-                    color: _submitButton.isDisabled ? internal.colors.foreground : internal.colors.background
-
-                    font.weight:    Font.Bold
-                    font.pointSize: 15
-
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter:   parent.verticalCenter
-                }
-            }
+            _purchases.model = _root.purchases;
         }
     }
 }

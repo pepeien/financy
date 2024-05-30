@@ -15,6 +15,11 @@ namespace Financy
 
         // Properties
         Q_PROPERTY(
+            std::uint32_t id
+            MEMBER m_id
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QString name
             MEMBER m_name
             NOTIFY onEdit
@@ -116,6 +121,18 @@ namespace Financy
         QDate getEndDate();
         void setEndDate(const QDate& inDate);
 
+        bool isDeleted();
+        void deleteIt();
+
+        void edit(
+            const QString& inName,
+            const QString& inDescription,
+            const QDate& inDate,
+            Type inType,
+            float inValue,
+            std::uint32_t inInstallments
+        );
+
     private:
         std::uint32_t m_id;
         std::uint32_t m_accountId;
@@ -130,6 +147,8 @@ namespace Financy
 
         // Subscription
         QDate m_endDate;
+
+        bool m_isDeleted;
     };
 
     static std::unordered_map<std::string, Purchase::Type> PURCHASE_TYPES = {

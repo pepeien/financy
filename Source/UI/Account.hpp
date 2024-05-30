@@ -109,6 +109,16 @@ namespace Financy
             const QString& inValue,
             const QString& inInstallments
         );
+        void editPurchase(
+            std::uint32_t inId,
+            const QString& inName,
+            const QString& inDescription,
+            const QString& inDate,
+            const QString& inType,
+            const QString& inValue,
+            const QString& inInstallments
+        );
+        void deletePurchase(std::uint32_t inId);
 
     public:
         void fromJSON(const nlohmann::json& inData);

@@ -328,6 +328,11 @@ namespace Financy
         return result;
     }
 
+    QString Internal::getPurchaseTypeName(Purchase::Type inType)
+    {
+        return Purchase::getTypeName(inType);
+    }
+
     void Internal::loadUsers()
     {
         if (!FileSystem::doesFileExist(USER_FILE_NAME))

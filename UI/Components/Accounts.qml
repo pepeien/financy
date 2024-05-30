@@ -63,7 +63,7 @@ ScrollView {
                 onClick: function() {
                     internal.selectedUser.selectAccount(_item.id);
 
-                    stack.push("qrc:/Pages/UserFinanceHome.qml");
+                    stack.push("qrc:/Pages/UserAccountHome.qml");
                 }
             }
         }

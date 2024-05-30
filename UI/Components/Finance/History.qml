@@ -37,6 +37,38 @@ Item {
     property var _historyLine
     property var _historyScatter
 
+    function refresh(inHistory) {
+        _months.model = 0;
+
+        _root.history = inHistory;
+
+        _root._createChart(inHistory);
+
+        if (inHistory.length <= 0) {
+            return;
+        }
+
+        let x = (_chart.width / inHistory.length) / (_chart.width * 2);
+        let y = 0;
+
+        const sortedHistory = inHistory.slice();
+        const maxValue      = sortedHistory.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
+
+        inHistory.forEach((statement, index) => {
+            y = statement.dueAmount / (maxValue * 1.45);
+            y += 0.025;
+
+            _historyLine.append(   x, y);
+            _historyScatter.append(x, y);
+
+            x += (_chart.width / inHistory.length) / _chart.width;
+        });
+
+        _months.model = inHistory.length;
+
+        this._centerOnCurrentStatement();
+    }
+
     function select(index) {
         if (_root.history.length <= 0) {
             return;
@@ -59,39 +91,12 @@ Item {
         _root.onSelectedHistoryUpdate();
     }
 
-    function refresh() {
-        _root._createChart();
-
-        if (_root.history.length <= 0) {
-            return;
-        }
-
-        let x = (_chart.width / _root.history.length) / (_chart.width * 2);
-        let y = 0;
-
-        const sortedHistory = _root.history.slice();
-        const maxValue      = sortedHistory.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
-
-        _root.history.forEach((statement, index) => {
-            y = statement.dueAmount / (maxValue * 1.45);
-            y += 0.025;
-
-            _historyLine.append(   x, y);
-            _historyScatter.append(x, y);
-
-            x += (_chart.width / _root.history.length) / _chart.width;
-        });
-
-        _months.model = _root.history.length;
-
-        this._centerOnCurrentStatement();
-    }
-
-    function _createChart() {
-        _months.model = 0;
+    function _createChart(inHistory) {
+        _months.model         = 0;
+        _root.selectedHistory = undefined;
 
         _chart.removeAllSeries();
-        _chart.width = 200 * _root.history.length;
+        _chart.width = 200 * inHistory.length;
 
         // Line
         _historyLine = _chart.createSeries(
@@ -115,12 +120,12 @@ Item {
         _historyScatter.borderWidth = 2;
         _historyScatter.borderColor = "transparent";
 
-        if (_root.history.length <= 0) {
+        if (inHistory.length <= 0) {
             return;
         }
 
         _root.selectedIndex   = 0;
-        _root.selectedHistory = _root.history[0];
+        _root.selectedHistory = inHistory[0];
     }
 
     function _centerOnCurrentStatement() {
@@ -131,10 +136,6 @@ Item {
         }
 
         _root.select(currentIndex);
-    }
-
-    Component.onCompleted: function() {
-        _root.refresh();
     }
   
     Item {
