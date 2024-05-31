@@ -718,13 +718,13 @@ namespace Financy
                 purchases.push_back(purchase);
             }
 
-            currentStatementDate = currentStatementDate.addMonths(1);
-
-            if (purchases.isEmpty() && (latestStatement.daysTo(currentStatementDate) > 0)) {
+            if (purchases.isEmpty() && (latestStatement.daysTo(currentStatementDate) >= 0)) {
                 delete statement;
 
-                continue;
+                break;
             }
+
+            currentStatementDate = currentStatementDate.addMonths(1);
 
             statement->setDueAmount(dueAmount);
             statement->setPurchases(purchases);
