@@ -698,9 +698,7 @@ namespace Financy
                     m_closingDay
                 );
 
-                bool isPaidFor = paidInstallments > purchase->getInstallments();
-
-                if (paidInstallments <= 0 || purchase->isRecurring() ? !isPaidFor : isPaidFor)
+                if (paidInstallments <= 0 || purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments())
                 {
                     continue;
                 }
@@ -719,7 +717,7 @@ namespace Financy
 
             currentStatementDate = currentStatementDate.addMonths(1);
 
-            if (purchases.isEmpty() && subscriptions.isEmpty()) {
+            if (purchases.isEmpty() && (latestStatement.daysTo(currentStatementDate) > 0)) {
                 delete statement;
 
                 continue;

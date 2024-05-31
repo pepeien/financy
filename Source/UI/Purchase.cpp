@@ -301,7 +301,7 @@ namespace Financy
         std::uint32_t paidInstallments = 0;
 
         // Credit card purchases takes 1 ~ 3 days to process 
-        std::uint32_t closingDayWithProcessing = inStatementClosingDay - 2;
+        std::uint32_t closingDayWithProcessing = inStatementClosingDay - 1;
 
         QDate currentDate = QDate(
             m_date.year(),
