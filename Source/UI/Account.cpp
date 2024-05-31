@@ -698,7 +698,10 @@ namespace Financy
                     m_closingDay
                 );
 
-                if (paidInstallments <= 0 || purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments())
+                bool isPast   = paidInstallments <= 0;
+                bool isFuture = purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments();
+
+                if (isPast || isFuture)
                 {
                     continue;
                 }

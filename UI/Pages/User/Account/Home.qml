@@ -52,20 +52,30 @@ Components.Page {
         _root.subscriptions = _history.selectedHistory.subscriptions;
     }
 
-    function deletePurchase(id) {
-        _purchases.model = [];
+    function clearListing() {
+        _purchases.model            = [];
+        _subscriptionsContent.model = [];
 
         _history.refresh([]);
+        _root.updateListing();
+    }
+
+    function refreshListing() {
+        _history.refresh(_root.account.history);
+        _root.updateListing();
+
+        _purchases.model            = _root.purchases;
+        _subscriptionsContent.model = _root.subscriptions;
+    }
+
+    function deletePurchase(id) {
+        _root.clearListing();
 
         _root.account.deletePurchase(id);
         _root.account.onEdit();
         _root.user.onEdit();
 
-        _history.refresh(_root.account.history);
-
-        _root.updateListing();
-
-        _purchases.model = _root.purchases;
+        _root.refreshListing();
     }
 
     Components.FinanceHistory {
@@ -673,9 +683,11 @@ Components.Page {
         id: _purchaseCreation
 
         onSubmit: function() {
+            _root.clearListing();
+
             _history.refresh(_root.account.history);
 
-            _root.updateListing();
+            _root.refreshListing();
         }
     }
 
@@ -683,13 +695,11 @@ Components.Page {
         id: _purchaseEdition
 
         onSubmit: function() {
-            _purchases.model = [];
+            _root.clearListing();
 
             _history.refresh(_root.account.history);
 
-            _root.updateListing();
-
-            _purchases.model = _root.purchases;
+            _root.refreshListing();
         }
     }
 }
