@@ -91,6 +91,7 @@ Components.Popup {
                 minLength:  0
                 maxLength:  50
                 inputHeight: _name.inputHeight
+                isRequired:  false
 
                 anchors.right: parent.right
 
