@@ -134,7 +134,7 @@ Components.Page {
                         width: _scroll.width * 0.96
                         height: _purchaseHeader.height + _purchaseContent.height
 
-                        backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+                        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
                         anchors.top:       _sibling ? _sibling.bottom : parent.top
                         anchors.topMargin: 20
@@ -350,8 +350,8 @@ Components.Page {
                                             closePolicy: Popup.CloseOnPressOutsideParent
                                             padding:     0
 
-                                            x: _actionButton.x + _actionButton.width + 10
-                                            y: _actionButton.y - 10
+                                            x: _actionButton.x + 20
+                                            y: _actionButton.y + 10
 
                                             background: Components.SquircleContainer {
                                                 hasShadow:       true
@@ -514,7 +514,7 @@ Components.Page {
                     height:  _root.statementTitleHeight
                     visible: _root.subscriptions.length > 0
 
-                    backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+                    backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
                     anchors.top:       _purchases.bottom    
                     anchors.topMargin: 20

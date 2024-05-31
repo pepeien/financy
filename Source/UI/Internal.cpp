@@ -503,7 +503,7 @@ namespace Financy
         {
         case Colors::Theme::Dark:
             m_showcaseColors->setBackgroundColor("#0C1017");
-            m_showcaseColors->setForegroundColor("#08374A");
+            m_showcaseColors->setForegroundColor("#164457");
             m_showcaseColors->setLightColor(     "#008e9c");
             m_showcaseColors->setDarkColor(      "#049E84");
 
