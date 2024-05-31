@@ -56,7 +56,7 @@ Item {
 
         inHistory.forEach((statement, index) => {
             y = statement.dueAmount / (maxValue * 1.45);
-            y += 0.025;
+            y += 0.08;
 
             _historyLine.append(   x, y);
             _historyScatter.append(x, y);
@@ -129,10 +129,10 @@ Item {
     }
 
     function _centerOnCurrentStatement() {
-        const currentIndex = _root.history.findIndex((statement) => statement.isCurrentStatement(_root._now));
+        let currentIndex = _root.history.findIndex((statement) => statement.isCurrentStatement(_root._now));
 
         if (currentIndex < 0) {
-            return;
+            currentIndex = _root.history.length - 1;
         }
 
         _root.select(currentIndex);
@@ -178,8 +178,9 @@ Item {
                     readonly property var _position: _chart.mapToPosition(_historyScatter.at(index), _historyScatter)
                     readonly property var _data:     _root.history[index]
 
-                    property bool _isSelected: _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
-                    property bool _isFuture:   _data.isFuture(_root._now)
+                    property bool _isSelected:   _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
+                    property bool _isFuture:     _data.isFuture(_root._now)
+                    property bool _changedYears: index > 0 ? _data.date.getFullYear() != _root.history[index - 1].date.getFullYear() : true
 
                     x: _position.x
                     y: _position.y
@@ -254,6 +255,36 @@ Item {
 
                         anchors.bottom: parent.bottom
                         anchors.horizontalCenter: _point.horizontalCenter
+                    }
+
+                    Item {
+                        property int lastIndex:      Math.max(0, index - 1)
+                        property point nearPosition: _chart.mapToPosition(_historyScatter.at(lastIndex == index ? index + 1 : lastIndex), _historyScatter)
+
+                        visible: _changedYears
+
+                        x: -(Math.abs(_position.x - nearPosition.x) / 2)
+                        y: -Math.abs(parent.height - _chartScroll.height)
+
+                        Components.Text {
+                            id:    _separatorText
+                            text:  _data.date.getFullYear()
+                            color: internal.colors.dark
+
+                            font.pointSize: 12
+                            font.weight:    Font.DemiBold
+                        }
+
+                        Rectangle {
+                            width:  1
+                            height: _chartScroll.height
+                            color: internal.colors.light
+                            radius: 0.5
+
+                            anchors.top:              _separatorText.bottom
+                            anchors.topMargin:        5
+                            anchors.horizontalCenter: _separatorText.horizontalCenter
+                        }
                     }
                 }
             }
