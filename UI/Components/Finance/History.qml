@@ -165,7 +165,7 @@ Item {
             }
 
             function centerOn(point) {
-                _chart.x = ((_chartScroll.width / 2) - point.x) - ((_chart.width / history.length) / (_chart.width * 2)) - 50;
+                _chart.x = ((_chartScroll.width / 2) - point.x) - ((_chart.width / history.length) / (_chart.width * 2));
             }
 
             Repeater {

@@ -5,6 +5,7 @@
 
 #include <QQmlEngine>
 
+#include "Base.hpp"
 #include "Core/FileSystem.hpp"
 #include "Core/Helper.hpp"
 

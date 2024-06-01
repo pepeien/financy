@@ -10,8 +10,6 @@
 
 namespace Financy
 {
-    constexpr auto PURCHASE_FILE_NAME = "Purchases.json";
-
     class Account : public QObject
     {
         Q_OBJECT
