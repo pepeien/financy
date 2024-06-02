@@ -12,7 +12,10 @@ namespace Financy
 
     bool Statement::isCurrentStatement(const QDate& inDate)
     {
-        return m_date.month() == inDate.month() && m_date.year() == inDate.year();
+        QDate start = m_date;
+        QDate end   = start.addMonths(1).addDays(-1);
+
+        return start.daysTo(inDate) >= 0 && end.daysTo(inDate) <= 0;
     }
 
     bool Statement::isFuture(const QDate& inDate)

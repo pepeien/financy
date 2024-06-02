@@ -280,7 +280,7 @@ namespace Financy
     {
         if (m_isDeleted)
         {
-            return false;
+            return true;
         }
 
         if (isRecurring())
@@ -288,7 +288,7 @@ namespace Financy
             return QDate::currentDate().daysTo(getEndDate()) < 0;
         }
 
-        return getPaidInstallments(inFinalDate, inStatementClosingDay) >= m_installments;
+        return getPaidInstallments(inFinalDate, inStatementClosingDay) > m_installments;
     }
 
     std::uint32_t Purchase::getPaidInstallments(const QDate& inFinalDate, std::uint32_t inStatementClosingDay)

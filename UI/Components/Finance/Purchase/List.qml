@@ -28,6 +28,26 @@ Components.SquircleContainer {
     property var onEdit
     property var onDelete
 
+    function add(inPurchases, inSubscriptions) {
+        _purchases.height = 0;
+
+        purchases     = inPurchases;
+        subscriptions = inSubscriptions;
+
+        _purchases.model            = inPurchases;
+        _subscriptionsContent.model = inSubscriptions;
+    }
+
+    function clear() {
+        _purchases.height = 0;
+
+        _purchases.model            = [];
+        _subscriptionsContent.model = [];
+
+        purchases     = [];
+        subscriptions = [];
+    }
+
     ScrollView {
         id:     _scroll
         height: parent.height
@@ -35,16 +55,15 @@ Components.SquircleContainer {
         clip:   true
 
         contentWidth:  0
-        contentHeight: (subscriptions.length > 0 ? _subscriptions.height : 0) + _purchases.height + 20
+        contentHeight: ((subscriptions ?? []).length > 0 ? _subscriptions.height : 0) + _purchases.height + 20
 
         ScrollBar.vertical: Components.ScrollBar {
             isVertical: true
         }
 
         Repeater {
-            id:     _purchases
-            model:  purchases
-            width:  parent.width
+            id:    _purchases
+            width: parent.width
 
             delegate: Components.SquircleContainer {
                 required property int index
@@ -52,9 +71,9 @@ Components.SquircleContainer {
                 property var _data:    purchases[index]
                 property var _sibling: _purchases.itemAt(index - 1)
 
-                id:    _statement
-                width: _scroll.width * 0.96
-                height: _purchaseHeader.height + _purchaseContent.height
+                id:     _statement
+                width:  _scroll.width * 0.96
+                height: _purchaseHeader.height + _purchasesContent.height
 
                 backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
@@ -133,7 +152,7 @@ Components.SquircleContainer {
                 }
 
                 Repeater {
-                    id:     _purchaseContent
+                    id:     _purchasesContent
                     model:  _data.purchases
                     width:  parent.width
                     height: 0
@@ -143,17 +162,17 @@ Components.SquircleContainer {
                     delegate: Components.FinancePurchaseItem {
                         required property int index
 
-                        property var _sibling: _purchaseContent.itemAt(index - 1)
+                        property var _sibling: _purchasesContent.itemAt(index - 1)
 
                         purchase: _data.purchases[index]
 
-                        width:  _purchaseContent.width
+                        width:  _purchasesContent.width
                         height: purchase.hasDescription() ? purchaseHeight + 20 :  purchaseHeight
 
-                        anchors.top: _sibling ? _sibling.bottom : _purchaseContent.top
+                        anchors.top: _sibling ? _sibling.bottom : _purchasesContent.top
 
                         Component.onCompleted: function() {
-                            _purchaseContent.height += height;
+                            _purchasesContent.height += height;
                         }
 
                         onPurchaseEdit: function() {
@@ -180,7 +199,7 @@ Components.SquircleContainer {
             id:      _subscriptions
             width:   _scroll.width * 0.96
             height:  statementTitleHeight
-            visible: subscriptions.length > 0
+            visible: (subscriptions ?? []).length > 0
 
             backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
 
@@ -228,7 +247,7 @@ Components.SquircleContainer {
 
                 Text {
                     id:    _headerValueTitle
-                    text:  internal.getDueAmount(subscriptions).toFixed(2)
+                    text:  internal.getDueAmount(subscriptions ?? []).toFixed(2)
                     color: internal.colors.background
 
                     font.family:    "Inter"
@@ -242,9 +261,8 @@ Components.SquircleContainer {
             }
 
             Repeater {
-                id:     _subscriptionsContent
-                model:  subscriptions
-                width:  parent.width
+                id:    _subscriptionsContent
+                width: parent.width
                 height: 0
 
                 anchors.top: _subscriptionsHeader.bottom

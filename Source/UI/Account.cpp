@@ -131,12 +131,10 @@ namespace Financy
 
     bool Account::hasFullyPaid(Purchase* inPurchase)
     {
-        if (inPurchase->isDeleted())
-        {
-            return false;
-        }
-
-        return inPurchase->isFullyPaid(QDate::currentDate(), m_closingDay);
+        return inPurchase->isFullyPaid(
+            QDate::currentDate(),
+            m_closingDay
+        );
     }
 
     std::uint32_t Account::getPaidInstallments(Purchase* inPurchase)
@@ -180,7 +178,7 @@ namespace Financy
             return 0;
         }
 
-        return inPurchase->getValue() - (inPurchase->getInstallmentValue() * getPaidInstallments(inPurchase));
+        return inPurchase->getValue() - (inPurchase->getInstallmentValue() * (getPaidInstallments(inPurchase) - 1));
     }
 
     float Account::getDueAmount()
@@ -556,7 +554,24 @@ namespace Financy
 
     QDate Account::getEarliestStatementDate()
     {
-        QDate earliestDate = m_purchases[0]->getDate();
+        QList<Purchase*> purchases = {};
+
+        for (Purchase* purchase : m_purchases)
+        {
+            if (purchase->isDeleted())
+            {
+                continue;
+            }
+
+            purchases.push_back(purchase);
+        }
+
+        if (purchases.isEmpty())
+        {
+            return QDate::currentDate();
+        }
+
+        QDate earliestDate = purchases[0]->getDate();
 
         if (earliestDate.day() >= m_closingDay)
         {
@@ -610,6 +625,11 @@ namespace Financy
 
         for (Purchase* purchase : m_purchases)
         {
+            if (purchase->isDeleted())
+            {
+                continue;
+            }
+
             QDate date = purchase->getDate().addMonths(purchase->getInstallments());
 
             if (currentStatementDate.daysTo(date) < 0)
@@ -706,7 +726,7 @@ namespace Financy
                 {
                     continue;
                 }
-
+ 
                 dueAmount += purchase->getInstallmentValue();
 
                 if (purchase->isRecurring())
@@ -719,7 +739,8 @@ namespace Financy
                 purchases.push_back(purchase);
             }
 
-            if (purchases.isEmpty() && (latestStatement.daysTo(currentStatementDate) >= 0)) {
+            if (purchases.isEmpty() && latestStatement.daysTo(currentStatementDate) >= 0)
+            {
                 delete statement;
 
                 break;
