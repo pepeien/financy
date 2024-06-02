@@ -22,6 +22,7 @@
 
         <file alias="FinanceHistory.qml">Finance/History.qml</file>
         <file alias="FinancePurchaseCreate.qml">Finance/Purchase/Create.qml</file>
+        <file alias="FinancePurchaseDelete.qml">Finance/Purchase/Delete.qml</file>
         <file alias="FinancePurchaseEdit.qml">Finance/Purchase/Edit.qml</file>
         <file alias="FinancePurchaseItem.qml">Finance/Purchase/Item.qml</file>
         <file alias="FinancePurchaseList.qml">Finance/Purchase/List.qml</file>

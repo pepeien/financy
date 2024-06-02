@@ -12,10 +12,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    property var user:          internal.selectedUser
-    property var account:       user.selectedAccount
-    property var purchases:     []
-    property var subscriptions: []
+    property var user:    internal.selectedUser
+    property var account: user.selectedAccount
 
     property int purchaseHeight:       45
     property int statementTitleHeight: 40
@@ -39,22 +37,20 @@ Components.Page {
     }
 
     function updateListing() {
-        _purchases.height = 0;
+        _purchases.clear();
 
         if (!_history.selectedHistory) {
-            _root.purchases     = [];
-            _root.subscriptions = [];
-    
             return;
         }
 
-        _root.purchases     = _history.selectedHistory.dateBasedHistory;
-        _root.subscriptions = _history.selectedHistory.subscriptions;
+        _purchases.add(
+            _history.selectedHistory.dateBasedHistory,
+            _history.selectedHistory.subscriptions
+        );
     }
 
     function clearListing() {
-        _purchases.model            = [];
-        _subscriptionsContent.model = [];
+        _purchases.clear();
 
         _history.refresh([]);
         _root.updateListing();
@@ -64,18 +60,7 @@ Components.Page {
         _history.refresh(_root.account.history);
         _root.updateListing();
 
-        _purchases.model            = _root.purchases;
-        _subscriptionsContent.model = _root.subscriptions;
-    }
-
-    function deletePurchase(id) {
-        _root.clearListing();
-
-        _root.account.deletePurchase(id);
-        _root.account.onEdit();
-        _root.user.onEdit();
-
-        _root.refreshListing();
+        _purchases.add(_root.purchases, _root.subscriptions);
     }
 
     Components.Text {
@@ -116,9 +101,6 @@ Components.Page {
 
             anchors.fill: parent
 
-            purchases:     _root.purchases
-            subscriptions: _root.subscriptions
-
             onEdit: function(purchase) {
                 _purchaseEdition.purchase = purchase;
 
@@ -126,7 +108,9 @@ Components.Page {
             }
 
             onDelete: function(purchase) {
-                _root.deletePurchase(purchase.id);
+                _purchaseDeletion.purchase = purchase;
+
+                _purchaseDeletion.open();
             }
         }
     }
@@ -150,6 +134,20 @@ Components.Page {
             _root.clearListing();
 
             _history.refresh(_root.account.history);
+
+            _root.refreshListing();
+        }
+    }
+
+    Components.FinancePurchaseDelete {
+        id: _purchaseDeletion
+
+        onSubmit: function() {
+            _root.clearListing();
+
+            _root.account.deletePurchase(purchase.id);
+            _root.account.onEdit();
+            _root.user.onEdit();
 
             _root.refreshListing();
         }
