@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(NAME "Financy")
 
-project(${NAME} VERSION 0.0.1)
+project(${NAME} VERSION 1.0)
 
 ##############  Set values  #######################
 set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
@@ -51,12 +51,24 @@ find_package(Qt6    REQUIRED COMPONENTS Charts Core Gui Qml Quick)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 
 qt_standard_project_setup()
-qt_add_executable(
-    ${NAME}
 
-    ${SOURCES}
-    ${UI_SOURCES}
-)
+if (WIN32)
+    qt_add_executable(
+        ${NAME}
+        WIN32
+        ${SOURCES}
+        ${UI_SOURCES}
+    )
+elseif()
+    qt_add_executable(
+        ${NAME}
+
+        ${SOURCES}
+        ${UI_SOURCES}
+    )
+endif()
+
+qt_finalize_target(${NAME})
 
 target_include_directories(
     ${NAME}
