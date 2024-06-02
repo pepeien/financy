@@ -29,7 +29,8 @@ Components.SquircleContainer {
     property var onDelete
 
     function add(inPurchases, inSubscriptions) {
-        _purchases.height = 0;
+        _purchases.height     = 0;
+        _subscriptions.height = statementTitleHeight;
 
         purchases     = inPurchases;
         subscriptions = inSubscriptions;
@@ -39,7 +40,8 @@ Components.SquircleContainer {
     }
 
     function clear() {
-        _purchases.height = 0;
+        _purchases.height     = 0;
+        _subscriptions.height = statementTitleHeight;
 
         _purchases.model            = [];
         _subscriptionsContent.model = [];
