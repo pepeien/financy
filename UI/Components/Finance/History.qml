@@ -261,12 +261,12 @@ Item {
                         visible: _changedYears
 
                         x: -(
-                            history.length === 1 ? 150 : Math.abs(
+                            history.length === 1 ? 150 : (Math.abs(
                                 _position.x - _chart.mapToPosition(
-                                    _historyScatter.at(index - 1),
+                                    _historyScatter.at(index + 1),
                                     _historyScatter
                                 ).x
-                            ) / 2
+                            ) / 2) + 20
                         )
                         y: -Math.abs(parent.height - _chartScroll.height)
 

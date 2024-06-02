@@ -26,12 +26,12 @@ namespace Financy
         QApplication app(argc, argv);
 
         QQuickView viewer;
-        viewer.setFlags(Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint);
-        viewer.setResizeMode(QQuickView::SizeRootObjectToView);
-        viewer.setMinimumWidth(1600);
+        viewer.setFlags(        Qt::WindowType::Window | Qt::WindowType::FramelessWindowHint);
+        viewer.setResizeMode(   QQuickView::SizeRootObjectToView);
+        viewer.setMinimumWidth( 1600);
         viewer.setMinimumHeight(900);
-        viewer.setTitle(QString::fromStdString(m_title));
-        viewer.setColor("transparent");
+        viewer.setTitle(        QString::fromStdString(m_title));
+        viewer.setColor(        "transparent");
 
         QQmlContext* content = viewer.rootContext();
 
