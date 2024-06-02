@@ -59,7 +59,7 @@ if (WIN32)
         ${SOURCES}
         ${UI_SOURCES}
     )
-elseif()
+else()
     qt_add_executable(
         ${NAME}
 
