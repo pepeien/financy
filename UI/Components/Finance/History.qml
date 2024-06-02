@@ -258,12 +258,16 @@ Item {
                     }
 
                     Item {
-                        property int lastIndex:      Math.max(0, index - 1)
-                        property point nearPosition: _chart.mapToPosition(_historyScatter.at(lastIndex == index ? index + 1 : lastIndex), _historyScatter)
-
                         visible: _changedYears
 
-                        x: -(Math.abs(_position.x - nearPosition.x) / 2)
+                        x: -(
+                            history.length === 1 ? 150 : Math.abs(
+                                _position.x - _chart.mapToPosition(
+                                    _historyScatter.at(index - 1),
+                                    _historyScatter
+                                ).x
+                            ) / 2
+                        )
                         y: -Math.abs(parent.height - _chartScroll.height)
 
                         Components.Text {
