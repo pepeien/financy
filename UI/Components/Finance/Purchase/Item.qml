@@ -29,9 +29,9 @@ Item {
     }
 
     Text {
-        id:   _purchaseName
-        text: purchase.name + " " + account.getPaidInstallments(purchase, _history.selectedHistory.date) + "/" + purchase.installments
-        color: internal.colors.dark
+        id:      _purchaseName
+        text:    purchase.name + (purchase.isRecurring() ? "" : (" " + account.getPaidInstallments(purchase, _history.selectedHistory.date) + "/" + purchase.installments))
+        color:   internal.colors.dark
 
         font.family:    "Inter"
         font.pointSize: 9

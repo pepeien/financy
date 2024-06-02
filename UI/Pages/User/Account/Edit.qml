@@ -68,13 +68,15 @@ Components.Page {
             label: "Limit"
             color: internal.colors.dark
 
+            validator: IntValidator {
+                bottom: 1
+            }
+
             anchors.top:              _name.bottom
             anchors.topMargin:        10
             anchors.horizontalCenter: parent.horizontalCenter
 
-            validator: IntValidator {
-                bottom: 1
-            }
+            KeyNavigation.tab: _closingDay.input
         }
 
         Item {

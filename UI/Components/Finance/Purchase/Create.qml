@@ -129,6 +129,8 @@ Components.Popup {
                 validator: DoubleValidator {
                     bottom: 0.1
                 }
+
+                KeyNavigation.tab: _date.input
             }
         }
 
