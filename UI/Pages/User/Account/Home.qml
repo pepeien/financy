@@ -44,6 +44,7 @@ Components.Page {
         }
 
         _purchases.add(
+            _history.selectedHistory,
             _history.selectedHistory.dateBasedHistory,
             _history.selectedHistory.subscriptions
         );

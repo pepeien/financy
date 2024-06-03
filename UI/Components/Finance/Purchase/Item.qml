@@ -12,7 +12,10 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Item {
-    required property var purchase
+    readonly property var account: internal.selectedUser.selectedAccount
+
+    property var purchase
+    property var statement
 
     readonly property bool hasDescription: purchase.hasDescription()
 
@@ -30,7 +33,7 @@ Item {
 
     Text {
         id:      _purchaseName
-        text:    purchase.name + (purchase.isRecurring() ? "" : (" " + account.getPaidInstallments(purchase, _history.selectedHistory.date) + "/" + purchase.installments))
+        text:    purchase.name + (purchase.isRecurring() ? "" : (" " + account.getPaidInstallments(purchase, statement.date) + "/" + purchase.installments))
         color:   internal.colors.dark
 
         font.family:    "Inter"

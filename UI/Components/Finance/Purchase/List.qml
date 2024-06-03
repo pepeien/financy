@@ -12,6 +12,7 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.SquircleContainer {
+    property var statement
     property var purchases:     []
     property var subscriptions: []
 
@@ -28,27 +29,31 @@ Components.SquircleContainer {
     property var onEdit
     property var onDelete
 
-    function add(inPurchases, inSubscriptions) {
+    function add(
+        inStatement,
+        inPurchases,
+        inSubscriptions
+    ) {
         _purchases.height     = 0;
         _subscriptions.height = statementTitleHeight;
 
+        statement     = inStatement;
         purchases     = inPurchases;
         subscriptions = inSubscriptions;
 
-        _purchases.model            = inPurchases;
-        _subscriptionsContent.model = inSubscriptions;
+        _purchases.model            = inPurchases.length;
+        _subscriptionsContent.model = inSubscriptions.length;
     }
 
     function clear() {
         _purchases.height     = 0;
         _subscriptions.height = statementTitleHeight;
 
-        _purchases.model            = [];
-        _subscriptionsContent.model = [];
-
-        purchases     = [];
-        subscriptions = [];
+        _purchases.model            = 0;
+        _subscriptionsContent.model = 0;
     }
+
+    id: _root
 
     ScrollView {
         id:     _scroll
@@ -166,7 +171,8 @@ Components.SquircleContainer {
 
                         property var _sibling: _purchasesContent.itemAt(index - 1)
 
-                        purchase: _data.purchases[index]
+                        statement: _root.statement
+                        purchase:  _data.purchases[index]
 
                         width:  _purchasesContent.width
                         height: purchase.hasDescription() ? purchaseHeight + 20 :  purchaseHeight

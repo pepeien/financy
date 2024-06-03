@@ -180,7 +180,7 @@ Item {
 
                     property bool _isSelected:   _root.selectedHistory ? _data.date.toString() === _root.selectedHistory.date.toString() : false
                     property bool _isFuture:     _data.isFuture(_root._now)
-                    property bool _changedYears: index > 0 ? _data.date.getFullYear() != _root.history[index - 1].date.getFullYear() : true
+                    property bool _changedYears: index > 0 ? !_data.isSameYear(_root.history[index - 1].date) : true
 
                     x: _position.x
                     y: _position.y
@@ -263,7 +263,7 @@ Item {
                         x: -(
                             history.length === 1 ? 150 : (Math.abs(
                                 _position.x - _chart.mapToPosition(
-                                    _historyScatter.at(index + 1),
+                                    _historyScatter.at(index - 1),
                                     _historyScatter
                                 ).x
                             ) / 2) + 20
