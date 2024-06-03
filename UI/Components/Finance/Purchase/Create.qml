@@ -120,14 +120,16 @@ Components.Popup {
                 id:     _value
                 width:  _installments.width
 
-                label:       "Value"
+                label:       "Total Value"
                 color:       internal.colors.dark
                 inputHeight: _name.inputHeight
 
                 anchors.right: parent.right
 
                 validator: DoubleValidator {
+                    locale: "en"
                     bottom: 0.1
+                    decimals: 2
                 }
 
                 KeyNavigation.tab: _date.input

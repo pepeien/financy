@@ -22,16 +22,16 @@ Components.Popup {
         _name.input.insert(0, _root.purchase.name);
 
         _description.input.clear();
-        _description.input.insert(0,_root.purchase.description);
+        _description.input.insert(0, _root.purchase.description);
 
         _date.input.clear();
-        _date.input.insert(0,internal.getLongDate(_root.purchase.date));
+        _date.input.insert(0, internal.getLongDate(_root.purchase.date));
 
         _value.input.clear();
-        _value.input.insert(0,_root.purchase.value);
+        _value.input.insert(0, _root.purchase.value.toFixed(2));
 
         _installments.input.clear();
-        _installments.input.insert(0,_root.purchase.installments);
+        _installments.input.insert(0, _root.purchase.installments);
     }
 
     Components.SquircleContainer {
@@ -130,14 +130,16 @@ Components.Popup {
                 id:    _value
                 width: _installments.width
 
-                label:       "Value"
+                label:       "Total Value"
                 color:       internal.colors.dark
                 inputHeight: _name.inputHeight
 
                 anchors.right: parent.right
 
                 validator: DoubleValidator {
+                    locale: "en"
                     bottom: 0.1
+                    decimals: 2
                 }
 
                 KeyNavigation.tab: _date.input
