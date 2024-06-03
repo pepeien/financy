@@ -48,6 +48,7 @@ namespace Financy
     public slots:
         bool isCurrentStatement(const QDate& inDate);
         bool isFuture(const QDate& inDate);
+        bool isSameYear(const QDate& inDate);
 
     public:
         void setDate(const QDate& inDate);

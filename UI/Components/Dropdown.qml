@@ -64,7 +64,7 @@ Item {
         indicator: Canvas {
             id:     canvas
             x:      _control.width - width - _control.rightPadding
-            y:      _control.topPadding + (_control.availableHeight - height) / 2
+            y:      _control.topPadding + (_root.itemHeight - height) / 2
             width:  12
             height: 8
 
@@ -141,7 +141,9 @@ Item {
                 model:          _control.popup.visible ? _control.delegateModel : null
                 currentIndex:   _control.highlightedIndex
 
-                ScrollIndicator.vertical: ScrollIndicator {}
+                ScrollBar.vertical: Components.ScrollBar {
+                    isVertical: true
+                }
             }
 
             background: Components.SquircleContainer {

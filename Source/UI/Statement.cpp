@@ -23,6 +23,11 @@ namespace Financy
         return m_date > inDate;
     }
 
+    bool Statement::isSameYear(const QDate& inDate)
+    {
+        return m_date.year() == inDate.year();
+    }
+
     void Statement::setDate(const QDate& inDate)
     {
         m_date = inDate;
