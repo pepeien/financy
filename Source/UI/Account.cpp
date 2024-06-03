@@ -258,8 +258,8 @@ namespace Financy
         purchase->setDescription( inDescription);
         purchase->setDate(        QDate::fromString(inDate, "dd/MM/yyyy"));
         purchase->setType(        Purchase::getTypeValue(inType));
-        purchase->setValue(       std::stof(inValue.toStdString()));
-        purchase->setInstallments(std::stoi(inInstallments.toStdString()));
+        purchase->setValue(       inValue.toFloat());
+        purchase->setInstallments(inInstallments.toInt());
 
         m_purchases.push_back(purchase);
 
@@ -299,8 +299,8 @@ namespace Financy
             inDescription,
             QDate::fromString(inDate, "dd/MM/yyyy"),
             Purchase::getTypeValue(inType),
-            std::stof(inValue.toStdString()),
-            std::stoi(inInstallments.toStdString())
+            inValue.toFloat(),
+            inInstallments.toInt()
         );
 
         refreshHistory();
@@ -517,14 +517,14 @@ namespace Financy
             m_name = inName;
         }
 
-        if (m_closingDay != std::stoi(inClosingDay.toStdString()))
+        if (m_closingDay != inClosingDay.toInt())
         {
-            m_closingDay = std::stoi(inClosingDay.toStdString());
+            m_closingDay = inClosingDay.toInt();
         }
 
-        if (m_limit != std::stoi(inLimit.toStdString()))
+        if (m_limit != inLimit.toInt())
         {
-            m_limit = std::stoi(inLimit.toStdString());
+            m_limit = inLimit.toInt();
         }
 
         Type type = Type::Expense;
@@ -571,22 +571,7 @@ namespace Financy
             return QDate::currentDate();
         }
 
-        QDate earliestDate = purchases[0]->getDate();
-
-        if (earliestDate.day() >= m_closingDay)
-        {
-            return QDate(
-                earliestDate.year(),
-                earliestDate.month(),
-                m_closingDay
-            );
-        }
-    
-        return QDate(
-            earliestDate.year(),
-            earliestDate.month(),
-            m_closingDay
-        ).addMonths(-1);
+        return purchases[0]->getDate();
     }
 
     QDate Account::getLatestStatementDate()
@@ -630,7 +615,9 @@ namespace Financy
                 continue;
             }
 
-            QDate date = purchase->getDate().addMonths(purchase->getInstallments());
+            std::uint32_t installments = purchase->getInstallments();
+
+            QDate date = purchase->getDate().addMonths(installments == 1 ? 0 : installments);
 
             if (currentStatementDate.daysTo(date) < 0)
             {
@@ -739,14 +726,17 @@ namespace Financy
                 purchases.push_back(purchase);
             }
 
-            if (purchases.isEmpty() && latestStatement.daysTo(currentStatementDate) >= 0)
+            currentStatementDate = currentStatementDate.addMonths(1);
+
+            bool isFirstEmpty = purchases.isEmpty() && subscriptions.isEmpty() && m_history.size() == 0;
+            bool isLastEmpty  = purchases.isEmpty() && latestStatement.daysTo(currentStatementDate) >= 0;
+
+            if (isFirstEmpty || isLastEmpty)
             {
                 delete statement;
 
-                break;
+                continue;
             }
-
-            currentStatementDate = currentStatementDate.addMonths(1);
 
             statement->setDueAmount(dueAmount);
             statement->setPurchases(purchases);

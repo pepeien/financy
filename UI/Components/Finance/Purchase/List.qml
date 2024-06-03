@@ -29,20 +29,16 @@ Components.SquircleContainer {
     property var onEdit
     property var onDelete
 
-    function add(
-        inStatement,
-        inPurchases,
-        inSubscriptions
-    ) {
+    function add(inStatement) {
         _purchases.height     = 0;
         _subscriptions.height = statementTitleHeight;
 
         statement     = inStatement;
-        purchases     = inPurchases;
-        subscriptions = inSubscriptions;
+        purchases     = inStatement.dateBasedHistory;
+        subscriptions = inStatement.subscriptions;
 
-        _purchases.model            = inPurchases.length;
-        _subscriptionsContent.model = inSubscriptions.length;
+        _purchases.model            = purchases.length;
+        _subscriptionsContent.model = subscriptions.length;
     }
 
     function clear() {

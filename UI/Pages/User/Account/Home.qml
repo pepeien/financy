@@ -36,32 +36,16 @@ Components.Page {
         _history.refresh(_root.account.history);
     }
 
-    function updateListing() {
-        _purchases.clear();
-
-        if (!_history.selectedHistory) {
-            return;
-        }
-
-        _purchases.add(
-            _history.selectedHistory,
-            _history.selectedHistory.dateBasedHistory,
-            _history.selectedHistory.subscriptions
-        );
-    }
-
     function clearListing() {
         _purchases.clear();
 
         _history.refresh([]);
-        _root.updateListing();
     }
 
     function refreshListing() {
-        _history.refresh(_root.account.history);
-        _root.updateListing();
+        _root.clearListing();
 
-        _purchases.add(_root.purchases, _root.subscriptions);
+        _history.refresh(_root.account.history);
     }
 
     Components.Text {
@@ -86,7 +70,15 @@ Components.Page {
         anchors.topMargin:        10
         anchors.horizontalCenter: parent.horizontalCenter
 
-        onSelectedHistoryUpdate: _root.updateListing
+        onSelectedHistoryUpdate: function() {
+            if (!_history.selectedHistory) {
+                _root.clearListing();
+
+                return;
+            }
+
+            _purchases.add(_history.selectedHistory);
+        }
     }
 
     Item {
@@ -120,10 +112,6 @@ Components.Page {
         id: _purchaseCreation
 
         onSubmit: function() {
-            _root.clearListing();
-
-            _history.refresh(_root.account.history);
-
             _root.refreshListing();
         }
     }
@@ -132,10 +120,6 @@ Components.Page {
         id: _purchaseEdition
 
         onSubmit: function() {
-            _root.clearListing();
-
-            _history.refresh(_root.account.history);
-
             _root.refreshListing();
         }
     }

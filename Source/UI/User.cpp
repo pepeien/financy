@@ -105,12 +105,12 @@ namespace Financy
             nlohmann::ordered_json::array();
 
         Account* account = new Account();
-        account->setId(accounts.size());
-        account->setUserId(m_id);
-        account->setName(inName);
-        account->setClosingDay(std::stoi(inClosingDay.toStdString()));
-        account->setLimit(std::stoi(inLimit.toStdString()));
-        account->setPrimaryColor(inPrimaryColor);
+        account->setId(            accounts.size());
+        account->setUserId(        m_id);
+        account->setName(          inName);
+        account->setClosingDay(    inClosingDay.toUInt());
+        account->setLimit(         inLimit.toUInt());
+        account->setPrimaryColor(  inPrimaryColor);
         account->setSecondaryColor(inSecondaryColor);
 
         if (inType.contains("Expense"))
