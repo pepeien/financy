@@ -33,8 +33,6 @@ Components.Page {
     title: account.name
 
     function clearListing() {
-        _purchases.clear();
-
         _history.refresh([]);
     }
 

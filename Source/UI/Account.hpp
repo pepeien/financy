@@ -169,7 +169,10 @@ namespace Financy
         QDate getEarliestStatementDate();
         QDate getLatestStatementDate();
 
+        void sortPurchases();
         void refreshPurchases();
+
+        void sortHistory();
         void refreshHistory();
 
     private:

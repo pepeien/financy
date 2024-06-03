@@ -30,8 +30,7 @@ Components.SquircleContainer {
     property var onDelete
 
     function add(inStatement) {
-        _purchases.height     = 0;
-        _subscriptions.height = statementTitleHeight;
+        clear();
 
         statement     = inStatement;
         purchases     = inStatement.dateBasedHistory;
@@ -47,6 +46,10 @@ Components.SquircleContainer {
 
         _purchases.model            = 0;
         _subscriptionsContent.model = 0;
+
+        purchases     = [];
+        subscriptions = [];
+        statement     = undefined;
     }
 
     id: _root

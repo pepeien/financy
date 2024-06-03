@@ -38,33 +38,33 @@ Item {
     property var _historyScatter
 
     function refresh(inHistory) {
-        _months.model = 0;
+        _root._createChart(inHistory);
 
         _root.history = inHistory;
 
-        _root._createChart(inHistory);
-
-        if (inHistory.length <= 0) {
+        if (_root.history.length <= 0) {
             return;
         }
+    
+        select(0);
 
-        let x = (_chart.width / inHistory.length) / (_chart.width * 2);
+        let x = (_chart.width / _root.history.length) / (_chart.width * 2);
         let y = 0;
 
-        const sortedHistory = inHistory.slice();
+        const sortedHistory = _root.history.slice();
         const maxValue      = sortedHistory.sort((a, b) => b.dueAmount - a.dueAmount)[0].dueAmount;
 
-        inHistory.forEach((statement, index) => {
+        _root.history.forEach((statement, index) => {
             y = statement.dueAmount / (maxValue * 1.45);
             y += 0.08;
 
             _historyLine.append(   x, y);
             _historyScatter.append(x, y);
 
-            x += (_chart.width / inHistory.length) / _chart.width;
+            x += (_chart.width / _root.history.length) / _chart.width;
         });
 
-        _months.model = inHistory.length;
+        _months.model = _root.history.length;
 
         this._centerOnCurrentStatement();
     }
@@ -119,13 +119,6 @@ Item {
         _historyScatter.color       = "transparent";
         _historyScatter.borderWidth = 2;
         _historyScatter.borderColor = "transparent";
-
-        if (inHistory.length <= 0) {
-            return;
-        }
-
-        _root.selectedIndex   = 0;
-        _root.selectedHistory = inHistory[0];
     }
 
     function _centerOnCurrentStatement() {
@@ -261,12 +254,12 @@ Item {
                         visible: _changedYears
 
                         x: -(
-                            history.length === 1 ? 150 : (Math.abs(
+                            index.length === 1 ? 150 : Math.max(150, (Math.abs(
                                 _position.x - _chart.mapToPosition(
                                     _historyScatter.at(index - 1),
                                     _historyScatter
                                 ).x
-                            ) / 2) + 20
+                            ) / 2) + 20)
                         )
                         y: -Math.abs(parent.height - _chartScroll.height)
 

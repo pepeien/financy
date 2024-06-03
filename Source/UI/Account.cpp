@@ -194,7 +194,7 @@ namespace Financy
                 continue;
             }
 
-            if (purchase->isFullyPaid(now, m_closingDay))
+            if (hasFullyPaid(purchase))
             {
                 continue;
             }
@@ -263,6 +263,8 @@ namespace Financy
 
         m_purchases.push_back(purchase);
 
+        sortPurchases();
+
         refreshHistory();
 
         // Write
@@ -302,6 +304,8 @@ namespace Financy
             inValue.toFloat(),
             inInstallments.toInt()
         );
+
+        sortPurchases();
 
         refreshHistory();
 
@@ -468,11 +472,7 @@ namespace Financy
     {
         m_purchases = inPurchases;
 
-        std::sort(
-            m_purchases.begin(),
-            m_purchases.end(),
-            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
-        );
+        sortPurchases();
 
         refreshHistory();
 
@@ -630,6 +630,15 @@ namespace Financy
         return currentStatementDate;
     }
 
+    void Account::sortPurchases()
+    {
+        std::sort(
+            m_purchases.begin(),
+            m_purchases.end(),
+            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
+        );
+    }
+
     void Account::refreshPurchases()
     {
         if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
@@ -669,6 +678,15 @@ namespace Financy
         refreshHistory();
     }
 
+    void Account::sortHistory()
+    {
+        std::sort(
+            m_history.begin(),
+            m_history.end(),
+            [](Statement* a, Statement* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
+        );
+    }
+
     void Account::refreshHistory()
     {
         m_history.clear();
@@ -681,7 +699,7 @@ namespace Financy
         QDate earliestStatement    = getEarliestStatementDate();
         QDate latestStatement      = getLatestStatementDate();
         QDate currentStatementDate = earliestStatement;
-        qDebug() << earliestStatement.toString() << latestStatement.toString();
+
         while(latestStatement.daysTo(currentStatementDate) <= 0)
         {
             Statement* statement = new Statement();
@@ -722,6 +740,11 @@ namespace Financy
                 purchases.push_back(purchase);
             }
 
+            currentStatementDate = QDate(
+                currentStatementDate.year(),
+                currentStatementDate.month(),
+                m_closingDay
+            );
             currentStatementDate = currentStatementDate.addMonths(1);
 
             bool isFirstEmpty = purchases.isEmpty() && subscriptions.isEmpty() && m_history.size() == 0;
@@ -742,11 +765,7 @@ namespace Financy
             m_history.push_back(statement);
         }
 
-        std::sort(
-            m_history.begin(),
-            m_history.end(),
-            [](Statement* a, Statement* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
-        );
+        sortHistory();
 
         emit onEdit();
     }
