@@ -627,11 +627,7 @@ namespace Financy
             currentStatementDate = date;
         }
 
-        return QDate(
-            currentStatementDate.year(),
-            currentStatementDate.month(),
-            m_closingDay
-        );
+        return currentStatementDate;
     }
 
     void Account::refreshPurchases()
@@ -685,7 +681,7 @@ namespace Financy
         QDate earliestStatement    = getEarliestStatementDate();
         QDate latestStatement      = getLatestStatementDate();
         QDate currentStatementDate = earliestStatement;
-
+        qDebug() << earliestStatement.toString() << latestStatement.toString();
         while(latestStatement.daysTo(currentStatementDate) <= 0)
         {
             Statement* statement = new Statement();

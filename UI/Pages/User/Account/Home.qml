@@ -32,10 +32,6 @@ Components.Page {
     id:    _root
     title: account.name
 
-    Component.onCompleted: function() {
-        _history.refresh(_root.account.history);
-    }
-
     function clearListing() {
         _purchases.clear();
 
@@ -46,6 +42,10 @@ Components.Page {
         _root.clearListing();
 
         _history.refresh(_root.account.history);
+    }
+
+    Component.onCompleted: function() {
+        _root.refreshListing();
     }
 
     Components.Text {
