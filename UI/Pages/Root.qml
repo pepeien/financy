@@ -12,6 +12,9 @@ Item {
         id:           mask
         radius:       4
         color:        internal.colors.background
+
+        border.width: 1
+        border.color: Qt.lighter(internal.colors.dark, 0.5)
         anchors.fill: parent
 
         Behavior on color {
