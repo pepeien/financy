@@ -93,15 +93,16 @@ Components.Page {
                 width:  (parent.width / 2) - 10
                 text:   account.closingDay
 
-                label:       "Closing Date" 
+                label:       "Closing Day" 
                 color:       internal.colors.dark
                 inputHeight: _limit.inputHeight
+                hint: internal.getMinStatementClosingDay() + " ~ " + internal.getMaxStatementClosingDay()
 
-                anchors.left:      parent.left
+                anchors.left: parent.left
 
                 validator: IntValidator {
-                    bottom: 1
-                    top: 20
+                    bottom: internal.getMinStatementClosingDay()
+                    top:    internal.getMaxStatementClosingDay()
                 }
             }
 

@@ -334,6 +334,16 @@ namespace Financy
         return Purchase::getTypeName(inType);
     }
 
+    std::uint32_t Internal::getMinStatementClosingDay()
+    {
+        return MIN_STATEMENT_CLOSING_DAY;
+    }
+
+    std::uint32_t Internal::getMaxStatementClosingDay()
+    {
+        return MAX_STATEMENT_CLOSING_DAY;
+    }
+
     void Internal::loadUsers()
     {
         if (!FileSystem::doesFileExist(USER_FILE_NAME))

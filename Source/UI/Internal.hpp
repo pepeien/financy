@@ -101,6 +101,9 @@ namespace Financy
         QList<QString> getPurchaseTypes();
         QString getPurchaseTypeName(Purchase::Type inType);
 
+        std::uint32_t getMinStatementClosingDay();
+        std::uint32_t getMaxStatementClosingDay();
+
     private:
         // User
         void loadUsers();
