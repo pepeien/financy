@@ -395,6 +395,83 @@ namespace Financy
         stream << std::setw(4) << updatedPurchases << std::endl;
     }
 
+    QList<Statement*> Account::getPurchases(const QDate& inDate)
+    {
+        QList<Statement*> result{};
+
+        for (Purchase* purchase :  m_purchases) {
+            if (purchase->isDeleted() || purchase->isRecurring())
+            {
+                continue;
+            }
+
+            std::uint32_t paidInstallments = purchase->getPaidInstallments(
+                inDate,
+                m_closingDay
+            );
+
+            bool isPast   = paidInstallments <= 0;
+            bool isFuture = paidInstallments > purchase->getInstallments();
+
+            if (isPast || isFuture)
+            {
+                continue;
+            }
+
+            auto foundItem = std::find_if(
+                result.begin(),
+                result.end(),
+                [purchase](Statement* _) { return _->getDate().daysTo(purchase->getDate()) == 0; }
+            );
+
+            int foundIndex = foundItem - result.begin();
+
+            if (foundItem == result.end()) {
+                foundIndex = result.size();
+
+                result.push_back(new Statement());
+
+                result[foundIndex]->setDate(     purchase->getDate());
+                result[foundIndex]->setPurchases({});
+            }
+
+            QList<Purchase*> purchases = result[foundIndex]->getPurchases();
+            purchases.push_back(purchase);
+
+            result[foundIndex]->setPurchases(purchases);
+            result[foundIndex]->setDueAmount(result[foundIndex]->getDueAmount() + purchase->getInstallmentValue());
+        }
+
+        return result;
+    }
+
+    QList<Purchase*> Account::getSubscriptions(const QDate& inDate)
+    {
+        QList<Purchase*> result{};
+
+        for (Purchase* purchase : m_purchases)
+        {
+            if (purchase->isDeleted() || !purchase->isRecurring())
+            {
+                continue;
+            }
+
+            std::uint32_t paidInstallments = purchase->getPaidInstallments(
+                inDate,
+                m_closingDay
+            );
+
+            if (paidInstallments <= 0)
+            {
+                continue;
+            }
+
+            result.push_back(purchase);
+        }
+
+        return result;
+    }
+
     std::uint32_t Account::getId()
     {
         return m_id;
@@ -705,9 +782,8 @@ namespace Financy
             Statement* statement = new Statement();
             statement->setDate(currentStatementDate);
 
-            QList<Purchase*> purchases{};
-            QList<Purchase*> subscriptions{};
-            float dueAmount = 0.0f;
+            float purchaseDueAmount     = 0.0f;
+            float recurringDueAmount    = 0.0f;
     
             for (Purchase* purchase : m_purchases) {
                 if (purchase == nullptr || purchase->isDeleted())
@@ -727,17 +803,15 @@ namespace Financy
                 {
                     continue;
                 }
- 
-                dueAmount += purchase->getInstallmentValue();
 
                 if (purchase->isRecurring())
                 {
-                    subscriptions.push_back(purchase);
+                    recurringDueAmount += purchase->getInstallmentValue();
 
                     continue;
                 }
-
-                purchases.push_back(purchase);
+ 
+                purchaseDueAmount += purchase->getInstallmentValue();
             }
 
             currentStatementDate = QDate(
@@ -747,8 +821,8 @@ namespace Financy
             );
             currentStatementDate = currentStatementDate.addMonths(1);
 
-            bool isFirstEmpty = purchases.isEmpty() && subscriptions.isEmpty() && m_history.size() == 0;
-            bool isLastEmpty  = purchases.isEmpty() && latestStatement.daysTo(currentStatementDate) >= 0;
+            bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
+            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) >= 0;
 
             if (isFirstEmpty || isLastEmpty)
             {
@@ -757,10 +831,7 @@ namespace Financy
                 continue;
             }
 
-            statement->setDueAmount(dueAmount);
-            statement->setPurchases(purchases);
-            statement->setSubscritions(subscriptions);
-            statement->refreshDateBasedHistory();
+            statement->setDueAmount(purchaseDueAmount + recurringDueAmount);
 
             m_history.push_back(statement);
         }

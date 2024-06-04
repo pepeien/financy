@@ -30,11 +30,6 @@ namespace Financy
             MEMBER m_dueAmount
             NOTIFY onEdit
         )
-        Q_PROPERTY(
-            QList<Statement*> dateBasedHistory
-            MEMBER m_dateBasedHistory
-            NOTIFY onEdit
-        )
 
     public:
         Statement();
@@ -63,14 +58,10 @@ namespace Financy
         void setDueAmount(float inValue);
         float getDueAmount();
 
-        void refreshDateBasedHistory();
-
     private:
         QDate m_date;
         QList<Purchase*> m_purchases;
         QList<Purchase*> m_subscriptions;
         float m_dueAmount;
-
-        QList<Statement*> m_dateBasedHistory;
     };
 }

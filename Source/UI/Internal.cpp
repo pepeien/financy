@@ -344,6 +344,19 @@ namespace Financy
         return MAX_STATEMENT_CLOSING_DAY;
     }
 
+    void Internal::clear(QList<void*> inList, bool willDelete)
+    {
+        if (willDelete)
+        {
+            for (std::uint32_t i = 0; i < inList.size(); i++)
+            {
+                delete inList[i];
+            }
+        }
+
+        inList.clear();
+    }
+
     void Internal::loadUsers()
     {
         if (!FileSystem::doesFileExist(USER_FILE_NAME))

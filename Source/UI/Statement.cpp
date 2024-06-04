@@ -73,34 +73,4 @@ namespace Financy
     {
         return m_dueAmount;
     }
-
-    void Statement::refreshDateBasedHistory()
-    {
-        m_dateBasedHistory.clear();
-
-        for (Purchase* purchase :  m_purchases) {
-            auto foundItem = std::find_if(
-                m_dateBasedHistory.begin(),
-                m_dateBasedHistory.end(),
-                [purchase](Statement* _) { return _->getDate().daysTo(purchase->getDate()) == 0; }
-            );
-
-            int foundIndex = foundItem - m_dateBasedHistory.begin();
-
-            if (foundItem == m_dateBasedHistory.end()) {
-                foundIndex = m_dateBasedHistory.size();
-
-                m_dateBasedHistory.push_back(new Statement());
-
-                m_dateBasedHistory[foundIndex]->setDate(     purchase->getDate());
-                m_dateBasedHistory[foundIndex]->setPurchases({});
-            }
-
-            QList<Purchase*> purchases = m_dateBasedHistory[foundIndex]->getPurchases();
-            purchases.push_back(purchase);
-
-            m_dateBasedHistory[foundIndex]->setPurchases(purchases);
-            m_dateBasedHistory[foundIndex]->setDueAmount(m_dateBasedHistory[foundIndex]->getDueAmount() + purchase->getInstallmentValue());
-        }
-    }
 }

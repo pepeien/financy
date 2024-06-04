@@ -254,7 +254,7 @@ Item {
                         visible: _changedYears
 
                         x: -(
-                            index.length === 1 ? 150 : Math.max(150, (Math.abs(
+                            index === 0 ? 150 : ((Math.abs(
                                 _position.x - _chart.mapToPosition(
                                     _historyScatter.at(index - 1),
                                     _historyScatter

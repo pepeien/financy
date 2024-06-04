@@ -75,7 +75,11 @@ Components.Page {
                 return;
             }
 
-            _purchases.add(_history.selectedHistory);
+            _purchases.update(
+                _history.selectedHistory,
+                account.getPurchases(_history.selectedHistory.date),
+                account.getSubscriptions(_history.selectedHistory.date)
+            );
         }
     }
 

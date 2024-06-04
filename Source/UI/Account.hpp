@@ -118,6 +118,9 @@ namespace Financy
         );
         void deletePurchase(std::uint32_t inId);
 
+        QList<Statement*> getPurchases(const QDate& inDate);
+        QList<Purchase*> getSubscriptions(const QDate& inDate);
+
     public:
         void fromJSON(const nlohmann::json& inData);
         nlohmann::ordered_json toJSON();
