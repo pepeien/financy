@@ -53,12 +53,21 @@ find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 qt_standard_project_setup()
 
 if (WIN32)
-    qt_add_executable(
-        ${NAME}
-        WIN32
-        ${SOURCES}
-        ${UI_SOURCES}
-    )
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        qt_add_executable(
+            ${NAME}
+
+            ${SOURCES}
+            ${UI_SOURCES}
+        )
+    else()
+        qt_add_executable(
+            ${NAME}
+            WIN32
+            ${SOURCES}
+            ${UI_SOURCES}
+        )
+    endif()
 else()
     qt_add_executable(
         ${NAME}
@@ -67,8 +76,6 @@ else()
         ${UI_SOURCES}
     )
 endif()
-
-qt_finalize_target(${NAME})
 
 target_include_directories(
     ${NAME}
@@ -146,7 +153,6 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
         )
     endif()
 endif()
-
 
 add_subdirectory(Vendors/CQtDeployer)
 

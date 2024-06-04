@@ -1,7 +1,5 @@
 @echo off
 
-del 
-
-..\Bin\Deployer\CQtDeployer.exe -confFile ../Deploy.json
-powershell Compress-Archive ../Bin/Deploy/* ../Bin/win-64x.zip -Force
+"../Bin/Deployer/CQtDeployer.exe" -confFile "../Deploy.json"
+powershell Compress-Archive "../Bin/Deploy/*" "../Bin/win-64x.zip" -Force
 rmdir /s /q "../Bin/Deploy"
