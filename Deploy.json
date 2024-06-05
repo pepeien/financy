@@ -1,9 +1,0 @@
-{
-    "clear": true,
-    "deploySystem": true,
-    "extractPlugins": true,
-    "bin": "./Bin/Financy",
-    "qmlDir": "./UI",
-    "targetDir": "./Bin/Deploy",
-    "allQMlDependes": true
-}

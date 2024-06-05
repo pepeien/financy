@@ -63,7 +63,7 @@ if (WIN32)
     else()
         qt_add_executable(
             ${NAME}
-            WIN32
+                WIN32
             ${SOURCES}
             ${UI_SOURCES}
         )
@@ -104,29 +104,6 @@ target_link_libraries(
         ${OpenCV_LIBRARIES}
 )
 
-############## Setup Executable #######################
-set_target_properties(
-    ${NAME}
-    PROPERTIES
-
-    VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}/Financy"
-
-    ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
-    LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
-
-    ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
-)
-
 ##############  Set compiler  #######################
 if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
     if (NOT MINGW_PATH) 
@@ -154,28 +131,32 @@ if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
     endif()
 endif()
 
-add_subdirectory(Vendors/CQtDeployer)
-
-set(CMAKE_INSTALL_LIBDIR "${BUILD_DIR}/Deployer")
-
 set_target_properties(
-    "CQtDeployer" "Deploy" "pe-parse" "QtELFReader" "QuasarApp" "zip"
+    ${NAME}
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Deployer"
+    "${BUILD_DIR}/Financy"
+)
+
+add_custom_command(
+    TARGET
+        ${NAME}
+    POST_BUILD
+    COMMAND
+        ${QT_PATH}/bin/windeployqt.exe --qmldir ${UI_DIR} --no-translations --compiler-runtime ${BUILD_DIR}/Financy/Financy.exe
 )
