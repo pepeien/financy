@@ -104,8 +104,21 @@ namespace Financy
             nlohmann::ordered_json::parse(file):
             nlohmann::ordered_json::array();
 
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+        std::uint32_t id = 0;
+
+        if (accounts.size() > 0)
+        {
+            id = (std::uint32_t) accounts[accounts.size() - 1].at("id");
+            id++;
+        }
+
         Account* account = new Account();
-        account->setId(            accounts.size());
+        account->setId(            id);
         account->setUserId(        m_id);
         account->setName(          inName);
         account->setClosingDay(    inClosingDay.toUInt());
@@ -388,6 +401,50 @@ namespace Financy
         }
 
         onEdit();
+    }
+
+    QVariantMap User::getExpenseMap()
+    {
+        QMap<QString, float> map;
+
+        for (Account* account : m_accounts)
+        {
+            if (account->getType() != Account::Type::Expense)
+            {
+                continue;
+            }
+
+            for (Purchase* purchase : account->getPurchases())
+            {
+                if (account->hasFullyPaid(purchase))
+                {
+                    continue;
+                }
+
+                QString type = purchase->getTypeName();
+
+                if (map.contains(type))
+                {
+                    map.insert(type, purchase->getInstallmentValue());
+
+                    continue;
+                }
+
+                map[type] += purchase->getInstallmentValue();
+            }
+        }
+
+        QVariantMap result;
+
+        for (QMap<QString, float>::iterator iterator = map.begin(); iterator != map.end(); iterator++)
+        {
+            result.insert(
+                iterator.key(),
+                iterator.value()
+            );
+        }
+
+        return result;
     }
 
     float User::getDueAmount()

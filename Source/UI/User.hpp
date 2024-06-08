@@ -60,6 +60,11 @@ namespace Financy
 
         // Stats
         Q_PROPERTY(
+            QVariantMap expenseMap
+            READ getExpenseMap
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             float dueAmount
             READ getDueAmount
             NOTIFY onEdit
@@ -136,6 +141,7 @@ namespace Financy
             const QColor& inSecondaryColor
         );
 
+        QVariantMap getExpenseMap();
         float getDueAmount();
 
     private:

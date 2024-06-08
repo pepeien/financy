@@ -54,13 +54,13 @@ namespace Financy
     public:
         enum class Type
         {
-            Utility       = 0, // Light, Water, Internet, Gas, School bills
-            Subscription  = 1,
-            Transport     = 2,
-            Debt          = 3,
-            Food          = 4,
-            Bill          = 5,
-            Other         = 999,
+            Utility , // Light, Water, Internet, Gas, School bills
+            Subscription,
+            Transport,
+            Debt,
+            Food,
+            Bill,
+            Other
         };
         Q_ENUM(Type)
 
@@ -121,9 +121,6 @@ namespace Financy
         QDate getEndDate();
         void setEndDate(const QDate& inDate);
 
-        bool isDeleted();
-        void deleteIt();
-
         void edit(
             const QString& inName,
             const QString& inDescription,
@@ -147,8 +144,6 @@ namespace Financy
 
         // Subscription
         QDate m_endDate;
-
-        bool m_isDeleted;
     };
 
     static std::unordered_map<std::string, Purchase::Type> PURCHASE_TYPES = {

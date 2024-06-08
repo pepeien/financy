@@ -134,19 +134,36 @@ namespace Financy
             return nullptr;
         }
 
+        std::ifstream file(USER_FILE_NAME);
+        nlohmann::ordered_json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
+            nlohmann::ordered_json::parse(file):
+            nlohmann::ordered_json::array();
+
+        std::uint32_t id = 0;
+
+        if (users.size() > 0)
+        {
+            id = (std::uint32_t) users[users.size() - 1].at("id");
+            id++;
+        }
+
         User* user = new User();
-        user->setId(                m_users.size());
-        user->setFirstName(              inFirstName);
-        user->setLastName(               inLastName);
-        user->setPicture(         inPicture);
+        user->setId(            id);
+        user->setFirstName(     inFirstName);
+        user->setLastName(      inLastName);
+        user->setPicture(       inPicture);
         user->setPrimaryColor(  inPrimaryColor);
         user->setSecondaryColor(inSecondaryColor);
-
-        writeUser(user);
 
         m_users.push_back(user);
 
         onUsersUpdate();
+
+        // Write
+        users.push_back(user->toJSON());
+
+        std::ofstream stream(USER_FILE_NAME);
+        stream << std::setw(4) << users << std::endl;
 
         return user;
     }
@@ -378,19 +395,6 @@ namespace Financy
 
             m_users.push_back(user);
         }
-    }
-
-    void Internal::writeUser(User* inUser)
-    {
-        std::ifstream file(USER_FILE_NAME);
-        nlohmann::ordered_json users = FileSystem::doesFileExist(USER_FILE_NAME) ? 
-            nlohmann::ordered_json::parse(file):
-            nlohmann::ordered_json::array();
-        users.push_back(inUser->toJSON());
-
-        // Write
-        std::ofstream stream(USER_FILE_NAME);
-        stream << std::setw(4) << users << std::endl;
     }
 
     User* Internal::getUser(std::uint32_t inId)

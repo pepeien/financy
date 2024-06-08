@@ -29,6 +29,12 @@ Item {
     readonly property alias headerComponent: header
     readonly property alias footerComponent: footer
 
+    property var onRoute: function(){}
+
+    Component.onCompleted: function() {
+        onRoute();
+    }
+
     Components.Header {
         id: header
 

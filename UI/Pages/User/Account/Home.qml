@@ -34,6 +34,7 @@ Components.Page {
 
     function clearListing() {
         _history.refresh([]);
+        _purchases.clear();
     }
 
     function refreshListing() {
@@ -77,7 +78,7 @@ Components.Page {
 
             _purchases.update(
                 _history.selectedHistory,
-                account.getPurchases(_history.selectedHistory.date),
+                account.getPurchases(    _history.selectedHistory.date),
                 account.getSubscriptions(_history.selectedHistory.date)
             );
         }

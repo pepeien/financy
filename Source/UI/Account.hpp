@@ -178,6 +178,9 @@ namespace Financy
         void sortHistory();
         void refreshHistory();
 
+        void deletePurchaseFromFile(std::uint32_t inId);
+        void deletePurchaseFromMemory(std::uint32_t inId);
+
     private:
         std::uint32_t m_id;
         std::uint32_t m_userId;

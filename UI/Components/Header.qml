@@ -165,6 +165,8 @@ Rectangle {
                 }
 
                 stack.pop();
+
+                stack.currentItem.onRoute();
             }
 
             Image {

@@ -32,6 +32,17 @@ Components.Page {
         internal.logout();
     }
 
+    onRoute: function() {
+        _overviewChartPie.clear();
+
+        for (const key in user.expenseMap) {
+            _overviewChartPie.append(
+                key,
+                user.expenseMap[key]
+            );
+        }
+    }
+
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
 
@@ -166,36 +177,6 @@ Components.Page {
                 anchors.top:              _overviewTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.topMargin:        -10
-
-                Component.onCompleted: function() {
-                    const expensesMap = {};
-
-                    _root.expenseAccounts.forEach((card) => {
-                        card.purchases.forEach((purchase) => {
-                            if (card.hasFullyPaid(purchase)) {
-                                return;
-                            }
-
-                            const key = purchase.getTypeName();
-
-                            if (expensesMap[key]) {
-
-                                expensesMap[key] += purchase.getInstallmentValue();
-
-                                return;
-                            }
-
-                            expensesMap[key] = purchase.getInstallmentValue();
-                        });
-                    });
-
-                    for (const [key, value] of Object.entries(expensesMap)) {
-                        _overviewChartPie.append(
-                            key,
-                            value
-                        );
-                    }
-                }
 
                 PieSeries {
                     id:       _overviewChartPie
