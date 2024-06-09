@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(NAME "Financy")
 
-project(${NAME} VERSION 1.1)
+project(${NAME} VERSION 1.2)
 
 ##############  Set values  #######################
 set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
@@ -104,53 +104,26 @@ target_link_libraries(
         ${OpenCV_LIBRARIES}
 )
 
-##############  Set compiler  #######################
-if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
-    if (NOT MINGW_PATH) 
-      	message(FATAL_ERROR "MINGW_PATH not set in .env.cmake")
-    endif()
-
-    message(${MINGW_PATH})
-    set(CMAKE_C_COMPILER   ${MINGW_PATH}/bin/gcc.exe)
-    set(CMAKE_CXX_COMPILER ${MINGW_PATH}/bin/g++.exe)
-
-    if (WIN32)
-        target_include_directories(
-            ${NAME}
-
-            PRIVATE
-                ${MINGW_PATH}/include
-        )
-
-        target_link_directories(
-            ${NAME}
-
-            PRIVATE
-                ${MINGW_PATH}/lib
-        )
-    endif()
-endif()
-
 set_target_properties(
     ${NAME}
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Financy"
+    ${BUILD_DIR}
 )
 
 add_custom_command(
@@ -158,5 +131,5 @@ add_custom_command(
         ${NAME}
     POST_BUILD
     COMMAND
-        ${QT_PATH}/bin/windeployqt.exe --qmldir ${UI_DIR} --no-translations --compiler-runtime ${BUILD_DIR}/Financy/Financy.exe
+        ${QT_PATH}/bin/windeployqt.exe --qmldir ${UI_DIR} --no-translations --no-compiler-runtime ${BUILD_DIR}/Financy.exe
 )

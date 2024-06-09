@@ -1,0 +1,32 @@
+<?define name        = "Financy"?>
+<?define version     = "1.2"?>
+<?define publisher   = "Pepeien"?>
+<?define guid        = "c5c7d034-23a9-4f9f-8d09-35adc13ed83e"?>
+<?define appLocation = "..\..\Bin"?>
+
+<Wix
+    xmlns="http://wixtoolset.org/schemas/v4/wxs"
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+>
+    <Package
+        Name="$(var.name)"
+        Manufacturer="$(var.publisher)"
+        Version="$(var.version)"
+        UpgradeCode="$(var.guid)"
+        Scope="perMachine"
+    >
+        <Media
+            Id="1"
+            Cabinet="setup.cab"
+            EmbedCab="yes"
+        />
+        <Files Include="$(var.appLocation)\**">
+            <Exclude Files="$(var.appLocation)\**.json" />
+        </Files>
+        <ui:WixUI
+            Id="WixUI_InstallDir"
+	        InstallDirectory="INSTALLFOLDER"
+        />
+    </Package>
+</Wix>
