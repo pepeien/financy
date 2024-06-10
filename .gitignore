@@ -5,7 +5,7 @@
 [Bb]in/
 [Bb]uild/
 [Oo]bj/
-./[Dd]eploy/
+[Dd]eploy/
 
 # Microsoft Fakes
 .vs/
