@@ -1,0 +1,9 @@
+{
+    "clear": true,
+    "deploySystem": true,
+    "extractPlugins": true,
+    "allQMlDependes": true,
+    "bin": "../../Bin",
+    "qmlDir": "../../UI",
+    "targetDir": "../../Deploy/linux-64x"
+}

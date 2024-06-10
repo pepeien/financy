@@ -109,27 +109,19 @@ set_target_properties(
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    ${BUILD_DIR}
+    "${BUILD_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    ${BUILD_DIR}
-)
-
-add_custom_command(
-    TARGET
-        ${NAME}
-    POST_BUILD
-    COMMAND
-        ${QT_PATH}/bin/windeployqt.exe --qmldir ${UI_DIR} --no-translations --no-compiler-runtime ${BUILD_DIR}/Financy.exe
+    "${BUILD_DIR}"
 )

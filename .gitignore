@@ -5,7 +5,7 @@
 [Bb]in/
 [Bb]uild/
 [Oo]bj/
-__pycache__/
+./[Dd]eploy/
 
 # Microsoft Fakes
 .vs/

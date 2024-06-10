@@ -2,7 +2,7 @@
 <?define version     = "1.2"?>
 <?define publisher   = "Pepeien"?>
 <?define guid        = "c5c7d034-23a9-4f9f-8d09-35adc13ed83e"?>
-<?define appLocation = "..\..\Bin"?>
+<?define appLocation = "..\..\..\..\Deploy\win-64x"?>
 
 <Wix
     xmlns="http://wixtoolset.org/schemas/v4/wxs"
