@@ -235,15 +235,24 @@ namespace Financy
 
     void Internal::deleteUser(std::uint32_t inId)
     {
-        int userCount = m_users.size();
+        auto iterator = std::find_if(
+            m_users.begin(),
+            m_users.end(),
+            [=](User* user) { return user->getId() == inId; }
+        );
 
-        deleteUserFromFile(  inId);
-        deleteUserFromMemory(inId);
-
-        if (userCount == m_users.size())
+        if (iterator == m_users.end())
         {
             return;
         }
+
+        std::uint32_t index = iterator - m_users.begin();
+
+        User* user = m_users[index];
+        user->remove();
+        delete user;
+
+        m_users.removeAt(index);
 
         emit onUsersUpdate();
     }
@@ -411,65 +420,6 @@ namespace Financy
         }
 
         return m_users[iterator - m_users.begin()];
-    }
-
-    void Internal::deleteUserFromFile(std::uint32_t inId)
-    {
-        // Remove from file
-        if (!FileSystem::doesFileExist(USER_FILE_NAME))
-        {
-            return;
-        }
-
-        std::ifstream file(USER_FILE_NAME);
-
-        nlohmann::json storedUsers = nlohmann::json::parse(file);
-
-        if (storedUsers.size() < 0 || !storedUsers.is_array())
-        {
-            return;
-        }
-
-        int index = 0;
-        int lastSize = storedUsers.size();
-
-        for (auto& it : storedUsers.items())
-        {
-            if ((std::uint32_t) it.value().at("id") != inId)
-            {
-                index++;
-
-                continue;
-            }
-
-            storedUsers.erase(index);
-
-            break;
-        }
-
-        if (lastSize == storedUsers.size())
-        {
-            return;
-        }
-
-        std::ofstream stream(USER_FILE_NAME);
-        stream << std::setw(4) << storedUsers << std::endl;
-    }
-
-    void Internal::deleteUserFromMemory(std::uint32_t inId)
-    {
-        auto iterator = std::find_if(
-            m_users.begin(),
-            m_users.end(),
-            [=](User* user) { return user->getId() == inId; }
-        );
-
-        if (iterator == m_users.end())
-        {
-            return;
-        }
-
-        m_users.removeAt(iterator - m_users.begin());
     }
 
     void Internal::loadSettings()

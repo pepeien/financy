@@ -573,6 +573,12 @@ namespace Financy
         emit onEdit();
     }
 
+    void Account::remove()
+    {
+        removePurchases();
+        removeFromFile();
+    }
+
     QDate Account::getEarliestStatementDate()
     {
         if (m_purchases.isEmpty())
@@ -838,5 +844,61 @@ namespace Financy
         }
 
         m_purchases.removeAt(iterator - m_purchases.begin());
+    }
+
+    void Account::removeFromFile()
+    {
+        // Remove from file
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        std::ifstream file(ACCOUNT_FILE_NAME);
+
+        nlohmann::json storedAccounts = nlohmann::json::parse(file);
+
+        if (storedAccounts.size() < 0 || !storedAccounts.is_array())
+        {
+            return;
+        }
+
+        int index = 0;
+        int lastSize = storedAccounts.size();
+
+        for (auto& it : storedAccounts.items())
+        {
+            if ((std::uint32_t) it.value().at("id") != m_id)
+            {
+                index++;
+
+                continue;
+            }
+
+            storedAccounts.erase(index);
+
+            break;
+        }
+
+        if (lastSize == storedAccounts.size())
+        {
+            return;
+        }
+
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << storedAccounts << std::endl;
+    }
+
+    void Account::removePurchases()
+    {
+        for (Purchase* purchase : m_purchases)
+        {
+            std::uint32_t id = purchase->getId();
+
+            deletePurchaseFromMemory(id);
+            deletePurchaseFromFile(  id);
+        }
+
+        m_purchases.clear();
     }
 }

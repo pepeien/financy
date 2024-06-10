@@ -403,6 +403,12 @@ namespace Financy
         onEdit();
     }
 
+    void User::remove()
+    {
+        removeAccounts();
+        removeFromFile();
+    }
+
     QVariantMap User::getExpenseMap()
     {
         QMap<QString, float> map;
@@ -526,5 +532,60 @@ namespace Financy
 
             m_accounts.push_back(account);
         }
+    }
+
+    void User::removeFromFile()
+    {
+        // Remove from file
+        if (!FileSystem::doesFileExist(USER_FILE_NAME))
+        {
+            return;
+        }
+
+        std::ifstream file(USER_FILE_NAME);
+
+        nlohmann::json storedUsers = nlohmann::json::parse(file);
+
+        if (storedUsers.size() < 0 || !storedUsers.is_array())
+        {
+            return;
+        }
+
+        int index = 0;
+        int lastSize = storedUsers.size();
+
+        for (auto& it : storedUsers.items())
+        {
+            if ((std::uint32_t) it.value().at("id") != m_id)
+            {
+                index++;
+
+                continue;
+            }
+
+            storedUsers.erase(index);
+
+            break;
+        }
+
+        if (lastSize == storedUsers.size())
+        {
+            return;
+        }
+
+        std::ofstream stream(USER_FILE_NAME);
+        stream << std::setw(4) << storedUsers << std::endl;
+    }
+
+    void User::removeAccounts()
+    {
+        for (Account* account : m_accounts)
+        {
+            account->remove();
+
+            delete account;
+        }
+
+        m_accounts.clear();
     }
 }

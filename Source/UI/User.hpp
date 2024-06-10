@@ -140,6 +140,7 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+        void remove();
 
         QVariantMap getExpenseMap();
         float getDueAmount();
@@ -148,6 +149,9 @@ namespace Financy
         QString formatPicture(const QUrl& inUrl);
 
         void fetchAccounts();
+
+        void removeFromFile();
+        void removeAccounts();
 
     private:
         uint32_t m_id;

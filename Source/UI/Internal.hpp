@@ -110,8 +110,6 @@ namespace Financy
         // User
         void loadUsers();
         User* getUser(std::uint32_t inId);
-        void deleteUserFromFile(std::uint32_t inId);
-        void deleteUserFromMemory(std::uint32_t inId);
 
         // Settings
         void loadSettings();

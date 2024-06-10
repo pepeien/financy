@@ -53,10 +53,10 @@ Components.Page {
                     stack.push("qrc:/Pages/UserHome.qml")
                 }
 
-                text:           user.getFullName()
-                picture:        user.picture
-                primaryColor:   user.primaryColor
-                secondaryColor: user.secondaryColor
+                text:           user?.getFullName() ?? ""
+                picture:        user?.picture ?? ""
+                primaryColor:   user?.primaryColor ?? ""
+                secondaryColor: user?.secondaryColor ?? ""
 
                 Components.Button {
                     id:     _delete
@@ -81,6 +81,8 @@ Components.Page {
 
                     backgroundColor: "#F2665A"
                     onClick: function() {
+                        _isDeleting = false;
+
                         internal.deleteUser(user.id);
                     }
 
