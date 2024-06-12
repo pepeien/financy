@@ -10,6 +10,7 @@ import "qrc:/Components" as Components
 
 Components.Page {
     property bool _isDeleting: false
+    property var _deletingUser
 
     title: "Login"
 
@@ -121,9 +122,10 @@ Components.Page {
 
                     backgroundColor: "#F2665A"
                     onClick: function() {
-                        _isDeleting = false;
+                        _isDeleting   = false;
+                        _deletingUser = user;
 
-                        internal.deleteUser(user.id);
+                        _deletionPopup.open();
                     }
 
                     Image {
@@ -145,6 +147,78 @@ Components.Page {
                         antialiasing: true
                         visible:      _isDeleting
                     }
+                }
+            }
+        }
+    }
+
+    Components.Popup {
+        id: _deletionPopup
+
+        Components.SquircleContainer {
+            width:  parent.width * 0.4
+            height: parent.height * 0.2
+
+            hasShadow:       true
+            backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter:   parent.verticalCenter
+
+            Components.Text {
+                id:    _title
+                color: internal.colors.dark
+                text:  "You're about to delete the user " + _deletingUser?.getFullName().trim() ?? "NULL" + " , are you sure?"
+
+                font.pointSize: 15
+                font.weight:    Font.Bold
+
+                anchors.top:              parent.top
+                anchors.topMargin:        10
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Components.Text {
+                id:    _disclaimer
+                color: internal.colors.light
+                text:  "This action cannot be reversed"
+
+                font.pointSize: 12
+                font.weight:    Font.Normal
+
+                anchors.top:              _title.bottom
+                anchors.topMargin:        15
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Components.SquircleButton {
+                id:     _submitButton
+                width:  parent.width * 0.45
+                height: 60
+
+                backgroundColor: internal.colors.dark
+
+                anchors.bottom:           parent.bottom
+                anchors.bottomMargin:     25
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onClick: function() {
+                    internal.deleteUser(_deletingUser.id);
+
+                    _deletionPopup.close();
+
+                    _deletingUser = undefined;
+                }
+
+                Components.Text {
+                    text:  "Delete"
+                    color: internal.colors.background
+
+                    font.weight:    Font.Bold
+                    font.pointSize: 15
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter:   parent.verticalCenter
                 }
             }
         }
