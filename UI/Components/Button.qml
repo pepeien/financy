@@ -53,8 +53,9 @@ Rectangle {
                 return;
             }
 
+            cursorShape = Qt.PointingHandCursor;
+
             if (!onHover) {
-                cursorShape = Qt.PointingHandCursor;
 
                 return;
             }
@@ -67,9 +68,9 @@ Rectangle {
                 return;
             }
 
-            if (!onLeave) {
-                cursorShape = Qt.ArrowCursor;
+            cursorShape = Qt.ArrowCursor;
 
+            if (!onLeave) {
                 return;
             }
 

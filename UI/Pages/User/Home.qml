@@ -15,6 +15,9 @@ import "qrc:/Components" as Components
 Components.Page {
     readonly property var user: internal.selectedUser
 
+    property var _deletingAccount
+    property bool _isDeleting: false
+
     id:    _root
     title: user ? user.getFullName() : ""
 
@@ -69,7 +72,7 @@ Components.Page {
 
             Components.Text {
                 id:    _cardsTitle
-                text:  "Cards"
+                text:  "Expenses"
                 color: internal.colors.light
 
                 font.family:    "Inter"
@@ -82,45 +85,153 @@ Components.Page {
                 anchors.leftMargin: 25
             }
 
+            Components.Button {
+                id:     _moreButton
+                height: 25
+                width:  25
+
+                anchors.top:         parent.top
+                anchors.right:       parent.right
+                anchors.topMargin:   25
+                anchors.rightMargin: 16
+
+                onClick: function() {
+                    _morePopup.open();
+                }
+
+                Image {
+                    id:                _moreIcon
+                    source:            "qrc:/Icons/More.svg"
+                    sourceSize.width:  parent.height
+                    sourceSize.height: parent.height
+                    antialiasing:      true
+                    visible:           false
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter:   parent.verticalCenter
+                }
+
+                ColorOverlay {
+                    anchors.fill: _moreIcon
+                    source:       _moreIcon
+                    color:        _cardsTitle.color
+                    antialiasing: true
+                }
+            }
+
+            Popup {
+                property bool isClosed: true
+ 
+                id:          _morePopup
+                width:       100
+                height:      40
+                focus:       true
+                closePolicy: Popup.CloseOnPressOutsideParent
+                padding:     0
+
+                x: _moreButton.x + 20
+                y: _moreButton.y + 10
+
+                background: Components.SquircleContainer {
+                    hasShadow:       true
+                    backgroundColor: internal.colors.background
+                }
+
+                Timer {
+                    id: timer
+                }
+
+                function setTimeout(cb, delayTime) {
+                    timer.interval = delayTime;
+                    timer.repeat = false;
+                    timer.triggered.connect(cb);
+                    timer.start();
+                }
+
+                onOpened: function() {
+                    _morePopup.isClosed = false;
+                }
+
+                onClosed: function() {
+                    setTimeout(() => {
+                        _morePopup.isClosed = true;
+                    }, 200);
+                }
+
+                Item {
+                    anchors.fill: parent
+
+                    Components.Button {
+                        id:     _deleteButton
+                        width:  parent.width
+                        height: 40
+
+                        radius: _morePopup.background.backgroundRadius
+
+                        onClick: function() {
+                            _root._isDeleting = true;
+
+                            _morePopup.close();
+                        }
+
+                        onHover: function() {
+                            _deleteButton.color         = internal.colors.dark;
+                            _deleteButtonIconFill.color = internal.colors.background;
+                            _deleteButtonText.color     = internal.colors.background;
+                        }
+
+                        onLeave: function() {
+                            _deleteButton.color         = internal.colors.background;
+                            _deleteButtonIconFill.color = internal.colors.dark;
+                            _deleteButtonText.color     = internal.colors.dark;
+                        }
+
+                        Image {
+                            id:                _deleteButtonIcon
+                            source:            "qrc:/Icons/Trash.svg"
+                            sourceSize.width:  parent.height * 0.4
+                            sourceSize.height: parent.height * 0.4
+                            antialiasing:      true
+                            visible:           false
+
+                            anchors.left:           parent.left
+                            anchors.leftMargin:     13
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        ColorOverlay {
+                            id:           _deleteButtonIconFill
+                            anchors.fill: _deleteButtonIcon
+                            source:       _deleteButtonIcon
+                            color:        internal.colors.dark
+                            antialiasing: true
+                        }
+
+                        Components.Text {
+                            id:    _deleteButtonText
+                            text:  "Delete"
+                            color: internal.colors.dark
+
+                            anchors.left:           _deleteButtonIcon.right
+                            anchors.leftMargin:     5
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+                }
+            }
+
             Components.Accounts {
-                model: _root.expenseAccounts
+                id:         _accounts
+                model:      _root.expenseAccounts
+                isDeleting: _root._isDeleting
+
+                onDeleting: function(inAccount) {
+                    _root._deletingAccount = inAccount;
+    
+                    _deletionPopup.open();
+                }
 
                 anchors.top:              _cardsTitle.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-        }
-
-        Components.SquircleContainer {
-            id:     _goals
-            width:  _cards.width
-            height: _cards.height
-
-            backgroundColor: _cards.backgroundColor
-            hasShadow:       true
-
-            anchors.top:              _cards.bottom
-            anchors.topMargin:        _root.innerPadding
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Components.Text {
-                id:    _goalTitle
-                text:  "Goals"
-                color: internal.colors.light
-
-                font.family:    "Inter"
-                font.pointSize: 25
-                font.weight:    Font.DemiBold
-
-                anchors.top:        parent.top
-                anchors.left:       parent.left
-                anchors.topMargin:  15
-                anchors.leftMargin: 25
-            }
-
-            Components.Accounts {
-                model: _root.savingAccounts
-
-                anchors.top:              _goalTitle.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }
@@ -208,6 +319,129 @@ Components.Page {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top:              _overviewInnerText.bottom
                     anchors.topMargin:        10
+                }
+            }
+        }
+    }
+
+    Components.Popup {
+        id: _deletionPopup
+
+        Components.SquircleContainer {
+            width:  parent.width * 0.4
+            height: parent.height * 0.2
+
+            hasShadow:       true
+            backgroundColor: Qt.lighter(internal.colors.background, 0.965)
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter:   parent.verticalCenter
+
+            Item {
+                id: _title
+                width: _intialTitle.paintedWidth + _midTitle.width  + _lastTitle.paintedWidth
+                height: 20
+
+                anchors.top:              parent.top
+                anchors.topMargin:        10
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Components.Text {
+                    id:    _intialTitle
+                    color: internal.colors.dark
+                    text:  "Are you user you want to delete "
+
+                    font.pointSize: 15
+                    font.weight:    Font.Bold
+
+                    anchors.left: parent.left
+                }
+
+                Components.SquircleContainer {
+                    id: _midTitle
+
+                    width:  _text.paintedWidth + 12.5
+                    height: _text.paintedHeight + 2.5
+
+                    backgroundColor: _root._deletingAccount?.primaryColor ?? internal.colors.dark
+
+                    anchors.left: _intialTitle.right
+
+                    Components.Text {
+                        id:    _text
+                        color: _root._deletingAccount?.secondaryColor ?? internal.colors.light
+                        text:  _root._deletingAccount?.name ?? "NULL"
+
+                        font.pointSize: 15
+                        font.weight:    Font.Bold
+
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter:   parent.verticalCenter
+                    }
+                }
+
+                Components.Text {
+                    id:    _lastTitle
+                    color: internal.colors.dark
+                    text:  " ?"
+
+                    font.pointSize: 15
+                    font.weight:    Font.Bold
+
+                    anchors.left: _midTitle.right
+                }
+            }
+
+            Components.Text {
+                id:    _disclaimer
+                color: internal.colors.light
+                text:  "This action cannot be reversed"
+
+                font.pointSize: 12
+                font.weight:    Font.Normal
+
+                anchors.top:              _title.bottom
+                anchors.topMargin:        15
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            Components.SquircleButton {
+                id:     _submitButton
+                width:  parent.width * 0.45
+                height: 60
+
+                backgroundColor: internal.colors.dark
+
+                anchors.bottom:           parent.bottom
+                anchors.bottomMargin:     25
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                onClick: function() {
+                    if (!_root._isDeleting) {
+                        return;
+                    }
+
+                    _accounts.model = [];
+
+                    _root.user.deleteAccount(_root._deletingAccount.id);
+
+                    _deletionPopup.close();
+
+                    _root._deletingAccount = undefined;
+                    _root._isDeleting      = false;
+
+                    _accounts.model = _root.expenseAccounts;
+                }
+
+                Components.Text {
+                    text:  "Delete"
+                    color: internal.colors.background
+
+                    font.weight:    Font.Bold
+                    font.pointSize: 15
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter:   parent.verticalCenter
                 }
             }
         }

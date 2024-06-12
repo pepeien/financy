@@ -47,7 +47,7 @@ Components.Popup {
         Components.Text {
             id:    _title
             color: internal.colors.dark
-            text:  "Edit" + _root.purchase?.name
+            text:  "Edit " + _root.purchase?.name
 
             font.pointSize: 30
             font.weight:    Font.Bold

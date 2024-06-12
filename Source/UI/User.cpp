@@ -207,6 +207,36 @@ namespace Financy
         stream << std::setw(4) << updatedAccounts << std::endl;
     }
 
+    void User::deleteAccount(std::uint32_t inId)
+    {
+        auto iterator = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [=](Account* account) { return account->getId() == inId; }
+        );
+
+        if (iterator == m_accounts.end())
+        {
+            return;
+        }
+
+        std::uint32_t index = iterator - m_accounts.begin();
+
+        Account* account = m_accounts[index];
+
+        if (m_selectedAccount != nullptr && m_selectedAccount->getId() == account->getId())
+        {
+            m_selectedAccount = nullptr;
+        }
+    
+        account->remove();
+        delete account;
+
+        m_accounts.removeAt(index);
+
+        emit onEdit();
+    }
+
     void User::selectAccount(std::uint32_t inId)
     {
         Account* account = getAccount(inId);
