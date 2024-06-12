@@ -9,20 +9,22 @@ import Qt5Compat.GraphicalEffects
 import "qrc:/Components" as Components
 
 ScrollView {
-    readonly property real _padding: 35
+    readonly property real _padding:       35
+    readonly property real _actionsHeight: 35
+
+    property bool isEditing: false
+    property var onDelete
 
     property alias model: _grid.model
 
-    id:     _scroll
-    width:  parent.width
-    height: parent.height - (_padding * 2)
-    clip:   true
+    id:            _scroll
+    width:         parent.width
+    height:        parent.height - (_padding * 2)
+    clip:          true
+    bottomPadding: _padding
 
-    contentHeight: 110 * model.length / 2
+    contentHeight: (_scroll.isEditing ? (110 + _scroll._actionsHeight) : 110) * model.length / 2
     contentWidth:  -1
-
-    property bool isDeleting: false
-    property var onDeleting
 
     ScrollBar.vertical: Components.ScrollBar {
         isVertical: true
@@ -35,19 +37,27 @@ ScrollView {
 
         anchors.horizontalCenter: parent.horizontalCenter
 
-        cellHeight: 110
+        cellHeight: _scroll.isEditing ? (110 + _scroll._actionsHeight) : 110
         cellWidth:  _grid.width / 2
 
         delegate: Item {
-            readonly property var _item:          _grid.model[index]
-            readonly property real _ultilization: _item.usedLimit / _item.limit
+            readonly property var _item:           _grid.model[index]
+            readonly property real _ultilization:  _item.usedLimit / _item.limit
 
             id:     _root
             height: _grid.cellHeight
             width:  _grid.cellWidth
 
+            Behavior on height {
+                PropertyAnimation {
+                    easing.type: Easing.InOutQuad
+                    duration:    50
+                }
+            }
+
             Components.Account {
-                height: _root.height - (_scroll._padding / 2)
+                id:     _account
+                height: _scroll.isEditing ? _root.height - (_scroll._padding / 2) - _actions.height : _root.height - (_scroll._padding / 2)
                 width:  _root.width - _scroll._padding
 
                 anchors.right:       index % 2 == 0 ? parent.right : undefined
@@ -64,8 +74,18 @@ ScrollView {
                 usedLimit: _item.usedLimit
                 dueAmount: _item.dueAmount
 
+                backgroundBottomLeftRadius:  _scroll.isEditing ? 0 : Math.min((height * 0.25), 9)
+                backgroundBottomRightRadius: _scroll.isEditing ? 0 : Math.min((height * 0.25), 9)
+
+                Behavior on height {
+                    PropertyAnimation {
+                        easing.type: Easing.InOutQuad
+                        duration:    50
+                    }
+                }
+    
                 onClick: function() {
-                    if (_scroll.isDeleting) {
+                    if (_scroll.isEditing) {
                         return;
                     }
 
@@ -75,7 +95,7 @@ ScrollView {
                 }
 
                 onHover: function(inMouseArea) {
-                    if (_scroll.isDeleting) {
+                    if (_scroll.isEditing) {
                         inMouseArea.cursorShape = Qt.ArrowCursor;
 
                         return;
@@ -85,7 +105,7 @@ ScrollView {
                 }
 
                 onLeave: function(inMouseArea) {
-                    if (_scroll.isDeleting) {
+                    if (_scroll.isEditing) {
                         inMouseArea.cursorShape = Qt.ArrowCursor;
 
                         return;
@@ -93,78 +113,98 @@ ScrollView {
 
                     opacity = 1;
                 }
+            }
+
+            Components.SquircleContainer {
+                id:      _actions
+                width:   _account.width
+                height:  _scroll.isEditing ? _scroll._actionsHeight : 0
+                visible: _scroll.isEditing
+                clip:    true
+
+                backgroundTopLeftRadius:  0
+                backgroundTopRightRadius: 0
+                backgroundColor:          "#F2665A"
+
+                anchors.top:              _account.bottom
+                anchors.topMargin:        -1
+                anchors.horizontalCenter: _account.horizontalCenter
+
+                Behavior on visible {
+                    PropertyAnimation {
+                        easing.type: Easing.InOutQuad
+                        duration:    10
+                    }
+                }
+
+                Behavior on height {
+                    PropertyAnimation {
+                        easing.type: Easing.InOutQuad
+                        duration:    50
+                    }
+                }
 
                 Components.Button {
-                    id:     _delete
+                    id:     _moreButton
+                    width:  parent.width
                     height: parent.height
-                    width:  0
 
-                    topRightRadius:    Math.min((height * 0.25), 9)
-                    bottomRightRadius: Math.min((height * 0.25), 9)
-
-                    backgroundColor: "#F2665A"
-
-                    anchors.right: parent.right
+                    anchors.top:         parent.top
+                    anchors.right:       parent.right
 
                     onHover: function(inMouseArea) {
-                        if (!_scroll.isDeleting) {
-                            return;
-                        }
-
-                        inMouseArea.cursorShape = Qt.PointingHandCursor;
-                    }
-
-                    onLeave: function(inMouseArea) {
-                        if (!_scroll.isDeleting) {
+                        if (!_scroll.isEditing) {
                             inMouseArea.cursorShape = Qt.ArrowCursor;
 
                             return;
                         }
 
-                        inMouseArea.cursorShape = Qt.ArrowCursor;
+                        opacity = 0.7;
                     }
 
-                    onClick: function() {
-                        if (!_scroll.isDeleting) {
+                    onLeave: function(inMouseArea) {
+                        if (!_scroll.isEditing) {
+                            inMouseArea.cursorShape = Qt.ArrowCursor;
+
                             return;
                         }
 
-                        onDeleting(_item);
+                        opacity = 1;
                     }
 
-                    states: State {
-                        when: _scroll.isDeleting
-                        PropertyChanges {
-                            target: _delete
-                            width: 70
-                        }
-                    }
-
-                    transitions: Transition {
-                        NumberAnimation {
-                            properties: "width"
-                            easing.type: Easing.InOutQuad
-                        }
+                    onClick: function() {
+                        _scroll.onDelete(_item);
                     }
 
                     Image {
-                        id:                _icon
-                        source:            "qrc:/Icons/Close.svg"
-                        sourceSize.width:  parent.width * 0.4
-                        sourceSize.height: parent.width * 0.4
+                        id:                _deleteIcon
+                        source:            "qrc:/Icons/Trash.svg"
+                        sourceSize.width:  parent.height * 0.6
+                        sourceSize.height: parent.height * 0.6
                         antialiasing:      true
                         visible:           false
 
-                        anchors.verticalCenter:   parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.right:          _deleteText.left
+                        anchors.rightMargin:    5
+                        anchors.verticalCenter: _deleteText.verticalCenter
                     }
 
                     ColorOverlay {
-                        anchors.fill: _icon
-                        source:       _icon
+                        anchors.fill: _deleteIcon
+                        source:       _deleteIcon
                         color:        "white"
                         antialiasing: true
-                        visible:      _scroll.isDeleting
+                    }
+
+                    Components.Text {
+                        id:    _deleteText
+                        text:  "Delete"
+                        color: "white"
+
+                        font.weight: Font.DemiBold
+
+                        anchors.verticalCenter:   parent.verticalCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
             }

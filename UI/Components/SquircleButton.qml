@@ -12,7 +12,11 @@ Components.Button {
     default property alias data: _content.data
 
     // Container Props
-    property alias backgroundBorder: _content.backgroundBorder
+    property alias backgroundBorder:            _content.backgroundBorder
+    property alias backgroundTopLeftRadius:     _content.backgroundTopLeftRadius
+    property alias backgroundTopRightRadius:    _content.backgroundTopRightRadius
+    property alias backgroundBottomLeftRadius:  _content.backgroundBottomLeftRadius
+    property alias backgroundBottomRightRadius: _content.backgroundBottomRightRadius
 
     property bool hasShadow:       false
     property var backgroundColor:  "transparent"

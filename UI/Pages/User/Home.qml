@@ -16,7 +16,8 @@ Components.Page {
     readonly property var user: internal.selectedUser
 
     property var _deletingAccount
-    property bool _isDeleting: false
+
+    property bool _isOnEditMode: false
 
     id:    _root
     title: user ? user.getFullName() : ""
@@ -96,7 +97,7 @@ Components.Page {
                 anchors.rightMargin: 16
 
                 onClick: function() {
-                    _morePopup.open();
+                    _root._isOnEditMode = !_root._isOnEditMode;
                 }
 
                 Image {
@@ -119,113 +120,12 @@ Components.Page {
                 }
             }
 
-            Popup {
-                property bool isClosed: true
- 
-                id:          _morePopup
-                width:       100
-                height:      40
-                focus:       true
-                closePolicy: Popup.CloseOnPressOutsideParent
-                padding:     0
-
-                x: _moreButton.x + 20
-                y: _moreButton.y + 10
-
-                background: Components.SquircleContainer {
-                    hasShadow:       true
-                    backgroundColor: internal.colors.background
-                }
-
-                Timer {
-                    id: timer
-                }
-
-                function setTimeout(cb, delayTime) {
-                    timer.interval = delayTime;
-                    timer.repeat = false;
-                    timer.triggered.connect(cb);
-                    timer.start();
-                }
-
-                onOpened: function() {
-                    _morePopup.isClosed = false;
-                }
-
-                onClosed: function() {
-                    setTimeout(() => {
-                        _morePopup.isClosed = true;
-                    }, 200);
-                }
-
-                Item {
-                    anchors.fill: parent
-
-                    Components.Button {
-                        id:     _deleteButton
-                        width:  parent.width
-                        height: 40
-
-                        radius: _morePopup.background.backgroundRadius
-
-                        onClick: function() {
-                            _root._isDeleting = true;
-
-                            _morePopup.close();
-                        }
-
-                        onHover: function() {
-                            _deleteButton.color         = internal.colors.dark;
-                            _deleteButtonIconFill.color = internal.colors.background;
-                            _deleteButtonText.color     = internal.colors.background;
-                        }
-
-                        onLeave: function() {
-                            _deleteButton.color         = internal.colors.background;
-                            _deleteButtonIconFill.color = internal.colors.dark;
-                            _deleteButtonText.color     = internal.colors.dark;
-                        }
-
-                        Image {
-                            id:                _deleteButtonIcon
-                            source:            "qrc:/Icons/Trash.svg"
-                            sourceSize.width:  parent.height * 0.4
-                            sourceSize.height: parent.height * 0.4
-                            antialiasing:      true
-                            visible:           false
-
-                            anchors.left:           parent.left
-                            anchors.leftMargin:     13
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        ColorOverlay {
-                            id:           _deleteButtonIconFill
-                            anchors.fill: _deleteButtonIcon
-                            source:       _deleteButtonIcon
-                            color:        internal.colors.dark
-                            antialiasing: true
-                        }
-
-                        Components.Text {
-                            id:    _deleteButtonText
-                            text:  "Delete"
-                            color: internal.colors.dark
-
-                            anchors.left:           _deleteButtonIcon.right
-                            anchors.leftMargin:     5
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                    }
-                }
-            }
-
             Components.Accounts {
                 id:         _accounts
                 model:      _root.expenseAccounts
-                isDeleting: _root._isDeleting
+                isEditing:  _root._isOnEditMode
 
-                onDeleting: function(inAccount) {
+                onDelete: function(inAccount) {
                     _root._deletingAccount = inAccount;
     
                     _deletionPopup.open();
@@ -417,7 +317,7 @@ Components.Page {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 onClick: function() {
-                    if (!_root._isDeleting) {
+                    if (!_root._isOnEditMode) {
                         return;
                     }
 
@@ -428,7 +328,7 @@ Components.Page {
                     _deletionPopup.close();
 
                     _root._deletingAccount = undefined;
-                    _root._isDeleting      = false;
+                    _root._isOnEditMode    = false;
 
                     _accounts.model = _root.expenseAccounts;
                 }

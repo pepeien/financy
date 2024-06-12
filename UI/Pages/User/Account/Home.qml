@@ -29,6 +29,10 @@ Components.Page {
         _purchaseCreation.open();
     }
 
+    onReturn: function() {
+        _history.visible = false;
+    }
+
     id:    _root
     title: account.name
 
