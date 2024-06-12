@@ -91,6 +91,10 @@ namespace Financy
 
         Account& operator=(const Account&) = default;
 
+    public:
+        static Type getTypeValue(const QString& inName);
+        static QString getTypeName(Type inType);
+
     public slots:
         bool hasFullyPaid(Purchase* inPurchase);
         std::uint32_t getPaidInstallments(Purchase* inPurchase);
@@ -200,5 +204,10 @@ namespace Financy
         QColor m_secondaryColor;
 
         QList<Statement*> m_history;
+    };
+
+    static std::unordered_map<std::string, Account::Type> ACCOUNT_TYPES = {
+        { "Expense", Account::Type::Expense },
+        //{ "Saving",  Account::Type::Saving } Disabled until rework
     };
 }

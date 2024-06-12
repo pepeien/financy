@@ -98,6 +98,9 @@ namespace Financy
 
         float getDueAmount(const QList<Purchase*>& inPurchases);
 
+        QList<QString> getAccountTypes();
+        QString getAccountTypeName(Account::Type inType);
+
         QList<QString> getPurchaseTypes();
         QString getPurchaseTypeName(Purchase::Type inType);
 

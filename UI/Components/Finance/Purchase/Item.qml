@@ -85,12 +85,12 @@ Item {
     }
 
     Item {
-        id: _actions
+        id:     _actions
         height: parent.height
 
-        anchors.top:            hasDescription ? parent.top : undefined
-        anchors.right:          parent.right
-        anchors.rightMargin:    20
+        anchors.top:         hasDescription ? parent.top : undefined
+        anchors.right:       parent.right
+        anchors.rightMargin: 20
 
         Components.Button {
             id:     _actionButton

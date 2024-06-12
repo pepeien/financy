@@ -112,7 +112,7 @@ Components.Page {
                 itemWidth:  _closingDay.width
                 itemHeight: _closingDay.inputHeight
 
-                model: [ "Expense", "Saving" ]
+                model: internal.getAccountTypes()
 
                 anchors.right:     parent.right
             }

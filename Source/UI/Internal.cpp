@@ -129,7 +129,7 @@ namespace Financy
         const QColor& inSecondaryColor
     )
     {
-        if (inFirstName.isEmpty() || inPicture.isEmpty())
+        if (inFirstName.isEmpty())
         {
             return nullptr;
         }
@@ -335,6 +335,29 @@ namespace Financy
         }
 
         return result;
+    }
+
+    QList<QString> Internal::getAccountTypes()
+    {
+        QList<QString> result{};
+
+        for (auto [key, value] : ACCOUNT_TYPES)
+        {
+            result.push_back(QString::fromStdString(key));
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](QString& a, QString& b) { return Account::getTypeValue(a) < Account::getTypeValue(b); }
+        );
+
+        return result;
+    }
+
+    QString Internal::getAccountTypeName(Account::Type inType)
+    {
+        return Account::getTypeName(inType);
     }
 
     QList<QString> Internal::getPurchaseTypes()

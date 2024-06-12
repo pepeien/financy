@@ -10,6 +10,8 @@ import "qrc:/Components" as Components
 Components.SquircleButton {
     id: _root
 
+    anchors.verticalCenter: parent.verticalCenter
+
     property alias textColor: _title.color
     property alias title:     _title.text
 
@@ -18,8 +20,6 @@ Components.SquircleButton {
     property real dueAmount: 0
 
     readonly property real _ultilization: _root.usedLimit === 0 && _root.limit === 0 ? 0 : _root.usedLimit / _root.limit
-
-    anchors.verticalCenter: parent.verticalCenter
 
     onHover: function() {
         opacity = 0.7;

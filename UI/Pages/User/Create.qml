@@ -18,7 +18,7 @@ Components.Page {
     id: _root
     title: "Create User"
 
-    centerButton.isDisabled: _root.profilePicture == "qrc:/Icons/Profile.svg" || _root.profilePicture.trim().length <= 0 || firstName.hasError
+    centerButton.isDisabled: _root.profilePicture.trim().length <= 0 || firstName.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (centerButton.isDisabled) {
@@ -28,7 +28,7 @@ Components.Page {
         var user = internal.createUser(
             firstName.text,
             lastName.text,
-            profilePicture,
+            _root.wasPictureSelected ? _root.profilePicture : "",
             _primaryColor.picker.color,
             _secondaryColor.picker.color
         );
@@ -86,25 +86,25 @@ Components.Page {
             }
 
             Image {
-                id: icon
-                source: profilePicture
-                sourceSize.width:  wasPictureSelected ? picture.width : picture.width * 0.5
-                sourceSize.height: wasPictureSelected ? picture.height : picture.height * 0.5
-                antialiasing: true
-                fillMode: Image.PreserveAspectCrop
+                id:                icon
+                source:            profilePicture
+                sourceSize.width:  _root.wasPictureSelected ? picture.width : picture.width * 0.5
+                sourceSize.height: _root.wasPictureSelected ? picture.height : picture.height * 0.5
+                antialiasing:      true
+                fillMode:          Image.PreserveAspectCrop
 
-                anchors.top: parent.top
-                anchors.topMargin: wasPictureSelected ? -plusContainer.height / 2 : 40
+                anchors.top:              parent.top
+                anchors.topMargin:        _root.wasPictureSelected ? -plusContainer.height / 2 : 40
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
             ColorOverlay {
-                id: iconMask
-                anchors.fill: icon
-                source: icon
-                color: internal.colors.dark
+                id:           iconMask
+                source:       icon
+                color:        internal.colors.dark
                 antialiasing: true
-                visible: !wasPictureSelected
+                visible:      !_root.wasPictureSelected
+                anchors.fill: icon
             }
 
             Rectangle {
@@ -270,7 +270,7 @@ Components.Page {
 
                 // Props
                 text:           firstName.text + "  " + lastName.text  
-                picture:        profilePicture
+                picture:        _root.wasPictureSelected ? _root.profilePicture : ""
                 primaryColor:   _primaryColor.picker.currentColor
                 secondaryColor: _secondaryColor.picker.currentColor
                 hasShadow:      true

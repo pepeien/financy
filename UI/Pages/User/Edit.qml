@@ -14,11 +14,13 @@ Components.Page {
     readonly property var user: internal.selectedUser
 
     property var profilePicture:  ""
+    
+    readonly property bool _wasPictureSelected: profilePicture !== ""
 
     id:    _root
     title: "Edit"
 
-    centerButton.isDisabled: profilePicture.trim().length <= 0 || firstName.hasError
+    centerButton.isDisabled: firstName.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (centerButton.isDisabled) {
@@ -34,6 +36,8 @@ Components.Page {
             _secondaryColor.picker.color
         );
 
+        user.onEdit();
+
         stack.pop();
     }
 
@@ -43,10 +47,6 @@ Components.Page {
         }
 
         _root.profilePicture  = user.picture;
-        firstName.text        = user.firstName;
-        lastName.text         = user.lastName;
-        _primaryColor.color   = user.primaryColor;
-        _secondaryColor.color = user.secondaryColor;
     }
 
     Item {
@@ -94,15 +94,15 @@ Components.Page {
             }
 
             Image {
-                id: icon
-                source: profilePicture
-                sourceSize.width:  picture.width
-                sourceSize.height: picture.height
-                antialiasing: true
-                fillMode: Image.PreserveAspectCrop
+                id:                icon
+                source:            _root._wasPictureSelected ? profilePicture : "qrc:/Icons/Profile.svg" 
+                sourceSize.width:  _root._wasPictureSelected ? picture.width : picture.width * 0.5 
+                sourceSize.height: _root._wasPictureSelected ? picture.height : picture.height * 0.5 
+                antialiasing:      true
+                fillMode:          Image.PreserveAspectCrop
 
-                anchors.top: parent.top
-                anchors.topMargin: -plusContainer.height / 2
+                anchors.top:              parent.top
+                anchors.topMargin:        _root._wasPictureSelected ? -plusContainer.height / 2 : 40
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
@@ -141,6 +141,7 @@ Components.Page {
         Components.Input {
             id:    firstName
             width: picture.width * 1.25
+            text:  user?.firstName ?? ""
 
             label:     "First name"
             color:     internal.colors.dark
@@ -157,6 +158,7 @@ Components.Page {
         Components.Input {
             id:    lastName
             width: firstName.width
+            text:  user?.lastName ?? ""
 
             label:      "Last name"
             color:      internal.colors.dark
@@ -181,7 +183,7 @@ Components.Page {
                 id:     _primaryColor
                 width:  (parent.width / 2) - 15
                 height: 60
-                color:  internal.colors.foreground
+                color:  user?.primaryColor ?? internal.colors.foreground
                 label:  "Primary Color"
 
                 anchors.left:           parent.left
@@ -192,7 +194,7 @@ Components.Page {
                 id:     _secondaryColor
                 width:  _primaryColor.width
                 height: _primaryColor.height
-                color:  internal.colors.dark
+                color:  user?.secondaryColor ?? internal.colors.dark
                 label:  "Secondary Color"
 
                 anchors.left:           _primaryColor.right

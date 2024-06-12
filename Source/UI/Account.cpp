@@ -30,6 +30,28 @@ namespace Financy
         );
     }
 
+    Account::Type Account::getTypeValue(const QString& inName)
+    {
+        if (ACCOUNT_TYPES.find(inName.toStdString()) == ACCOUNT_TYPES.end())
+        {
+            return Type::Expense;
+        }
+    
+        return ACCOUNT_TYPES.at(inName.toStdString());
+    }
+
+    QString Account::getTypeName(Type inType)
+    {
+        switch (inType)
+        {
+        case Type::Saving:
+            return "Saving";
+        case Type::Expense:
+        default:
+            return "Expense";
+        }
+    }
+
     void Account::fromJSON(const nlohmann::json& inData)
     {
         setId(
@@ -102,10 +124,17 @@ namespace Financy
 
     float Account::getUsedLimit()
     {
+        QDate now = QDate::currentDate();
+
         float result = 0.0f;
 
         for (Purchase* purchase : m_purchases)
         {
+            if (purchase->getDate().daysTo(now) < 0)
+            {
+                continue;
+            }
+
             if (purchase->getType() == Purchase::Type::Subscription || purchase->getType() == Purchase::Type::Bill)
             {
                 result += purchase->getValue();
@@ -168,10 +197,17 @@ namespace Financy
 
     float Account::getDueAmount()
     {
+        QDate now = QDate::currentDate();
+
         float result = 0.0f;
 
         for(Purchase* purchase : m_purchases)
         {
+            if (purchase->getDate().daysTo(now) < 0)
+            {
+                continue;
+            }
+
             if (hasFullyPaid(purchase))
             {
                 continue;
@@ -730,7 +766,7 @@ namespace Financy
 
             float purchaseDueAmount     = 0.0f;
             float recurringDueAmount    = 0.0f;
-    
+
             for (Purchase* purchase : m_purchases) {
                 if (purchase == nullptr)
                 {
@@ -768,7 +804,7 @@ namespace Financy
             currentStatementDate = currentStatementDate.addMonths(1);
 
             bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
-            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) >= 0;
+            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) > 0;
 
             if (isFirstEmpty || isLastEmpty)
             {
@@ -804,8 +840,8 @@ namespace Financy
             return;
         }
 
-        int index = 0;
-        int lastSize = storedPurchases.size();
+        std::uint32_t index  = 0;
+        std::size_t lastSize = storedPurchases.size();
 
         for (auto& it : storedPurchases.items())
         {
@@ -863,8 +899,8 @@ namespace Financy
             return;
         }
 
-        int index = 0;
-        int lastSize = storedAccounts.size();
+        std::uint32_t index  = 0;
+        std::size_t lastSize = storedAccounts.size();
 
         for (auto& it : storedAccounts.items())
         {

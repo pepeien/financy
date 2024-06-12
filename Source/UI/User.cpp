@@ -125,16 +125,7 @@ namespace Financy
         account->setLimit(         inLimit.toUInt());
         account->setPrimaryColor(  inPrimaryColor);
         account->setSecondaryColor(inSecondaryColor);
-
-        if (inType.contains("Expense"))
-        {
-            account->setType(Account::Type::Expense);
-        }
-
-        if (inType.contains("Saving"))
-        {
-            account->setType(Account::Type::Saving);
-        }
+        account->setType(          Account::getTypeValue(inType));
 
         m_accounts.push_back(account);
 
@@ -400,7 +391,7 @@ namespace Financy
             m_secondaryColor = inSecondaryColor;
         }
 
-        onEdit();
+        emit onEdit();
     }
 
     void User::remove()
@@ -411,6 +402,8 @@ namespace Financy
 
     QVariantMap User::getExpenseMap()
     {
+        QDate now = QDate::currentDate();
+
         QMap<QString, float> map;
 
         for (Account* account : m_accounts)
@@ -422,6 +415,11 @@ namespace Financy
 
             for (Purchase* purchase : account->getPurchases())
             {
+                if (purchase->getDate().daysTo(now) < 0)
+                {
+                    continue;
+                }
+
                 if (account->hasFullyPaid(purchase))
                 {
                     continue;
@@ -467,6 +465,11 @@ namespace Financy
 
     QString User::formatPicture(const QUrl& inUrl)
     {
+        if (inUrl.isEmpty())
+        {
+            return "";
+        }
+
         if (inUrl.toString().toStdString().find("qrc://") != std::string::npos)
         {
             return "";
@@ -551,8 +554,8 @@ namespace Financy
             return;
         }
 
-        int index = 0;
-        int lastSize = storedUsers.size();
+        std::uint32_t index  = 0;
+        std::size_t lastSize = storedUsers.size();
 
         for (auto& it : storedUsers.items())
         {

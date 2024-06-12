@@ -272,6 +272,11 @@ namespace Financy
         }
 
         QDate endDate = isRecurring() ? getEndDate() : inFinalDate;
+        endDate = QDate(
+            endDate.year(),
+            endDate.month(),
+            inStatementClosingDay
+        );
 
         QDate currentDate = startDate;
 

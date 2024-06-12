@@ -9,6 +9,8 @@ Item {
     property alias imageSource: _image.source
     property alias imageWidth:  _image.sourceSize.width
     property alias imageHeight: _image.sourceSize.height
+    property alias imageColor:  _mask.color
+    property alias hasColor:    _mask.visible
 
     width:  _image.sourceSize.width
     height: _image.sourceSize.height
@@ -24,12 +26,17 @@ Item {
 
         layer.enabled: true
         layer.effect:  OpacityMask {
-            maskSource: Rectangle {
-                width:   _image.sourceSize.width
-                height:  _image.sourceSize.height
-                radius:  _image.sourceSize.width / 2
-                visible: false
-            }
+            maskSource: _mask
         }
+    }
+
+    Rectangle {
+        id:      _mask
+        width:   _image.sourceSize.width
+        height:  _image.sourceSize.height
+        radius:  _image.sourceSize.width / 2
+        visible: false
+
+        anchors.verticalCenter: parent.verticalCenter
     }
 }
