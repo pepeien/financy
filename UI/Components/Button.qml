@@ -53,13 +53,13 @@ Rectangle {
                 return;
             }
 
-            cursorShape = Qt.PointingHandCursor;
-
             if (!onHover) {
+                cursorShape = Qt.PointingHandCursor;
+
                 return;
             }
 
-            onHover();
+            onHover(this);
         }
 
         onExited: {
@@ -67,13 +67,13 @@ Rectangle {
                 return;
             }
 
-            cursorShape = Qt.ArrowCursor;
-
             if (!onLeave) {
+                cursorShape = Qt.ArrowCursor;
+
                 return;
             }
 
-            onLeave();
+            onLeave(this);
         }
     }
 }

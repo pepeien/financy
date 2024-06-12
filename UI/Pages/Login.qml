@@ -53,6 +53,28 @@ Components.Page {
                     stack.push("qrc:/Pages/UserHome.qml")
                 }
 
+                onHover: function(inMouseArea) {
+                    if (_isDeleting) {
+                        inMouseArea.cursorShape = Qt.ArrowCursor;
+
+                        return;
+                    }
+
+                    inMouseArea.cursorShape = Qt.PointingHandCursor;
+                    opacity = 0.7;
+                }
+
+                onLeave: function(inMouseArea) {
+                    if (_isDeleting) {
+                        inMouseArea.cursorShape = Qt.ArrowCursor;
+
+                        return;
+                    }
+
+                    inMouseArea.cursorShape = Qt.ArrowCursor;
+                    opacity = 1;
+                }
+
                 text:           user?.getFullName() ?? ""
                 picture:        user?.picture ?? ""
                 primaryColor:   user?.primaryColor ?? ""
@@ -62,6 +84,24 @@ Components.Page {
                     id:     _delete
                     height: parent.height
                     width:  0
+
+                    onHover: function(inMouseArea) {
+                        if (!_isDeleting) {
+                            return;
+                        }
+
+                        inMouseArea.cursorShape = Qt.PointingHandCursor;
+                        opacity = 0.7;
+                    }
+
+                    onLeave: function(inMouseArea) {
+                        if (!_isDeleting) {
+                            return;
+                        }
+
+                        inMouseArea.cursorShape = Qt.ArrowCursor;
+                        opacity = 1;
+                    }
 
                     states: State {
                         when: _isDeleting
