@@ -36,6 +36,14 @@ Popup {
     background: Components.SquircleContainer {
         backgroundColor:  Qt.rgba(0, 0, 0, 0.4)
         backgroundRadius: 0
+
+        MouseArea {
+            anchors.fill: parent
+
+            onClicked: function() {
+                _root.close();
+            }
+        }
     }
 
     Item {
