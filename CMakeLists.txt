@@ -53,17 +53,17 @@ find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 qt_standard_project_setup()
 
 if (WIN32)
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
         qt_add_executable(
             ${NAME}
-
+                WIN32
             ${SOURCES}
             ${UI_SOURCES}
         )
     else()
         qt_add_executable(
             ${NAME}
-                WIN32
+
             ${SOURCES}
             ${UI_SOURCES}
         )
@@ -109,19 +109,19 @@ set_target_properties(
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Debug"
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Release"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Release"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Release"
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Debug"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Debug"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}"
+    "${BUILD_DIR}/Debug"
 )

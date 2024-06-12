@@ -3,7 +3,7 @@
     "deploySystem": true,
     "extractPlugins": true,
     "allQMlDependes": true,
-    "bin": "../../Bin",
+    "bin": "../../Bin/Release",
     "qmlDir": "../../UI",
     "targetDir": "../../Deploy/win-64x"
 }
