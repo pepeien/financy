@@ -13,7 +13,9 @@ ScrollView {
     readonly property real _actionsHeight: 35
 
     property bool isEditing: false
+
     property var onDelete
+    property var onEdit
 
     property alias model: _grid.model
 
@@ -124,7 +126,7 @@ ScrollView {
 
                 backgroundTopLeftRadius:  0
                 backgroundTopRightRadius: 0
-                backgroundColor:          "#F2665A"
+                backgroundColor:          internal.colors.dark
 
                 anchors.top:              _account.bottom
                 anchors.topMargin:        -1
@@ -145,8 +147,86 @@ ScrollView {
                 }
 
                 Components.Button {
-                    id:     _moreButton
-                    width:  parent.width
+                    id:     _moreEditButton
+                    width:  parent.width * 0.5
+                    height: parent.height
+
+                    anchors.top:  parent.top
+                    anchors.left: parent.left
+
+                    onHover: function(inMouseArea) {
+                        if (!_scroll.isEditing) {
+                            inMouseArea.cursorShape = Qt.ArrowCursor;
+
+                            return;
+                        }
+
+                        opacity = 0.7;
+                    }
+
+                    onLeave: function(inMouseArea) {
+                        if (!_scroll.isEditing) {
+                            inMouseArea.cursorShape = Qt.ArrowCursor;
+
+                            return;
+                        }
+
+                        opacity = 1;
+                    }
+
+                    onClick: function() {
+                        if (!_scroll.isEditing || !_scroll.onEdit) {
+                            return;
+                        }
+
+                        _scroll.onEdit(_item);
+                    }
+
+                    Image {
+                        id:                _editIcon
+                        source:            "qrc:/Icons/Edit.svg"
+                        sourceSize.width:  parent.height * 0.5
+                        sourceSize.height: parent.height * 0.5
+                        antialiasing:      true
+                        visible:           false
+
+                        anchors.right:          _editText.left
+                        anchors.rightMargin:    5
+                        anchors.verticalCenter: _editText.verticalCenter
+                    }
+
+                    ColorOverlay {
+                        anchors.fill: _editIcon
+                        source:       _editIcon
+                        color:        _editText.color
+                        antialiasing: true
+                    }
+
+                    Components.Text {
+                        id:    _editText
+                        text:  "Edit"
+                        color: internal.colors.background
+
+                        font.weight: Font.DemiBold
+
+                        anchors.right:          parent.right
+                        anchors.rightMargin:    (parent.width * 0.5) - _editText.paintedWidth - 2
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                Rectangle {
+                    id:     _separator
+                    width:  1
+                    height: parent.height
+                    color:  _editText.color
+
+                    anchors.left: _moreEditButton.right
+                }
+
+                Components.Button {
+                    id:     _moreDeleteButton
+                    width:  _moreEditButton.width
                     height: parent.height
 
                     anchors.top:         parent.top
@@ -173,6 +253,10 @@ ScrollView {
                     }
 
                     onClick: function() {
+                        if (!_scroll.isEditing || !_scroll.onDelete) {
+                            return;
+                        }
+
                         _scroll.onDelete(_item);
                     }
 
@@ -192,19 +276,20 @@ ScrollView {
                     ColorOverlay {
                         anchors.fill: _deleteIcon
                         source:       _deleteIcon
-                        color:        "white"
+                        color:        _editText.color
                         antialiasing: true
                     }
 
                     Components.Text {
                         id:    _deleteText
                         text:  "Delete"
-                        color: "white"
+                        color: _editText.color
 
                         font.weight: Font.DemiBold
 
-                        anchors.verticalCenter:   parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.right:           parent.right
+                        anchors.rightMargin:     (parent.width * 0.5) - _deleteText.paintedWidth + 10
+                        anchors.verticalCenter:  parent.verticalCenter
                     }
                 }
             }

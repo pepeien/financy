@@ -125,8 +125,17 @@ Components.Page {
                 model:      _root.expenseAccounts
                 isEditing:  _root._isOnEditMode
 
+                onEdit: function(inAccount) {
+                    _root._isOnEditMode = false;
+
+                    internal.selectedUser.selectAccount(inAccount.id);
+
+                    stack.push("qrc:/Pages/UserAccountEdit.qml");
+                }
+
                 onDelete: function(inAccount) {
                     _root._deletingAccount = inAccount;
+                    _root._isOnEditMode    = false;
     
                     _deletionPopup.open();
                 }
