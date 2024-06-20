@@ -17,6 +17,8 @@ Item {
 
     property real inputHeight: 60
 
+    property var onInput
+
     // Alias Props
     property alias color:     _input.color
     property alias text:      _input.text
@@ -30,7 +32,7 @@ Item {
 
     // Out Methods
     function clear() {
-        _input.clear();
+        _input._onInput();
     }
 
     // Vars
@@ -43,7 +45,7 @@ Item {
     height: root.inputHeight + 20
 
     Component.onCompleted: function() {
-        _input.updateErrorStatus();
+        _input._onInput();
     }
 
     Components.SquircleContainer {
@@ -130,7 +132,7 @@ Item {
             anchors.leftMargin:     root.textPadding
             anchors.verticalCenter: parent.verticalCenter
 
-            function updateErrorStatus() {
+            function _onInput() {
                 const isTextWithinSizes  = _input.text.length >= root.minLength;
                 const isTextEmpty        = root.isRequired ? _input.text.trim() === "" : false;
 
@@ -138,7 +140,13 @@ Item {
             }
 
             onTextEdited: function() {
-                _input.updateErrorStatus();
+                _input._onInput();
+
+                if (!root.onInput) {
+                    return;
+                }
+
+                root.onInput();
             }
         }
     }

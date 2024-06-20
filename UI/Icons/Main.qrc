@@ -1,16 +1,21 @@
 <RCC>
     <qresource prefix="/Icons/">
         <file>Back.svg</file>
+        <file>Bank.svg</file>
         <file>Cash.svg</file>
         <file>Check.svg</file>
         <file>Close.svg</file>
         <file>Edit.svg</file>
+        <file>Food.svg</file>
         <file>Limit.svg</file>
         <file>Minimize.svg</file>
         <file>More.svg</file>
         <file>Plus.svg</file>
         <file>Profile.svg</file>
         <file>Cog.svg</file>
+        <file>Recurring.svg</file>
+        <file>Transport.svg</file>
         <file>Trash.svg</file>
+        <file>Utility.svg</file>
     </qresource>
 </RCC>

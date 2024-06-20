@@ -17,6 +17,7 @@ Components.Page {
     id:    _root
     title: account.name
 
+    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (!user) {
@@ -89,6 +90,9 @@ Components.Page {
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.Input {
+                property int min: internal.getMinStatementClosingDay()
+                property int max: internal.getMaxStatementClosingDay()
+
                 id:     _closingDay
                 width:  (parent.width / 2) - 10
                 text:   account.closingDay
@@ -96,13 +100,13 @@ Components.Page {
                 label:       "Closing Day" 
                 color:       internal.colors.dark
                 inputHeight: _limit.inputHeight
-                hint: internal.getMinStatementClosingDay() + " ~ " + internal.getMaxStatementClosingDay()
+                hint:        _closingDay.min + " ~ " + _closingDay.max
 
                 anchors.left: parent.left
 
                 validator: IntValidator {
-                    bottom: internal.getMinStatementClosingDay()
-                    top:    internal.getMaxStatementClosingDay()
+                    bottom: _closingDay.min
+                    top:    _closingDay.max
                 }
             }
 
