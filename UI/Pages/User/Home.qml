@@ -40,10 +40,11 @@ Components.Page {
         _overviewChartPie.clear();
 
         for (const key in user.expenseMap) {
-            _overviewChartPie.append(
+            const createdComponent = _overviewChartPie.append(
                 key,
                 user.expenseMap[key]
             );
+            createdComponent.color = Qt.rgba(Math.random(),Math.random(),Math.random(),1);
         }
     }
 
@@ -198,18 +199,68 @@ Components.Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.topMargin:        -10
 
+                ToolTip {
+                    id: _tooltip
+
+                    contentItem: Components.Text {
+                        text:  _tooltip.text
+                        color: internal.colors.background
+
+                        font.pointSize: 12
+                        font.weight:    Font.DemiBold
+                    }
+
+                    background: Components.SquircleContainer {
+                        backgroundColor: internal.colors.dark
+                    }
+                }
+
+                MouseArea {
+                    id:           _hoverArea
+                    hoverEnabled: true
+
+                    anchors.fill: parent
+
+                    onMouseXChanged: function() {
+                        _tooltip.x = _hoverArea.mouseX + 15;
+                        _tooltip.y = _hoverArea.mouseY + 15;
+                    }
+                }
+
                 PieSeries {
                     id:       _overviewChartPie
                     size:     1
-                    holeSize: 0.7
+                    holeSize: 0.5
+
+                    property var _lastSlice
+
+                    onHovered: function(slice, state) {
+                        if (state) {
+                            if (_lastSlice) {
+                                _lastSlice.color = Qt.darker(_lastSlice.color, 1.25);
+                            }
+
+                            _lastSlice       = slice;
+                            _lastSlice.color = Qt.lighter(_lastSlice.color, 1.25);
+
+                            _hoverArea.cursorShape = Qt.PointingHandCursor;
+
+                            _tooltip.show(slice.label);
+
+                            return;
+                        }
+
+                        _hoverArea.cursorShape = Qt.ArrowCursor;
+
+                        _tooltip.hide();
+                    }
                 }
 
-                Text {
+               Components.Text {
                     id:    _overviewInnerText
                     text:  "Total"
                     color: internal.colors.dark
 
-                    font.family:    "Inter"
                     font.pointSize: 30
                     font.weight:    Font.Bold
 
@@ -217,11 +268,10 @@ Components.Page {
                     anchors.topMargin: -10
                 }
 
-                Text {
+                Components.Text {
                     text:  user?.dueAmount.toFixed(2) ?? "0.0"
                     color: Qt.lighter(internal.colors.dark, 1.1)
 
-                    font.family:    "Inter"
                     font.pointSize: 22
                     font.weight:    Font.DemiBold
 

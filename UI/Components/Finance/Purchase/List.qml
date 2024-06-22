@@ -104,12 +104,11 @@ Components.SquircleContainer {
 
                     anchors.top: parent.top
 
-                    Text {
+                    Components.Text {
                         id:    _headerDateTitle
                         text:  "Date"
                         color: internal.colors.background
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.Bold
 
@@ -118,11 +117,10 @@ Components.SquircleContainer {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    Text {
+                    Components.Text {
                         text:  internal.getLongDate(_data.date)
                         color: internal.colors.background
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.Normal
 
@@ -131,12 +129,11 @@ Components.SquircleContainer {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    Text {
+                    Components.Text {
                         id:    _headerTotalTitle
                         text:  "Total"
                         color: internal.colors.background
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.Bold
 
@@ -145,12 +142,11 @@ Components.SquircleContainer {
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    Text {
+                    Components.Text {
                         id:    _headerValueTitle
                         text:  _data.dueAmount.toFixed(2)
                         color: internal.colors.background
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.Normal
 
@@ -227,12 +223,11 @@ Components.SquircleContainer {
 
                 anchors.top: parent.top
 
-                Text {
+                Components.Text {
                     id:    _headerTitle
                     text:  "Recurring"
                     color: internal.colors.background
 
-                    font.family:    "Inter"
                     font.pointSize: 9
                     font.weight:    Font.Bold
 
@@ -241,12 +236,11 @@ Components.SquircleContainer {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                Text {
+                Components.Text {
                     id:    _headerTotalTitle
                     text:  "Total"
                     color: internal.colors.background
 
-                    font.family:    "Inter"
                     font.pointSize: 9
                     font.weight:    Font.Bold
 
@@ -255,12 +249,11 @@ Components.SquircleContainer {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
-                Text {
+                Components.Text {
                     id:    _headerValueTitle
                     text:  internal.getDueAmount(subscriptions ?? []).toFixed(2)
                     color: internal.colors.background
 
-                    font.family:    "Inter"
                     font.pointSize: 9
                     font.weight:    Font.Normal
 

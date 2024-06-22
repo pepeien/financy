@@ -83,12 +83,11 @@ Item {
         }
     }
 
-    Text {
+    Components.Text {
         id:      _purchaseName
         text:    purchase.name + (purchase.isRecurring() ? "" : (" " + account.getPaidInstallments(purchase, statement.date) + "/" + purchase.installments))
         color:   internal.colors.dark
 
-        font.family:    "Inter"
         font.pointSize: 9
         font.weight:    Font.Normal
 
@@ -112,12 +111,11 @@ Item {
         anchors.topMargin:  7
         anchors.leftMargin: _purchaseName.anchors.leftMargin
 
-        Text {
+        Components.Text {
             id:    _text
             text:  purchase.description
             color: internal.colors.background
 
-            font.family:    "Inter"
             font.pointSize: 8
             font.weight:    Font.Bold
 
@@ -125,7 +123,7 @@ Item {
         }
     }
 
-    Text {
+    Components.Text {
         text:  purchase.getInstallmentValue().toFixed(2)
         color: _purchaseName.color
 
