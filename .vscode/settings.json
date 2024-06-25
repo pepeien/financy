@@ -113,6 +113,8 @@
         "qmetatype": "cpp",
         "qqmlengine": "cpp",
         "qscatterseries": "cpp",
-        "qdate": "cpp"
+        "qdate": "cpp",
+        "stack": "cpp",
+        "xstddef": "cpp"
     }
 }

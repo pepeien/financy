@@ -443,25 +443,13 @@ namespace Financy
                 continue;
             }
 
-            for (Purchase* purchase : account->getPurchases())
+            for (Purchase* purchase : account->getPurchases(now))
             {
-                if (purchase->getDate().daysTo(now) < 0)
-                {
-                    continue;
-                }
-
-                if (account->hasFullyPaid(purchase))
-                {
-                    continue;
-                }
-
                 QString type = purchase->getTypeName();
 
-                if (map.contains(type))
+                if (!map.contains(type))
                 {
-                    map.insert(type, purchase->getInstallmentValue());
-
-                    continue;
+                    map.insert(type, 0);
                 }
 
                 map[type] += purchase->getInstallmentValue();
@@ -485,9 +473,9 @@ namespace Financy
     {
         float result = 0;
 
-        for (Account* card : getAccounts(Account::Type::Expense))
+        for (Account* expenseAccount : getAccounts(Account::Type::Expense))
         {
-            result += card->getDueAmount();
+            result += expenseAccount->getDueAmount();
         }
 
         return result;

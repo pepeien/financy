@@ -257,32 +257,34 @@ namespace Financy
     {
         std::uint32_t paidInstallments = 0;
 
-        // Credit card purchases takes 1 ~ 3 days to process 
-        std::uint32_t closingDayWithProcessing = inStatementClosingDay - 1;
-
-        QDate startDate(
+        QDate currentStatementClosingDate(
             m_date.year(),
             m_date.month(),
-            inStatementClosingDay
+            std::min(
+                (std::uint32_t) m_date.daysInMonth(),
+                inStatementClosingDay
+            )
         );
 
-        if (startDate.daysTo(m_date) < 0)
-        {
-            startDate = startDate.addMonths(-1);
+        if (currentStatementClosingDate.daysTo(m_date) < 0) {
+            currentStatementClosingDate = currentStatementClosingDate.addMonths(-1);
         }
 
         QDate endDate = isRecurring() ? getEndDate() : inFinalDate;
         endDate = QDate(
             endDate.year(),
             endDate.month(),
-            inStatementClosingDay
+            std::min(
+                (std::uint32_t) endDate.daysInMonth(),
+                inStatementClosingDay
+            )
         );
 
-        QDate currentDate = startDate;
+        QDate currentDate = currentStatementClosingDate;
 
-        while (startDate.daysTo(currentDate) >= 0 && endDate.daysTo(currentDate) <= 0)
+        while (currentStatementClosingDate.daysTo(currentDate) >= 0 && endDate.daysTo(currentDate) <= 0)
         {
-            if (currentDate.day() == inStatementClosingDay) {
+            if (currentDate.day() == std::min(inStatementClosingDay, (std::uint32_t) currentDate.daysInMonth())) {
                 paidInstallments++;
             }
 

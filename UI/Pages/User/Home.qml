@@ -39,12 +39,32 @@ Components.Page {
     onRoute: function() {
         _overviewChartPie.clear();
 
+        const usedColors = [765, 0];
+
         for (const key in user.expenseMap) {
             const createdComponent = _overviewChartPie.append(
                 key,
                 user.expenseMap[key]
             );
-            createdComponent.color = Qt.rgba(Math.random(),Math.random(),Math.random(),1);
+            
+            const red   = Math.random();
+            const green = Math.random();
+            const blue  = Math.random();
+
+            while (!!usedColors[red + green + blue]) {
+                red   = Math.random();
+                green = Math.random();
+                blue  = Math.random();
+            }
+
+            usedColors.push(red + green + blue);
+
+            createdComponent.color = Qt.rgba(
+                red,
+                green,
+                blue,
+                1
+            );
         }
     }
 
@@ -245,7 +265,7 @@ Components.Page {
 
                             _hoverArea.cursorShape = Qt.PointingHandCursor;
 
-                            _tooltip.show(slice.label);
+                            _tooltip.show(`${slice.label} $${slice.value.toFixed(2)}`);
 
                             return;
                         }

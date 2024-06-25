@@ -15,7 +15,7 @@ namespace Financy
         : QObject(),
         m_id(0),
         m_name(""),
-        m_closingDay(1),
+        m_closingDay(MIN_STATEMENT_CLOSING_DAY),
         m_type(Type::Expense),
         m_limit(1.0f),
         m_primaryColor("#FFFFFF"),
@@ -160,20 +160,30 @@ namespace Financy
 
     bool Account::hasFullyPaid(Purchase* inPurchase)
     {
+        QDate now = QDate::currentDate();
+
         return inPurchase->isFullyPaid(
-            QDate::currentDate(),
-            m_closingDay
+            now,
+            getClosingDay(now)
         );
     }
 
     std::uint32_t Account::getPaidInstallments(Purchase* inPurchase)
     {
-        return inPurchase->getPaidInstallments(QDate::currentDate(), m_closingDay);
+        QDate now = QDate::currentDate();
+
+        return inPurchase->getPaidInstallments(
+            now,
+            getClosingDay(now)
+        );
     }
     
     std::uint32_t Account::getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate)
     {
-        return inPurchase->getPaidInstallments(inStatementDate, m_closingDay);
+        return inPurchase->getPaidInstallments(
+            inStatementDate,
+            getClosingDay(inStatementDate)
+        );
     }
 
     std::uint32_t Account::getRemainingInstallments(Purchase* inPurchase)
@@ -197,22 +207,10 @@ namespace Financy
 
     float Account::getDueAmount()
     {
-        QDate now = QDate::currentDate();
-
         float result = 0.0f;
 
-        for(Purchase* purchase : m_purchases)
+        for(Purchase* purchase : getPurchases(QDate::currentDate()))
         {
-            if (purchase->getDate().daysTo(now) < 0)
-            {
-                continue;
-            }
-
-            if (hasFullyPaid(purchase))
-            {
-                continue;
-            }
-
             result += purchase->getInstallmentValue();
         }
 
@@ -223,14 +221,9 @@ namespace Financy
     {
         float result = 0.0f;
 
-        for(Purchase* purchase : m_purchases)
+        for(Purchase* purchase : getPurchases(QDate::currentDate()))
         {
             if (purchase->getType() != inType)
-            {
-                continue;
-            }
-
-            if (hasFullyPaid(purchase))
             {
                 continue;
             }
@@ -375,25 +368,12 @@ namespace Financy
         refreshHistory();
     }
 
-    QList<Statement*> Account::getPurchases(const QDate& inDate)
+    QList<Statement*> Account::getStatementPurchases(const QDate& inDate)
     {
         QList<Statement*> result{};
 
-        for (Purchase* purchase :  m_purchases) {
+        for (Purchase* purchase : getPurchases(inDate)) {
             if (purchase->isRecurring())
-            {
-                continue;
-            }
-
-            std::uint32_t paidInstallments = purchase->getPaidInstallments(
-                inDate,
-                m_closingDay
-            );
-
-            bool isPast   = paidInstallments <= 0;
-            bool isFuture = paidInstallments > purchase->getInstallments();
-
-            if (isPast || isFuture)
             {
                 continue;
             }
@@ -425,23 +405,13 @@ namespace Financy
         return result;
     }
 
-    QList<Purchase*> Account::getSubscriptions(const QDate& inDate)
+    QList<Purchase*> Account::getStatementSubscriptions(const QDate& inDate)
     {
         QList<Purchase*> result{};
 
-        for (Purchase* purchase : m_purchases)
+        for (Purchase* purchase : getPurchases(inDate))
         {
             if (!purchase->isRecurring())
-            {
-                continue;
-            }
-
-            std::uint32_t paidInstallments = purchase->getPaidInstallments(
-                inDate,
-                m_closingDay
-            );
-
-            if (paidInstallments <= 0)
             {
                 continue;
             }
@@ -484,6 +454,14 @@ namespace Financy
         emit onEdit();
     }
 
+    std::uint32_t Account::getClosingDay(const QDate& inStatementDate)
+    {
+        return std::min(
+            (std::uint32_t) inStatementDate.daysInMonth(),
+            m_closingDay
+        );
+    }
+
     std::uint32_t Account::getClosingDay()
     {
         return m_closingDay;
@@ -493,8 +471,8 @@ namespace Financy
     {
         m_closingDay = std::clamp(
             inClosingDay,
-            (std::uint32_t) 1,
-            (std::uint32_t) 31
+            MIN_STATEMENT_CLOSING_DAY,
+            MAX_STATEMENT_CLOSING_DAY
         );
     }
 
@@ -523,6 +501,35 @@ namespace Financy
     QList<Purchase*> Account::getPurchases()
     {
         return m_purchases;
+    }
+
+    QList<Purchase*> Account::getPurchases(const QDate& inDate)
+    {
+        QList<Purchase*> result{};
+
+        for (Purchase* purchase : getPurchases()) {
+            if (purchase == nullptr)
+            {
+                continue;
+            }
+
+            std::uint32_t paidInstallments = purchase->getPaidInstallments(
+                inDate,
+                getClosingDay(inDate)
+            );
+
+            bool isPast   = paidInstallments <= 0;
+            bool isFuture = purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments();
+
+            if (isPast || isFuture)
+            {
+                continue;
+            }
+
+            result.push_back(purchase);
+        }
+
+        return result;
     }
 
     void Account::setPurchases(const QList<Purchase*>& inPurchases)
@@ -622,20 +629,21 @@ namespace Financy
             return QDate::currentDate();
         }
 
-        QDate earliestDate = m_purchases[0]->getDate();
-
-        QDate startStatement = QDate(
-            earliestDate.year(),
-            earliestDate.month(),
-            m_closingDay
+        QDate earliestPurchaseDate = m_purchases[0]->getDate();
+        QDate earliestStatementClosingDate(
+            earliestPurchaseDate.year(),
+            earliestPurchaseDate.month(),
+            std::min(
+                (std::uint32_t) earliestPurchaseDate.daysInMonth(),
+                m_closingDay
+            )
         );
 
-        if (startStatement.daysTo(earliestDate) < 0)
-        {
-            return earliestDate.addMonths(-1);
+        if (earliestStatementClosingDate.daysTo(earliestPurchaseDate) < 0) {
+            earliestStatementClosingDate = earliestStatementClosingDate.addMonths(-1);
         }
 
-        return earliestDate;
+        return earliestStatementClosingDate;
     }
 
     QDate Account::getLatestStatementDate()
@@ -666,7 +674,7 @@ namespace Financy
             return QDate(
                 now.year(),
                 now.month(),
-                m_closingDay
+                getClosingDay(now)
             );
         }
 
@@ -764,28 +772,10 @@ namespace Financy
             Statement* statement = new Statement();
             statement->setDate(currentStatementDate);
 
-            float purchaseDueAmount     = 0.0f;
-            float recurringDueAmount    = 0.0f;
+            float purchaseDueAmount  = 0.0f;
+            float recurringDueAmount = 0.0f;
 
-            for (Purchase* purchase : m_purchases) {
-                if (purchase == nullptr)
-                {
-                    continue;
-                }
-
-                std::uint32_t paidInstallments = purchase->getPaidInstallments(
-                    currentStatementDate,
-                    m_closingDay
-                );
-
-                bool isPast   = paidInstallments <= 0;
-                bool isFuture = purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments();
-
-                if (isPast || isFuture)
-                {
-                    continue;
-                }
-
+            for (Purchase* purchase : getPurchases(currentStatementDate)) {
                 if (purchase->isRecurring())
                 {
                     recurringDueAmount += purchase->getInstallmentValue();
@@ -799,7 +789,7 @@ namespace Financy
             currentStatementDate = QDate(
                 currentStatementDate.year(),
                 currentStatementDate.month(),
-                m_closingDay
+                getClosingDay(currentStatementDate)
             );
             currentStatementDate = currentStatementDate.addMonths(1);
 
