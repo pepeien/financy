@@ -33,7 +33,13 @@ Item {
     readonly property var input: _input
 
     // Out Methods
+    function set(text) {
+        _input.clear();
+        _input.insert(0, text);
+    }
+
     function clear() {
+        _input.clear();
         _input._onInput();
     }
 

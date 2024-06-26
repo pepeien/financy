@@ -197,7 +197,7 @@ Components.Modal {
                     height: 228
 
                     onSelect: function(date) {
-                        _date.text = internal.getLongDate(date);
+                        _date.set(internal.getLongDate(date));
                     }
                 }
             }

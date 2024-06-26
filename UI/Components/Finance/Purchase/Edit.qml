@@ -18,20 +18,15 @@ Components.Modal {
     id: _root
 
     onOpened: function() {
-        _name.input.clear();
-        _name.input.insert(0, _root.purchase.name);
+        _name.set(_root.purchase.name);
 
-        _description.input.clear();
-        _description.input.insert(0, _root.purchase.description);
+        _description.set(_root.purchase.description);
 
-        _date.input.clear();
-        _date.input.insert(0, internal.getLongDate(_root.purchase.date));
+        _date.set(internal.getLongDate(_root.purchase.date));
 
-        _value.input.clear();
-        _value.input.insert(0, _root.purchase.value.toFixed(2));
+        _value.set(_root.purchase.value.toFixed(2));
 
-        _installments.input.clear();
-        _installments.input.insert(0, _root.purchase.installments);
+        _installments.set(_root.purchase.installments);
     }
 
     Components.SquircleContainer {
@@ -207,7 +202,7 @@ Components.Modal {
                     height: 228
 
                     onSelect: function(date) {
-                        _date.text = internal.getLongDate(date);
+                        _date.set(internal.getLongDate(date));
                     }
                 }
             }
