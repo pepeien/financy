@@ -7,7 +7,7 @@ import QtQuick.Controls
 // Components
 import "qrc:/Components" as Components
 
-Components.Popup {
+Components.Modal {
     property var purchase
 
     property var onSubmit
@@ -15,14 +15,10 @@ Components.Popup {
     id: _root
 
     Components.SquircleContainer {
-        width:  parent.width * 0.3
-        height: parent.height * 0.2
-
         hasShadow:       true
         backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter:   parent.verticalCenter
+        anchors.fill: parent
 
         Components.Text {
             id:    _title

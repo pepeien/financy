@@ -27,6 +27,8 @@ Item {
     property alias label:     inputLabel.text
     property alias hint:      inputHint.text
 
+    default property alias data: _inputContainer.data
+
     // Out Props
     readonly property var input: _input
 

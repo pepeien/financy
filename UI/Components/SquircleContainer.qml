@@ -25,10 +25,10 @@ Rectangle {
         id:     base
         color:  backgroundColor
 
-        topLeftRadius:     backgroundTopLeftRadius
-        topRightRadius:    backgroundTopRightRadius
-        bottomLeftRadius:  backgroundBottomLeftRadius
-        bottomRightRadius: backgroundBottomRightRadius
+        topLeftRadius:     Math.max(0, backgroundTopLeftRadius)
+        topRightRadius:    Math.max(0, backgroundTopRightRadius)
+        bottomLeftRadius:  Math.max(0, backgroundBottomLeftRadius)
+        bottomRightRadius: Math.max(0, backgroundBottomRightRadius)
 
         anchors.fill: parent
 

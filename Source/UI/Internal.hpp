@@ -93,6 +93,7 @@ namespace Financy
         // Utils
         QDate addMonths(const QDate& inDate, int inMonths);
 
+        bool isSameDate(const QDate& inDateA, const QDate& inDateB);
         QString getLongDate(const QDate& inDate);
         QString getLongMonth(const QDate& inDate);
 

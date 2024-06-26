@@ -2,6 +2,7 @@
     <qresource prefix="/Icons/">
         <file>Back.svg</file>
         <file>Bank.svg</file>
+        <file>Calendar.svg</file>
         <file>Cash.svg</file>
         <file>Check.svg</file>
         <file>Close.svg</file>

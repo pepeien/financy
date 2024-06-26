@@ -303,7 +303,7 @@ Components.Page {
         }
     }
 
-    Components.Popup {
+    Components.Modal {
         id: _deletionPopup
 
         Components.SquircleContainer {

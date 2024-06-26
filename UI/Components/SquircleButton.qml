@@ -13,6 +13,7 @@ Components.Button {
 
     // Container Props
     property alias backgroundBorder:            _content.backgroundBorder
+    property alias backgroundRadius:            _content.backgroundRadius
     property alias backgroundTopLeftRadius:     _content.backgroundTopLeftRadius
     property alias backgroundTopRightRadius:    _content.backgroundTopRightRadius
     property alias backgroundBottomLeftRadius:  _content.backgroundBottomLeftRadius
@@ -24,13 +25,13 @@ Components.Button {
     id: _root
 
     Components.SquircleContainer {
-        id: _content
-        
+        id:     _content
+        height: _root.height
+        width:  _root.width
+
         hasShadow:              isDisabled ? false : _root.hasShadow
         backgroundColor:        isDisabled ? "transparent" : _root.backgroundColor
         backgroundBorder.width: isDisabled ? 2.5 :  0
         backgroundBorder.color: isDisabled ? internal.colors.foreground : "transparent"
-
-        anchors.fill: parent
     }
 }
