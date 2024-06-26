@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 
 // Components
 import "qrc:/Components" as Components
@@ -17,16 +18,11 @@ Components.Popup {
 
     property var selectedDate: new Date()
 
+    property var onSelect
+
     background: Components.SquircleContainer {
-        backgroundColor: Qt.lighter(internal.colors.foreground, 1.25)
-
-        MouseArea {
-            anchors.fill: parent
-
-            onClicked: function() {
-                _date.close();
-            }
-        }
+        backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
+        hasShadow:       true
     }
 
     GridLayout {
@@ -36,6 +32,99 @@ Components.Popup {
         columns: 1
 
         anchors.centerIn: parent
+
+        Components.SquircleContainer {
+            height: 30
+
+            backgroundColor: internal.colors.dark
+
+            Layout.fillWidth: true
+
+            Components.SquircleButton {
+                width:  parent.height
+                height: parent.height
+
+                anchors.left: parent.left
+
+                onClick: function() {
+                    const date = new Date();
+                    date.setMonth(   _grid.month);
+                    date.setFullYear(_grid.year);
+
+                    const newDate = internal.addMonths(date, -1);
+
+                    _grid.month = newDate.getMonth();
+                    _grid.year  = newDate.getFullYear();
+                }
+
+                Image {
+                    id:                _backIcon
+                    source:            "qrc:/Icons/Back.svg"
+                    sourceSize.width:  parent.height * 0.4
+                    sourceSize.height: parent.height * 0.4
+                    antialiasing:      true
+
+                    anchors.verticalCenter:   parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    ColorOverlay {
+                        anchors.fill: _backIcon
+                        source:       _backIcon
+                        color:        _dateText.color
+                        antialiasing: true
+                    }
+                }
+            }
+
+            Components.Text {
+                id:    _dateText
+                color: internal.colors.background
+                text:  `${_grid.locale.monthName(_grid.month)} ${_grid.year}`
+
+                font.pointSize: 10
+                font.weight:    Font.Bold
+
+                anchors.centerIn: parent
+            }
+            
+            Components.SquircleButton {
+                width:  parent.height
+                height: parent.height
+
+                anchors.right: parent.right
+
+                onClick: function() {
+                    const date = new Date();
+                    date.setMonth(   _grid.month);
+                    date.setFullYear(_grid.year);
+
+                    const newDate = internal.addMonths(date, 1);
+
+                    _grid.month = newDate.getMonth();
+                    _grid.year  = newDate.getFullYear();
+                }
+
+                Image {
+                    id:                _forwardIcon
+                    source:            "qrc:/Icons/Back.svg"
+                    sourceSize.width:  parent.height * 0.4
+                    sourceSize.height: parent.height * 0.4
+                    antialiasing:      true
+                    transformOrigin:   Item.Center
+                    rotation:          180
+
+                    anchors.verticalCenter:   parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    ColorOverlay {
+                        anchors.fill: _forwardIcon
+                        source:       _forwardIcon
+                        color:        _dateText.color
+                        antialiasing: true
+                    }
+                }
+            }
+        }
 
         DayOfWeekRow {
             locale: _grid.locale
@@ -70,7 +159,9 @@ Components.Popup {
                 width:  _gridRoot.width * 0.14
                 height: _gridRoot.width * 0.14
 
-                backgroundColor: isSelected ? internal.colors.light : "transparent"
+                isDisabled:            model.month !== _grid.month
+                disableWillOverwrite: false
+                backgroundColor:      isSelected ? internal.colors.light : "transparent"
 
                 Components.Text {
                     color:   internal.colors.dark
@@ -86,6 +177,12 @@ Components.Popup {
                     }
 
                     _date.selectedDate = model.date;
+
+                    if (!_date.onSelect) {
+                        return;
+                    }
+
+                    _date.onSelect(model.date);
                 }
             }
         }

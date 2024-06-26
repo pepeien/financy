@@ -19,8 +19,9 @@ Components.Button {
     property alias backgroundBottomLeftRadius:  _content.backgroundBottomLeftRadius
     property alias backgroundBottomRightRadius: _content.backgroundBottomRightRadius
 
-    property bool hasShadow:       false
-    property var backgroundColor:  "transparent"
+    property bool hasShadow:            false
+    property bool disableWillOverwrite: true
+    property var backgroundColor:       "transparent"
 
     id: _root
 
@@ -29,9 +30,9 @@ Components.Button {
         height: _root.height
         width:  _root.width
 
-        hasShadow:              isDisabled ? false : _root.hasShadow
-        backgroundColor:        isDisabled ? "transparent" : _root.backgroundColor
-        backgroundBorder.width: isDisabled ? 2.5 :  0
-        backgroundBorder.color: isDisabled ? internal.colors.foreground : "transparent"
+        hasShadow:              isDisabled && disableWillOverwrite ? false : _root.hasShadow
+        backgroundColor:        isDisabled && disableWillOverwrite ? "transparent" : _root.backgroundColor
+        backgroundBorder.width: isDisabled && disableWillOverwrite ? 2.5 :  0
+        backgroundBorder.color: isDisabled && disableWillOverwrite ? internal.colors.foreground : "transparent"
     }
 }

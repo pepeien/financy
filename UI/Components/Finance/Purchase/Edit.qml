@@ -166,6 +166,50 @@ Components.Modal {
                 validator: RegularExpressionValidator {
                     regularExpression: /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{4})$/
                 }
+                
+                Components.SquircleButton {
+                    id:     _dateButton
+                    width:  parent.height
+                    height: parent.height
+
+                    anchors.right: parent.right
+
+                    onClick: function() {
+                        if (_datePicker.visible) {
+                            return;
+                        }
+
+                        _datePicker.open();
+                    }
+
+                    Image {
+                        id:           _dateIcon
+                        width:        parent.height * 0.5
+                        height:       parent.height * 0.5
+                        source:       "qrc:/Icons/Calendar.svg"
+
+                        anchors.centerIn: parent
+                    }
+
+                    ColorOverlay {
+                        anchors.fill: _dateIcon
+                        source:       _dateIcon
+                        color:        _date.isDisabled ? internal.colors.foreground : internal.colors.light
+                        antialiasing: true
+                    }
+                }
+
+                Components.DatePicker {
+                    id:     _datePicker
+                    x:      _dateButton.x + _dateButton.width
+                    y:      _dateButton.y + (_date.inputHeight * 0.5)
+                    width:  228
+                    height: 228
+
+                    onSelect: function(date) {
+                        _date.text = internal.getLongDate(date);
+                    }
+                }
             }
 
             Components.Dropdown {
