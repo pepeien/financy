@@ -200,12 +200,11 @@ Item {
                         }
                     }
 
-                    Text {
+                    Components.Text {
                         id:    _dueAmount
                         text:  _data.dueAmount.toFixed(2)
                         color: internal.colors.dark
 
-                        font.family:    "Inter"
                         font.pointSize: 12
                         font.weight:    Font.Bold
 
@@ -237,12 +236,11 @@ Item {
                         }
                     }
 
-                    Text {
+                    Components.Text {
                         id:    _text
                         text:  internal.getLongMonth(_data.date)
                         color: internal.colors.dark
 
-                        font.family:    "Inter"
                         font.pointSize: 9
                         font.weight:    Font.DemiBold
 

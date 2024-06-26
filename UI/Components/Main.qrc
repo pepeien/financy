@@ -5,10 +5,12 @@
         <file>Button.qml</file>
         <file>ButtonUser.qml</file>
         <file>ColorPicker.qml</file>
+        <file>DatePicker.qml</file>
         <file>Dropdown.qml</file>
         <file>Footer.qml</file>
         <file>Header.qml</file>
         <file>Input.qml</file>
+        <file>Modal.qml</file>
         <file>Page.qml</file>
         <file>Popup.qml</file>
         <file>RoundImage.qml</file>

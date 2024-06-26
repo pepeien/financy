@@ -122,8 +122,8 @@ namespace Financy
         );
         void deletePurchase(std::uint32_t inId);
 
-        QList<Statement*> getPurchases(const QDate& inDate);
-        QList<Purchase*> getSubscriptions(const QDate& inDate);
+        QList<Statement*> getStatementPurchases(const QDate& inDate);
+        QList<Purchase*> getStatementSubscriptions(const QDate& inDate);
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -139,6 +139,7 @@ namespace Financy
         QString getName();
         void setName(const QString& inName);
 
+        std::uint32_t getClosingDay(const QDate& inStatementDate);
         std::uint32_t getClosingDay();
         void setClosingDay(std::uint32_t inClosingDay);
 
@@ -149,6 +150,7 @@ namespace Financy
         void setLimit(float inLimit);
 
         QList<Purchase*> getPurchases();
+        QList<Purchase*> getPurchases(const QDate& inDate);
         void setPurchases(const QList<Purchase*>& inPurchases);
 
         QColor getPrimaryColor();

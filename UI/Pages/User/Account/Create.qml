@@ -91,18 +91,21 @@ Components.Page {
             anchors.horizontalCenter: parent.horizontalCenter
 
             Components.Input {
+                property int min: internal.getMinStatementClosingDay()
+                property int max: internal.getMaxStatementClosingDay()
+    
                 id:     _closingDay
                 width:  (parent.width / 2) - 10
 
                 label: "Closing day" 
                 color: internal.colors.dark
-                hint: internal.getMinStatementClosingDay() + " ~ " + internal.getMaxStatementClosingDay()
+                hint:  _closingDay.min + " ~ " + _closingDay.max
 
                 anchors.left: parent.left
 
                 validator: IntValidator {
-                    bottom: internal.getMinStatementClosingDay()
-                    top:    internal.getMaxStatementClosingDay()
+                    bottom: _closingDay.min
+                    top:    _closingDay.max
                 }
             }
 

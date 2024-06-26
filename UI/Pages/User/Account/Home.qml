@@ -82,8 +82,8 @@ Components.Page {
 
             _purchases.update(
                 _history.selectedHistory,
-                account.getPurchases(    _history.selectedHistory.date),
-                account.getSubscriptions(_history.selectedHistory.date)
+                account.getStatementPurchases(    _history.selectedHistory.date),
+                account.getStatementSubscriptions(_history.selectedHistory.date)
             );
         }
     }

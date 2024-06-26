@@ -56,16 +56,15 @@ Item {
         ColorDialog {
             id: _dialog
 
-           // This is not necessary on Qt 6.7.0
-           //Component.onCompleted: function() {
-           //    // This mfer won't accept / signal start colors if didn't open beforehand
-           //    // Freaking JS (╬ Ò﹏Ó)
-           //    _dialog.open();
+           Component.onCompleted: function() {
+               // This mfer won't accept / signal start colors if didn't open beforehand
+               // Freaking JS (╬ Ò﹏Ó)
+               _dialog.open();
 
-           //    setTimeout(() => {
-           //        _dialog.close();
-           //    }, 10);
-           //}
+               setTimeout(() => {
+                   _dialog.close();
+               }, 10);
+           }
 
             color:        _root.color
             currentColor: _root.color

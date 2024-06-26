@@ -22,6 +22,25 @@ Item {
     property var onPurchaseEdit
     property var onPurchaseDelete
 
+    function _getIcon() {
+        if (purchase.isRecurring()) {
+            return "qrc:/Icons/Recurring.svg";
+        }
+
+        switch(purchase.type) {
+            case Purchase.Debt:
+                return "qrc:/Icons/Bank.svg";
+            case Purchase.Food:
+                return "qrc:/Icons/Food.svg";
+            case Purchase.Transport:
+                return "qrc:/Icons/Transport.svg";
+            case Purchase.Utility:
+                return "qrc:/Icons/Utility.svg";
+            default:
+                return "qrc:/Icons/More.svg";
+        }
+    }
+
     Rectangle {
         color:   internal.colors.foreground
         width:   parent.width
@@ -31,18 +50,50 @@ Item {
         anchors.top: parent.top
     }
 
-    Text {
+    Components.SquircleContainer {
+        id:     _icon
+        height: 30
+        width:  30
+
+        backgroundColor: internal.colors.dark
+
+        anchors.top:            hasDescription ? _purchaseName.top : undefined
+        anchors.left:           parent.left
+        anchors.topMargin:      hasDescription ? 5 : 0
+        anchors.leftMargin:     15
+        anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
+
+        Image {
+            id:     _iconImage
+            width:  _icon.width * 0.55
+            height: _icon.height * 0.55
+            source: _getIcon()
+            cache:  true
+
+            anchors.left:           parent.left
+            anchors.leftMargin:     6.5
+            anchors.verticalCenter: parent.verticalCenter
+        }
+
+        ColorOverlay {
+            anchors.fill: _iconImage
+            source:       _iconImage
+            color:        internal.colors.foreground
+            antialiasing: true
+        }
+    }
+
+    Components.Text {
         id:      _purchaseName
         text:    purchase.name + (purchase.isRecurring() ? "" : (" " + account.getPaidInstallments(purchase, statement.date) + "/" + purchase.installments))
         color:   internal.colors.dark
 
-        font.family:    "Inter"
         font.pointSize: 9
         font.weight:    Font.Normal
 
         anchors.top:            hasDescription ? parent.top : undefined
-        anchors.left:           parent.left
-        anchors.leftMargin:     20
+        anchors.left:           _icon.right
+        anchors.leftMargin:     10
         anchors.topMargin:      hasDescription ? 10 : 0
         anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
     }
@@ -56,16 +107,15 @@ Item {
         backgroundColor: Qt.lighter(internal.colors.dark, 2)
 
         anchors.top:        _purchaseName.bottom
-        anchors.left:       parent.left
+        anchors.left:       _purchaseName.anchors.left
         anchors.topMargin:  7
-        anchors.leftMargin: _purchaseName.anchors.leftMargin * 1.5
+        anchors.leftMargin: _purchaseName.anchors.leftMargin
 
-        Text {
+        Components.Text {
             id:    _text
             text:  purchase.description
             color: internal.colors.background
 
-            font.family:    "Inter"
             font.pointSize: 8
             font.weight:    Font.Bold
 
@@ -73,7 +123,7 @@ Item {
         }
     }
 
-    Text {
+    Components.Text {
         text:  purchase.getInstallmentValue().toFixed(2)
         color: _purchaseName.color
 

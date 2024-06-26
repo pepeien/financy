@@ -313,6 +313,11 @@ namespace Financy
         return inDate.addMonths(inMonths);
     }
 
+    bool Internal::isSameDate(const QDate& inDateA, const QDate& inDateB)
+    {
+        return inDateA.daysTo(inDateB) == 0;
+    }
+
     QString Internal::getLongDate(const QDate& inDate) {
         return inDate.toString("dd/MM/yyyy");
     }

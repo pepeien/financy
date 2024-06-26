@@ -13,24 +13,26 @@ Components.Button {
 
     // Container Props
     property alias backgroundBorder:            _content.backgroundBorder
+    property alias backgroundRadius:            _content.backgroundRadius
     property alias backgroundTopLeftRadius:     _content.backgroundTopLeftRadius
     property alias backgroundTopRightRadius:    _content.backgroundTopRightRadius
     property alias backgroundBottomLeftRadius:  _content.backgroundBottomLeftRadius
     property alias backgroundBottomRightRadius: _content.backgroundBottomRightRadius
 
-    property bool hasShadow:       false
-    property var backgroundColor:  "transparent"
+    property bool hasShadow:            false
+    property bool disableWillOverwrite: true
+    property var backgroundColor:       "transparent"
 
     id: _root
 
     Components.SquircleContainer {
-        id: _content
-        
-        hasShadow:              isDisabled ? false : _root.hasShadow
-        backgroundColor:        isDisabled ? "transparent" : _root.backgroundColor
-        backgroundBorder.width: isDisabled ? 2.5 :  0
-        backgroundBorder.color: isDisabled ? internal.colors.foreground : "transparent"
+        id:     _content
+        height: _root.height
+        width:  _root.width
 
-        anchors.fill: parent
+        hasShadow:              isDisabled && disableWillOverwrite ? false : _root.hasShadow
+        backgroundColor:        isDisabled && disableWillOverwrite ? "transparent" : _root.backgroundColor
+        backgroundBorder.width: isDisabled && disableWillOverwrite ? 2.5 :  0
+        backgroundBorder.color: isDisabled && disableWillOverwrite ? internal.colors.foreground : "transparent"
     }
 }

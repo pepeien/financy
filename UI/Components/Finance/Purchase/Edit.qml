@@ -11,38 +11,29 @@ import Financy.Types 1.0
 // Components
 import "qrc:/Components" as Components
 
-Components.Popup {
+Components.Modal {
     property var purchase
     property var onSubmit
 
     id: _root
 
     onOpened: function() {
-        _name.input.clear();
-        _name.input.insert(0, _root.purchase.name);
+        _name.set(_root.purchase.name);
 
-        _description.input.clear();
-        _description.input.insert(0, _root.purchase.description);
+        _description.set(_root.purchase.description);
 
-        _date.input.clear();
-        _date.input.insert(0, internal.getLongDate(_root.purchase.date));
+        _date.set(internal.getLongDate(_root.purchase.date));
 
-        _value.input.clear();
-        _value.input.insert(0, _root.purchase.value.toFixed(2));
+        _value.set(_root.purchase.value.toFixed(2));
 
-        _installments.input.clear();
-        _installments.input.insert(0, _root.purchase.installments);
+        _installments.set(_root.purchase.installments);
     }
 
     Components.SquircleContainer {
-        width:  parent.width * 0.6
-        height: parent.height * 0.5
-
         hasShadow:       true
         backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter:   parent.verticalCenter
+        anchors.fill: parent
 
         Components.Text {
             id:    _title
@@ -169,6 +160,50 @@ Components.Popup {
 
                 validator: RegularExpressionValidator {
                     regularExpression: /^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]))\4(?:(?:1[6-9]|[2-9]\d)?\d{4})$/
+                }
+                
+                Components.SquircleButton {
+                    id:     _dateButton
+                    width:  parent.height
+                    height: parent.height
+
+                    anchors.right: parent.right
+
+                    onClick: function() {
+                        if (_datePicker.visible) {
+                            return;
+                        }
+
+                        _datePicker.open();
+                    }
+
+                    Image {
+                        id:           _dateIcon
+                        width:        parent.height * 0.5
+                        height:       parent.height * 0.5
+                        source:       "qrc:/Icons/Calendar.svg"
+
+                        anchors.centerIn: parent
+                    }
+
+                    ColorOverlay {
+                        anchors.fill: _dateIcon
+                        source:       _dateIcon
+                        color:        _date.isDisabled ? internal.colors.foreground : internal.colors.light
+                        antialiasing: true
+                    }
+                }
+
+                Components.DatePicker {
+                    id:     _datePicker
+                    x:      _dateButton.x + _dateButton.width
+                    y:      _dateButton.y + (_date.inputHeight * 0.5)
+                    width:  228
+                    height: 228
+
+                    onSelect: function(date) {
+                        _date.set(internal.getLongDate(date));
+                    }
                 }
             }
 

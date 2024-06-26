@@ -8,5 +8,5 @@ namespace Financy
     constexpr auto ACCOUNT_FILE_NAME  = "Accounts.json";
 
     constexpr std::uint32_t MIN_STATEMENT_CLOSING_DAY = 1;
-    constexpr std::uint32_t MAX_STATEMENT_CLOSING_DAY = 28;
+    constexpr std::uint32_t MAX_STATEMENT_CLOSING_DAY = 30;
 }
