@@ -156,8 +156,8 @@ Components.Page {
         id: _deletionPopup
 
         Components.SquircleContainer {
-            width:  parent.width * 0.4
-            height: parent.height * 0.2
+            width:  670
+            height: 180
 
             hasShadow:       true
             backgroundColor: Qt.lighter(internal.colors.background, 0.965)
