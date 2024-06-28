@@ -22,11 +22,18 @@ Components.Modal {
 
         _description.set(_root.purchase.description);
 
-        _date.set(internal.getLongDate(_root.purchase.date));
+        _date.set(      internal.getLongDate(_root.purchase.date));
+        _datePicker.set(_root.purchase.date);
 
         _value.set(_root.purchase.value.toFixed(2));
 
         _installments.set(_root.purchase.installments);
+
+        _type.set(
+            internal.getPurchaseTypeName(
+                _root.purchase.type
+            )
+        );
     }
 
     Components.SquircleContainer {

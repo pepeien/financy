@@ -529,6 +529,12 @@ namespace Financy
             result.push_back(purchase);
         }
 
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() > b->getDate().toJulianDay(); }
+        );
+
         return result;
     }
 

@@ -25,6 +25,22 @@ Item {
     // Vars
     readonly property real textPadding: 16
 
+    function set(value) {
+        for (let i = 0; i <  model.length; i++) {
+            if (value !== model[i]) {
+                continue;
+            }
+
+            _control.currentIndex = i;
+
+            break;
+        }
+    }
+
+    function clear() {
+        _control.currentIndex = 0;
+    }
+
     width: _root.itemWidth
 
     ComboBox {

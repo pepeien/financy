@@ -22,6 +22,7 @@ Components.Modal {
         _date.clear();
         _value.clear();
         _installments.clear();
+        _type.clear();
     }
 
     Components.SquircleContainer {
