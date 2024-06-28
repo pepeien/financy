@@ -422,6 +422,11 @@ namespace Financy
         return result;
     }
 
+    void Account::clearHistory()
+    {
+        m_history.clear();
+    }
+
     std::uint32_t Account::getId()
     {
         return m_id;

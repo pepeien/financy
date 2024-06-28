@@ -125,6 +125,8 @@ namespace Financy
         QList<Statement*> getStatementPurchases(const QDate& inDate);
         QList<Purchase*> getStatementSubscriptions(const QDate& inDate);
 
+        void clearHistory();
+
     public:
         void fromJSON(const nlohmann::json& inData);
         nlohmann::ordered_json toJSON();

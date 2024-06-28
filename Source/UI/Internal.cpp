@@ -270,6 +270,7 @@ namespace Financy
         }
 
         m_selectedUser = inUser;
+        m_selectedUser->login();
 
         emit onSelectUserUpdate();
     }
@@ -281,6 +282,7 @@ namespace Financy
             return;
         }
 
+        m_selectedUser->logout();
         m_selectedUser = nullptr;
 
         emit onSelectUserUpdate();

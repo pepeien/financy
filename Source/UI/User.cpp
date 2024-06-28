@@ -18,7 +18,8 @@
 namespace Financy
 {
     User::User()
-        : m_id(0),
+        : m_fetchedAccounts(false),
+        m_id(0),
         m_firstName(""),
         m_lastName(""),
         m_picture(""),
@@ -69,8 +70,6 @@ namespace Financy
                 QString::fromStdString((std::string) inData.at("secondaryColor")) :
                 "#000000"
         );
-
-        fetchAccounts();
     }
 
     nlohmann::ordered_json User::toJSON()
@@ -481,6 +480,18 @@ namespace Financy
         return result;
     }
 
+    void User::login()
+    {
+        fetchAccounts();
+    }
+
+    void User::logout()
+    {
+        for (Account* account : m_accounts) {
+            account->clearHistory();
+        }
+    }
+
     QString User::formatPicture(const QUrl& inUrl)
     {
         if (inUrl.isEmpty())
@@ -523,6 +534,10 @@ namespace Financy
 
     void User::fetchAccounts()
     {
+        if (m_fetchedAccounts) {
+            return;
+        }
+
         if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
         {
             return;
@@ -534,7 +549,6 @@ namespace Financy
         {
             return;
         }
-
 
         for (auto& [key, data] : accounts.items())
         {
@@ -553,6 +567,8 @@ namespace Financy
 
             m_accounts.push_back(account);
         }
+
+        m_fetchedAccounts = true;
     }
 
     void User::removeFromFile()

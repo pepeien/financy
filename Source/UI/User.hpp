@@ -146,6 +146,9 @@ namespace Financy
         QVariantMap getExpenseMap();
         float getDueAmount();
 
+        void login();
+        void logout();
+
     private:
         QString formatPicture(const QUrl& inUrl);
 
@@ -155,6 +158,8 @@ namespace Financy
         void removeAccounts();
 
     private:
+        bool m_fetchedAccounts;
+
         uint32_t m_id;
 
         QString m_firstName;
