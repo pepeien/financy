@@ -362,6 +362,8 @@ namespace Financy
 
         if (userCount == m_purchases.size())
         {
+            clearHistory();
+
             return;
         }
 
@@ -422,9 +424,70 @@ namespace Financy
         return result;
     }
 
+    void Account::refreshHistory()
+    {
+        m_history.clear();
+
+        if (m_purchases.isEmpty())
+        {
+            return;
+        }
+
+        QDate earliestStatement    = getEarliestStatementDate();
+        QDate latestStatement      = getLatestStatementDate();
+        QDate currentStatementDate = earliestStatement;
+
+        while(latestStatement.daysTo(currentStatementDate) <= 0)
+        {
+            Statement* statement = new Statement();
+            statement->setDate(currentStatementDate);
+
+            float purchaseDueAmount  = 0.0f;
+            float recurringDueAmount = 0.0f;
+
+            for (Purchase* purchase : getPurchases(currentStatementDate)) {
+                if (purchase->isRecurring())
+                {
+                    recurringDueAmount += purchase->getInstallmentValue();
+
+                    continue;
+                }
+ 
+                purchaseDueAmount += purchase->getInstallmentValue();
+            }
+
+            currentStatementDate = QDate(
+                currentStatementDate.year(),
+                currentStatementDate.month(),
+                getClosingDay(currentStatementDate)
+            );
+            currentStatementDate = currentStatementDate.addMonths(1);
+
+            bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
+            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) > 0;
+
+            if (isFirstEmpty || isLastEmpty)
+            {
+                delete statement;
+
+                continue;
+            }
+
+            statement->setDueAmount(purchaseDueAmount + recurringDueAmount);
+
+            m_history.push_back(statement);
+        }
+
+        sortHistory();
+
+        emit onEdit();
+    }
+
     void Account::clearHistory()
     {
         m_history.clear();
+
+        emit onEdit();
     }
 
     std::uint32_t Account::getId()
@@ -548,8 +611,6 @@ namespace Financy
         m_purchases = inPurchases;
 
         sortPurchases();
-
-        refreshHistory();
 
         emit onEdit();
     }
@@ -752,8 +813,6 @@ namespace Financy
         }
 
         setPurchases(newPurchases);
-
-        refreshHistory();
     }
 
     void Account::sortHistory()
@@ -763,65 +822,6 @@ namespace Financy
             m_history.end(),
             [](Statement* a, Statement* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
         );
-    }
-
-    void Account::refreshHistory()
-    {
-        m_history.clear();
-
-        if (m_purchases.isEmpty())
-        {
-            return;
-        }
-
-        QDate earliestStatement    = getEarliestStatementDate();
-        QDate latestStatement      = getLatestStatementDate();
-        QDate currentStatementDate = earliestStatement;
-
-        while(latestStatement.daysTo(currentStatementDate) <= 0)
-        {
-            Statement* statement = new Statement();
-            statement->setDate(currentStatementDate);
-
-            float purchaseDueAmount  = 0.0f;
-            float recurringDueAmount = 0.0f;
-
-            for (Purchase* purchase : getPurchases(currentStatementDate)) {
-                if (purchase->isRecurring())
-                {
-                    recurringDueAmount += purchase->getInstallmentValue();
-
-                    continue;
-                }
- 
-                purchaseDueAmount += purchase->getInstallmentValue();
-            }
-
-            currentStatementDate = QDate(
-                currentStatementDate.year(),
-                currentStatementDate.month(),
-                getClosingDay(currentStatementDate)
-            );
-            currentStatementDate = currentStatementDate.addMonths(1);
-
-            bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
-            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) > 0;
-
-            if (isFirstEmpty || isLastEmpty)
-            {
-                delete statement;
-
-                continue;
-            }
-
-            statement->setDueAmount(purchaseDueAmount + recurringDueAmount);
-
-            m_history.push_back(statement);
-        }
-
-        sortHistory();
-
-        emit onEdit();
     }
 
     void Account::deletePurchaseFromFile(std::uint32_t inId)

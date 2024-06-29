@@ -100,7 +100,9 @@ namespace Financy
             const QColor& inSecondaryColor
         );
         void deleteAccount(std::uint32_t inId);
+
         void selectAccount(std::uint32_t inId);
+        void deselectAccount();
 
         void refresh();
 

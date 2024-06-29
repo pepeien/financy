@@ -31,10 +31,14 @@ Components.Page {
 
     onReturn: function() {
         _history.visible = false;
+
+        clearListing();
+
+        user.deselectAccount();
     }
 
     id:    _root
-    title: account.name
+    title: account?.name ?? ""
 
     function clearListing() {
         _history.refresh([]);

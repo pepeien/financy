@@ -125,6 +125,7 @@ namespace Financy
         QList<Statement*> getStatementPurchases(const QDate& inDate);
         QList<Purchase*> getStatementSubscriptions(const QDate& inDate);
 
+        void refreshHistory();
         void clearHistory();
 
     public:
@@ -185,7 +186,6 @@ namespace Financy
         void refreshPurchases();
 
         void sortHistory();
-        void refreshHistory();
 
         void deletePurchaseFromFile(std::uint32_t inId);
         void deletePurchaseFromMemory(std::uint32_t inId);

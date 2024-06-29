@@ -245,7 +245,26 @@ namespace Financy
             return;
         }
 
+        if (m_selectedAccount)
+        {
+            m_selectedAccount->clearHistory();
+        }
+
         m_selectedAccount = account;
+        m_selectedAccount->refreshHistory();
+
+        emit onEdit();
+    }
+
+    void User::deselectAccount()
+    {
+        if (!m_selectedAccount)
+        {
+            return;
+        }
+
+        m_selectedAccount->clearHistory();
+        m_selectedAccount = nullptr;
 
         emit onEdit();
     }
