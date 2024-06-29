@@ -106,8 +106,8 @@ Components.Modal {
                 anchors.left: parent.left
 
                 validator: IntValidator {
-                    bottom: 1
-                    top: 999
+                    bottom: internal.getMinInstallmentCount()
+                    top:    internal.getMaxInstallmentCount()
                 }
 
                 KeyNavigation.tab: _value.input

@@ -1,5 +1,7 @@
 #include "Purchase.hpp"
 
+#include "Base.hpp"
+
 #include <QQmlEngine>
 
 namespace Financy
@@ -301,7 +303,11 @@ namespace Financy
 
     void Purchase::setInstallments(std::uint32_t inInstallments)
     {
-        m_installments = inInstallments;
+        m_installments = std::clamp(
+            inInstallments,
+            MIN_INSTALLMENT_COUNT,
+            MAX_INSTALLMENT_COUNT
+        );
 
         emit onEdit();
     }

@@ -108,6 +108,9 @@ namespace Financy
         std::uint32_t getMinStatementClosingDay();
         std::uint32_t getMaxStatementClosingDay();
 
+        std::uint32_t getMinInstallmentCount();
+        std::uint32_t getMaxInstallmentCount();
+
         void clear(QList<void*> inList, bool willDelete = false);
 
     private:

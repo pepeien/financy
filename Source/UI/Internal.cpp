@@ -398,6 +398,16 @@ namespace Financy
         return MAX_STATEMENT_CLOSING_DAY;
     }
 
+    std::uint32_t Internal::getMinInstallmentCount()
+    {
+        return MIN_INSTALLMENT_COUNT;
+    }
+
+    std::uint32_t Internal::getMaxInstallmentCount()
+    {
+        return MAX_INSTALLMENT_COUNT;
+    }
+
     void Internal::clear(QList<void*> inList, bool willDelete)
     {
         if (willDelete)

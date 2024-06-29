@@ -9,4 +9,7 @@ namespace Financy
 
     constexpr std::uint32_t MIN_STATEMENT_CLOSING_DAY = 1;
     constexpr std::uint32_t MAX_STATEMENT_CLOSING_DAY = 30;
+
+    constexpr std::uint32_t MIN_INSTALLMENT_COUNT = 1;
+    constexpr std::uint32_t MAX_INSTALLMENT_COUNT = 120;
 }
