@@ -221,8 +221,6 @@ namespace Financy
             }
 
             updatedUsers.push_back(m_selectedUser->toJSON());
-
-            break;
         }
 
         // Write
