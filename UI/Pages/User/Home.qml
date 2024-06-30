@@ -13,7 +13,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    readonly property var user: internal.selectedUser
+    readonly property var user:   internal.selectedUser
+    readonly property var colors: internal.colors
 
     property var _deletingAccount
 
@@ -36,8 +37,12 @@ Components.Page {
         internal.logout();
     }
 
-    onRoute: function() {
+    onUserChanged: function() {
         _overviewChartPie.clear();
+
+        if (!user) {
+            return;
+        }
 
         const usedColors = [765, 0];
 
@@ -67,6 +72,18 @@ Components.Page {
             );
         }
     }
+
+    onColorsChanged: function() {
+        if (!colors) {
+            return;
+        }
+
+        for (let i = 0; i < _overviewChartPie.count; i++) {
+            const slice       = _overviewChartPie.at(i);
+            slice.borderColor = colors.background;
+        }
+    }
+
 
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
@@ -249,28 +266,25 @@ Components.Page {
 
                 PieSeries {
                     id:       _overviewChartPie
-                    size:     1
+                    size:     0.9
                     holeSize: 0.5
-
-                    property var _lastSlice
 
                     onHovered: function(slice, state) {
                         if (state) {
-                            if (_lastSlice) {
-                                _lastSlice.color = Qt.darker(_lastSlice.color, 1.25);
-                            }
-
-                            _lastSlice       = slice;
-                            _lastSlice.color = Qt.lighter(_lastSlice.color, 1.25);
-
-                            _hoverArea.cursorShape = Qt.PointingHandCursor;
+                            slice.color = Qt.lighter(
+                                slice.color,
+                                1.25
+                            );
 
                             _tooltip.show(`${slice.label} $${slice.value.toFixed(2)}`);
 
                             return;
                         }
 
-                        _hoverArea.cursorShape = Qt.ArrowCursor;
+                        slice.color = Qt.darker(
+                            slice.color,
+                            1.25
+                        );
 
                         _tooltip.hide();
                     }
