@@ -12,6 +12,9 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Modal {
+    readonly property var user:    internal.selectedUser
+    readonly property var account: internal.selectedAccount
+
     property var onSubmit
 
     id: _root
@@ -233,7 +236,7 @@ Components.Modal {
                     return;
                 }
 
-                user.selectedAccount.createPurchase(
+                _root.account.createPurchase(
                     _name.text,
                     _description.text,
                     _date.text,

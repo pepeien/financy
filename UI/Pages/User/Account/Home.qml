@@ -12,8 +12,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    property var user:    internal.selectedUser
-    property var account: user.selectedAccount
+    readonly property var user:    internal.selectedUser
+    readonly property var account: internal.selectedAccount
 
     property int purchaseHeight:       45
     property int statementTitleHeight: 40
@@ -43,7 +43,7 @@ Components.Page {
 
         clearListing();
 
-        user.deselectAccount();
+        internal.deselect();
     }
 
     id:    _root
@@ -150,7 +150,8 @@ Components.Page {
         onSubmit: function() {
             _root.clearListing();
 
-            _root.account.deletePurchase(purchase.id);
+            account.deletePurchase(purchase.id);
+
             _root.account.onEdit();
             _root.user.onEdit();
 

@@ -24,17 +24,8 @@ namespace Financy
         m_lastName(""),
         m_picture(""),
         m_primaryColor("#FFFFFF"),
-        m_secondaryColor("#000000"),
-        m_selectedAccount(nullptr)
+        m_secondaryColor("#000000")
     {}
-
-    User::~User()
-    {
-        for (Account* account : m_accounts)
-        {
-            delete account;
-        }
-    }
 
     void User::fromJSON(const nlohmann::json& inData)
     {
@@ -89,123 +80,6 @@ namespace Financy
         return m_firstName + " " + m_lastName;
     }
 
-    void User::addSharedAccount(Account* inAccount)
-    {
-        if (inAccount == nullptr)
-        {
-            return;
-        }
-
-        if (inAccount->isOwnedBy(m_id) || inAccount->isSharingWith(m_id))
-        {
-            return;
-        }
-
-        inAccount->shareWith(m_id);
-
-        m_accounts.push_back(inAccount);
-
-        emit onEdit();
-
-        // Write
-        std::ifstream file(ACCOUNT_FILE_NAME);
-        nlohmann::ordered_json accounts = FileSystem::doesFileExist(ACCOUNT_FILE_NAME) ? 
-            nlohmann::ordered_json::parse(file):
-            nlohmann::ordered_json::array();
-
-        if (!accounts.is_array())
-        {
-            return;
-        }
-
-        nlohmann::ordered_json updatedAccounts = nlohmann::ordered_json::array();
-
-        for (auto& [key, data] : accounts.items())
-        {
-            if (data.find("id") == data.end())
-            {
-                continue;
-            }
-
-            if ((std::uint32_t) data.at("id") != inAccount->getId())
-            {
-                updatedAccounts.push_back(data);
-
-                continue;
-            }
-
-            updatedAccounts.push_back(inAccount->toJSON());
-        }
- 
-        std::ofstream stream(ACCOUNT_FILE_NAME);
-        stream << std::setw(4) << updatedAccounts << std::endl;
-    }
-
-    void User::removeSharedAccount(Account* inAccount)
-    {
-        if (inAccount == nullptr)
-        {
-            return;
-        }
-
-        if (inAccount->isOwnedBy(m_id) || !inAccount->isSharingWith(m_id))
-        {
-            return;
-        }
-
-        inAccount->withholdFrom(m_id);
-        
-        QList<Account*> newAccounts {};
-
-        for (Account* account : m_accounts)
-        {
-            if (account->getId() == inAccount->getId())
-            {
-                continue;
-            }
-
-            newAccounts.push_back(account);
-        }
-
-        m_accounts.clear();
-        m_accounts = newAccounts;
-
-        emit onEdit();
-
-        // Write
-        std::ifstream file(ACCOUNT_FILE_NAME);
-        nlohmann::ordered_json accounts = FileSystem::doesFileExist(ACCOUNT_FILE_NAME) ? 
-            nlohmann::ordered_json::parse(file):
-            nlohmann::ordered_json::array();
-
-        if (!accounts.is_array())
-        {
-            return;
-        }
-
-        nlohmann::ordered_json updatedAccounts = nlohmann::ordered_json::array();
-
-        for (auto& [key, data] : accounts.items())
-        {
-            if (data.find("id") == data.end())
-            {
-                continue;
-            }
-
-            if ((std::uint32_t) data.at("id") != inAccount->getId())
-            {
-                updatedAccounts.push_back(data);
-
-                continue;
-            }
-
-            updatedAccounts.push_back(inAccount->toJSON());
-        }
- 
-        std::ofstream stream(ACCOUNT_FILE_NAME);
-        stream << std::setw(4) << updatedAccounts << std::endl;
-    }
-
     void User::addAccount(Account* inAccount)
     {
         if (inAccount == nullptr)
@@ -213,7 +87,14 @@ namespace Financy
             return;
         }
 
+        if (!inAccount->isOwnedBy(m_id))
+        {
+            inAccount->shareWith(m_id);
+        }
+
         m_accounts.push_back(inAccount);
+
+        sortAccounts();
 
         emit onEdit();
     }
@@ -225,43 +106,28 @@ namespace Financy
 
     void User::deleteAccount(Account* inAccount)
     {
-        if (m_selectedAccount && inAccount->getId() == m_selectedAccount->getId())
-        {
-            deselectAccount();
-        }
-
-        emit onEdit();
-    }
-
-    void User::selectAccount(std::uint32_t inId)
-    {
-        Account* account = getAccount(inId);
-
-        if (account == nullptr)
+        if (!inAccount)
         {
             return;
         }
 
-        if (m_selectedAccount)
-        {
-            m_selectedAccount->clearHistory();
-        }
+        auto foundAccountIt = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+        );
 
-        m_selectedAccount = account;
-        m_selectedAccount->refreshHistory();
-
-        emit onEdit();
-    }
-
-    void User::deselectAccount()
-    {
-        if (!m_selectedAccount)
+        if (foundAccountIt == m_accounts.end())
         {
             return;
         }
 
-        m_selectedAccount->clearHistory();
-        m_selectedAccount = nullptr;
+        if (!inAccount->isSharingWith(m_id))
+        {
+            inAccount->withholdFrom(m_id);
+        }
+
+        m_accounts.removeAt(foundAccountIt - m_accounts.begin());
 
         emit onEdit();
     }
@@ -394,6 +260,21 @@ namespace Financy
     void User::setAccounts(const QList<Account*>& inAccounts)
     {
         m_accounts = inAccounts;
+
+        sortAccounts();
+
+        emit onEdit();
+    }
+
+    void User::removeAccount(Account* inAccount)
+    {
+        m_accounts.removeAt(
+            std::find_if(
+                m_accounts.begin(),
+                m_accounts.end(),
+                [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+            ) - m_accounts.begin()
+        );
     }
 
     void User::edit(
@@ -549,6 +430,15 @@ namespace Financy
 
         return QString::fromLatin1(
             "data:image/" + fileExtension + ";base64," + base64::to_base64(sRaw)
+        );
+    }
+
+    void User::sortAccounts()
+    {
+        std::sort(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
         );
     }
 

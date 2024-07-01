@@ -318,9 +318,11 @@ namespace Financy
 
         QDate currentDate = currentStatementClosingDate;
 
-        while (currentStatementClosingDate.daysTo(currentDate) >= 0 && endDate.daysTo(currentDate) <= 0)
+        while (endDate.daysTo(currentDate) <= 0)
         {
-            if (currentDate.day() == std::min(inStatementClosingDay, (std::uint32_t) currentDate.daysInMonth())) {
+            std::uint32_t closingDay = std::min(inStatementClosingDay, (std::uint32_t) currentDate.daysInMonth());
+
+            if (currentDate.day() == closingDay) {
                 paidInstallments++;
             }
 

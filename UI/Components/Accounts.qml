@@ -96,7 +96,7 @@ ScrollView {
                         return;
                     }
 
-                    internal.selectedUser.selectAccount(_item.id);
+                    internal.select(_item.id);
 
                     stack.push("qrc:/Pages/UserAccountHome.qml");
                 }

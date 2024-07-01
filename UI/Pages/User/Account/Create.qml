@@ -278,14 +278,16 @@ Components.Page {
                 }
 
                 ListView {
+                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id))
+
                     id:      _list
                     spacing: 25
-                    model:   internal.accounts
+                    model:   _accounts
 
                     anchors.fill: parent
 
                     delegate: Item {
-                        property var _item: internal.accounts[index]
+                        property var _item: _list._accounts[index]
     
                         height: 100
                         width:  _list.width * 0.95

@@ -16,7 +16,7 @@ Item {
     property var statement
 
     readonly property var user:    internal.selectedUser
-    readonly property var account: user.selectedAccount
+    readonly property var account: internal.selectedAccount
 
     readonly property bool hasDescription:    purchase.hasDescription()
     readonly property bool hasDifferentOwner: !purchase.isOwnedBy(user.id)

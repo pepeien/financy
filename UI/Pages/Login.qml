@@ -26,7 +26,8 @@ Components.Page {
 
     ScrollView {
         width:  parent.width * 0.7
-        height: parent.height
+        height: parent.height * 0.9
+        clip:   true
 
         anchors.top:              parent.top
         anchors.horizontalCenter: parent.horizontalCenter
@@ -49,7 +50,7 @@ Components.Page {
                 property var user: internal.users[index]
 
                 onClick: function() {
-                    internal.login(user);
+                    internal.login(user.id);
     
                     stack.push("qrc:/Pages/UserHome.qml")
                 }

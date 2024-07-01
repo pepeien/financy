@@ -37,11 +37,13 @@ namespace Financy
         : QObject(parent),
         m_colors(new Colors(parent)),
         m_showcaseColors(new Colors(parent)),
-        m_selectedUser(nullptr)
+        m_selectedUser(nullptr),
+        m_selectedAccount(nullptr)
     {
         loadSettings();
-        loadAccounts();
         loadUsers();
+        loadAccounts();
+        setUsersAccounts();
     
         normalizePurchases();
     }
@@ -334,14 +336,16 @@ namespace Financy
         emit onUsersUpdate();
     }
 
-    void Internal::login(User* inUser)
+    void Internal::login(std::uint32_t inId)
     {
-        if (inUser == nullptr)
+        User* user = getUser(inId);
+
+        if (user == nullptr)
         {
             return;
         }
 
-        if (m_selectedUser != nullptr && inUser->getId() == m_selectedUser->getId())
+        if (m_selectedUser != nullptr && user->getId() == m_selectedUser->getId())
         {
             return;
         }
@@ -352,9 +356,9 @@ namespace Financy
             m_selectedUser = nullptr;
         }
 
-        setSelectedUser(inUser);
+        setSelectedUser(user);
 
-        m_selectedUser = inUser;
+        m_selectedUser = user;
         m_selectedUser->login();
 
         emit onSelectUserUpdate();
@@ -373,6 +377,90 @@ namespace Financy
         setSelectedUser(m_selectedUser);
 
         emit onSelectUserUpdate();
+    }
+
+    Account* Internal::getAccount(std::uint32_t inId)
+    {
+        for (Account* account : m_accounts)
+        {
+            if (account->getId() != inId)
+            {
+                continue;
+            }
+
+            return account;
+        }
+
+        return nullptr;
+    }
+
+    QList<Account*> Internal::getAccounts(Account::Type inType)
+    {
+        QList<Account*> result {};
+
+        for (Account* account : m_accounts)
+        {
+            if (account->getType() != inType)
+            {
+                continue;
+            }
+
+            result.push_back(account);
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+
+        return result;
+    }
+
+    QList<Account*> Internal::getAccounts(const QList<int>& inIds)
+    {
+        QList<Account*> result {};
+
+        for (int i = 0, j = m_accounts.size() - 1; i <= j; i++, j--)
+        {
+            std::uint32_t leftUserId  = m_accounts[i]->getId();
+            std::uint32_t rightUserId = m_accounts[j]->getId();
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [leftUserId](int _) { return _ == leftUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_accounts[i]);
+            }
+
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [rightUserId](int _) { return _ == rightUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_accounts[j]);
+            }
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+
+        return result;
     }
 
     void Internal::createAccount(
@@ -419,15 +507,11 @@ namespace Financy
 
         m_accounts.push_back(account);
 
-        accounts.push_back(account->toJSON());
-
         emit onAccountsUpdate();
 
         m_selectedUser->addAccount(account);
 
-        // Write
-        std::ofstream stream(ACCOUNT_FILE_NAME);
-        stream << std::setw(4) << accounts << std::endl;
+        writeAccounts();
     }
 
     void Internal::editAccount(
@@ -466,7 +550,7 @@ namespace Financy
             return;
         }
 
-        if (account->isOwnedBy(m_selectedUser) == false)
+        if (!account->isOwnedBy(m_selectedUser))
         {
             return;
         }
@@ -480,30 +564,11 @@ namespace Financy
             inSecondaryColor
         );
 
-        for (auto& [key, data] : accounts.items())
-        {
-            if (data.find("id") == data.end() || !data.at("id").is_number_unsigned())
-            {
-                continue;
-            }
-
-            if ((std::uint32_t) data.at("id") != inId)
-            {
-                updatedAccounts.push_back(data);
-
-                continue;
-            }
-
-            updatedAccounts.push_back(account->toJSON());
-        }
-
         emit onAccountsUpdate();
 
         m_selectedUser->editAccount(account);
 
-        // Write
-        std::ofstream stream(ACCOUNT_FILE_NAME);
-        stream << std::setw(4) << updatedAccounts << std::endl;
+        writeAccounts();
     }
 
     void Internal::deleteAccount(std::uint32_t inId)
@@ -533,19 +598,104 @@ namespace Financy
             return;
         }
 
-        if (account->isOwnedBy(m_selectedUser) == false)
+        m_selectedUser->deleteAccount(account);
+        account->remove();
+
+        if (account->isOwnedBy(m_selectedUser))
+        {
+            delete account;
+
+            m_accounts.removeAt(index); 
+        }
+
+        emit onAccountsUpdate();
+
+        writeAccounts();
+    }
+
+    void Internal::mergeAccounts(
+        std::uint32_t inSourceId,
+        std::uint32_t inTargedId
+    )
+    {
+        if (inSourceId == inTargedId)
         {
             return;
         }
 
-        m_selectedUser->deleteAccount(account);
-        
-        account->remove();
-        delete account;
+        Account* sourceAccount = getAccount(inSourceId);
+        Account* targetAccount = getAccount(inTargedId);
 
-        m_accounts.removeAt(index);
+        if (sourceAccount == nullptr || targetAccount == nullptr)
+        {
+            return;
+        }
+
+        if (
+            !sourceAccount->isOwnedBy(m_selectedUser->getId()) ||
+            targetAccount->isOwnedBy(m_selectedUser->getId())
+        )
+        {
+            return;
+        }
+
+        targetAccount->addPurchases(sourceAccount->getPurchases());
+
+        m_selectedUser->removeAccount(sourceAccount);
+        m_selectedUser->addAccount(targetAccount);
+
+        if (m_selectedAccount->getId() == sourceAccount->getId())
+        {
+            deselect();
+        }
+
+        removeAccount(sourceAccount);
+
+        delete sourceAccount;
 
         emit onAccountsUpdate();
+
+        //sourceAccount->removeFromFile();
+
+        //writeAccounts();
+    }
+
+    void Internal::select(std::uint32_t inId)
+    {
+        Account* account = getAccount(inId);
+
+        if (account == nullptr)
+        {
+            return;
+        }
+
+        if (m_selectedAccount)
+        {
+            if (m_selectedAccount->getId() == account->getId())
+            {
+                return;
+            }
+
+            deselect();
+        }
+
+        m_selectedAccount = account;
+        m_selectedAccount->refreshHistory();
+
+        emit onSelectAccountUpdate();
+    }
+
+    void Internal::deselect()
+    {
+        if (m_selectedAccount == nullptr)
+        {
+            return;
+        }
+
+        m_selectedAccount->clearHistory();
+        m_selectedAccount = nullptr;
+
+        emit onSelectAccountUpdate();
     }
 
     void Internal::updateTheme(Colors::Theme inTheme)
@@ -704,6 +854,14 @@ namespace Financy
             User* user = new User();
             user->fromJSON(it.value());
 
+            m_users.push_back(user);
+        }
+    }
+
+    void Internal::setUsersAccounts()
+    {
+        for (User* user : m_users)
+        {
             QList<Account*> userAccounts {};
 
             for (Account* account : m_accounts)
@@ -717,8 +875,6 @@ namespace Financy
             }
 
             user->setAccounts(userAccounts);
-
-            m_users.push_back(user);
         }
     }
 
@@ -742,23 +898,66 @@ namespace Financy
             Account* account = new Account();
             account->fromJSON(it.value());
 
-            m_accounts.push_back(account);
-        }
-    }
-
-    Account* Internal::getAccount(std::uint32_t inId)
-    {
-        for (Account* account : m_accounts)
-        {
-            if (account->getId() != inId)
+            if (getUser(account->getUserId()) == nullptr)
             {
+                delete account;
+
                 continue;
             }
 
-            return account;
+            m_accounts.push_back(account);
         }
 
-        return nullptr;
+        sortAccounts();
+    }
+
+    void Internal::sortAccounts()
+    {
+        std::sort(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+    }
+
+    void Internal::writeAccounts()
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::ordered_json accounts = nlohmann::ordered_json::array();
+
+        for (Account* account : m_accounts)
+        {
+            accounts.push_back(account->toJSON());
+        }
+
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << accounts << std::endl;
+    }
+
+    void Internal::addAccount(Account* inAccount)
+    {
+        m_accounts.push_back(inAccount);
+
+        sortAccounts();
+
+        emit onAccountsUpdate();
+    }
+
+    void Internal::removeAccount(Account* inAccount)
+    {
+        m_accounts.removeAt(
+            std::find_if(
+                m_accounts.begin(),
+                m_accounts.end(),
+                [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+            ) - m_accounts.begin()
+        );
+
+        emit onAccountsUpdate();
     }
 
     void Internal::loadSettings()

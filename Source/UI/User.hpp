@@ -48,11 +48,6 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
-            Account* selectedAccount
-            MEMBER m_selectedAccount
-            NOTIFY onEdit
-        )
-        Q_PROPERTY(
             QList<Account*> accounts
             MEMBER m_accounts
             NOTIFY onEdit
@@ -72,7 +67,7 @@ namespace Financy
 
     public:
         User();
-        ~User();
+        ~User() = default;
 
         User& operator=(const User&) = default;
 
@@ -82,15 +77,9 @@ namespace Financy
     public slots:
         QString getFullName();
 
-        void addSharedAccount(Account* inAccount);
-        void removeSharedAccount(Account* inAccount);
-
         void addAccount(Account* inAccount);
         void editAccount(Account* inAccount);
         void deleteAccount(Account* inAccount);
-
-        void selectAccount(std::uint32_t inId);
-        void deselectAccount();
 
         void refresh();
 
@@ -123,6 +112,7 @@ namespace Financy
         QList<Account*> getAccounts();
         QList<Account*> getAccounts(Account::Type inType);
         void setAccounts(const QList<Account*>& inAccounts);
+        void removeAccount(Account* inAccount);
 
         void edit(
             const QString& inFirstName,
@@ -142,6 +132,8 @@ namespace Financy
     private:
         QString formatPicture(const QUrl& inUrl);
 
+        void sortAccounts();
+
         void removeFromFile();
         void removeAccounts();
 
@@ -157,7 +149,6 @@ namespace Financy
         QColor m_primaryColor;
         QColor m_secondaryColor;
 
-        Account* m_selectedAccount;
         QList<Account*> m_accounts;
     };
 }

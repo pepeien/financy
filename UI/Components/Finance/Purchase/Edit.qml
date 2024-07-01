@@ -12,6 +12,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Modal {
+    readonly property var account: internal.selectedAccount
+
     property var purchase
     property var onSubmit
 
@@ -244,7 +246,7 @@ Components.Modal {
                     return;
                 }
 
-                user.selectedAccount.editPurchase(
+                _root.account.editPurchase(
                     _root.purchase.id,
                     _name.text,
                     _description.text,

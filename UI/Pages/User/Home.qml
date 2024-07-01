@@ -171,7 +171,7 @@ Components.Page {
                         return;
                     }
 
-                    internal.selectedUser.selectAccount(inAccount.id);
+                    internal.select(inAccount.id);
 
                     stack.push("qrc:/Pages/UserAccountEdit.qml");
                 }

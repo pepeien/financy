@@ -22,6 +22,11 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
+            std::uint32_t userId
+            MEMBER  m_userId
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QList<int> sharedUserIds
             MEMBER m_sharedUserIds
             NOTIFY onEdit
@@ -175,6 +180,7 @@ namespace Financy
         QList<Purchase*> getPurchases();
         QList<Purchase*> getPurchases(const QDate& inDate);
         void setPurchases(const QList<Purchase*>& inPurchases);
+        void addPurchases(const QList<Purchase*>& inPurchases);
 
         QColor getPrimaryColor();
         void setPrimaryColor(const QColor& inColor);
@@ -192,6 +198,8 @@ namespace Financy
         );
         void remove();
 
+        void removeFromFile();
+
         // Stats
         float getUsedLimit();
         float getRemainingLimit();
@@ -203,13 +211,13 @@ namespace Financy
         QDate getLatestStatementDate();
 
         void sortPurchases();
+        void writePurchases();
 
         void sortHistory();
 
         void deletePurchaseFromFile(std::uint32_t inId);
         void deletePurchaseFromMemory(std::uint32_t inId);
 
-        void removeFromFile();
         void removePurchases();
 
     private:

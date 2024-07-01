@@ -48,6 +48,11 @@ namespace Financy
 
         // Account
         Q_PROPERTY(
+            Account* selectedAccount
+            MEMBER m_selectedAccount
+            NOTIFY onSelectAccountUpdate
+        )
+        Q_PROPERTY(
             QList<Account*> accounts
             MEMBER m_accounts
             NOTIFY onAccountsUpdate
@@ -60,6 +65,7 @@ namespace Financy
         void onSelectUserUpdate();
         void onUsersUpdate();
 
+        void onSelectAccountUpdate();
         void onAccountsUpdate();
 
     public:
@@ -98,10 +104,13 @@ namespace Financy
         );
         void deleteUser(std::uint32_t inId);
 
-        void login(User* inUser);
+        void login(std::uint32_t inId);
         void logout();
 
         // Account
+        Account* getAccount(std::uint32_t inId);
+        QList<Account*> getAccounts(Account::Type inType);
+        QList<Account*> getAccounts(const QList<int>& inIds);
         void createAccount(
             const QString& inName,
             const QString& inClosingDay,
@@ -120,6 +129,14 @@ namespace Financy
             const QColor& inSecondaryColor
         );
         void deleteAccount(std::uint32_t inId);
+
+        void mergeAccounts(
+            std::uint32_t inSourceId,
+            std::uint32_t inTargedId
+        );
+
+        void select(std::uint32_t inId);
+        void deselect();
 
         // Theme
         void updateTheme(Colors::Theme inTheme);
@@ -151,10 +168,15 @@ namespace Financy
     private:
         // User
         void loadUsers();
+        void setUsersAccounts();
 
         // Account
         void loadAccounts();
-        Account* getAccount(std::uint32_t inId);
+        void sortAccounts();
+        void writeAccounts();
+
+        void addAccount(Account* inAccount);
+        void removeAccount(Account* inAccount);
 
         // Settings
         void loadSettings();
@@ -182,6 +204,7 @@ namespace Financy
         QList<User*> m_users;
 
         // Account
+        Account* m_selectedAccount;
         QList<Account*> m_accounts;
     };
 }
