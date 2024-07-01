@@ -17,6 +17,14 @@ Item {
 
     id: _root
 
+    function set(inColor) {
+        color = inColor;
+    }
+
+    function clear() {
+        color = "white";
+    }
+
     Components.Text {
         id:    _label
         color: internal.colors.dark
