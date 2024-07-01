@@ -82,24 +82,12 @@ namespace Financy
     public slots:
         QString getFullName();
 
-        void createAccount(
-            const QString& inName,
-            const QString& inClosingDay,
-            const QString& inLimit,
-            const QString& inType,
-            const QColor& inPrimaryColor,
-            const QColor& inSecondaryColor
-        );
-        void editAccount(
-            std::uint32_t inId,
-            const QString& inName,
-            const QString& inClosingDay,
-            const QString& inLimit,
-            const QString& inType,
-            const QColor& inPrimaryColor,
-            const QColor& inSecondaryColor
-        );
-        void deleteAccount(std::uint32_t inId);
+        void addSharedAccount(Account* inAccount);
+        void removeSharedAccount(Account* inAccount);
+
+        void addAccount(Account* inAccount);
+        void editAccount(Account* inAccount);
+        void deleteAccount(Account* inAccount);
 
         void selectAccount(std::uint32_t inId);
         void deselectAccount();
@@ -153,8 +141,6 @@ namespace Financy
 
     private:
         QString formatPicture(const QUrl& inUrl);
-
-        void fetchAccounts();
 
         void removeFromFile();
         void removeAccounts();

@@ -46,12 +46,25 @@ namespace Financy
             NOTIFY onUsersUpdate
         )
 
+        // Account
+        Q_PROPERTY(
+            QList<Account*> accounts
+            MEMBER m_accounts
+            NOTIFY onAccountsUpdate
+        )
+
     signals:
         void onThemeUpdate();
         void onShowcaseThemeUpdate();
 
         void onSelectUserUpdate();
         void onUsersUpdate();
+
+        void onAccountsUpdate();
+
+    public:
+        static void setSelectedUser(User* inUser);
+        static User* getSelectedUser();
 
     public:
         Internal(QObject* parent = nullptr);
@@ -66,6 +79,8 @@ namespace Financy
         QList<QColor> getUserColorsFromImage(const QString& inImage);
 
         // User
+        User* getUser(std::uint32_t inId);
+        QList<User*> getUsers(const QList<int>& inIds);
         User* createUser(
             const QString& inFirstName,
             const QString& inLastName,
@@ -85,6 +100,26 @@ namespace Financy
 
         void login(User* inUser);
         void logout();
+
+        // Account
+        void createAccount(
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void editAccount(
+            std::uint32_t inId,
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void deleteAccount(std::uint32_t inId);
 
         // Theme
         void updateTheme(Colors::Theme inTheme);
@@ -116,7 +151,10 @@ namespace Financy
     private:
         // User
         void loadUsers();
-        User* getUser(std::uint32_t inId);
+
+        // Account
+        void loadAccounts();
+        Account* getAccount(std::uint32_t inId);
 
         // Settings
         void loadSettings();
@@ -125,6 +163,9 @@ namespace Financy
         // Theme
         void reloadTheme();
         void reloadShowcaseTheme();
+
+        // Utils
+        void normalizePurchases();
 
     private:
         // Settings
@@ -139,5 +180,8 @@ namespace Financy
         // User
         User* m_selectedUser;
         QList<User*> m_users;
+
+        // Account
+        QList<Account*> m_accounts;
     };
 }

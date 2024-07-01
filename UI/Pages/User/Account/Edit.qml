@@ -17,14 +17,18 @@ Components.Page {
     id:    _root
     title: account.name
 
-    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError
+    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError || !account.isOwnedBy(user.id)
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
-        if (!user) {
+        if (centerButton.isDisabled) {
             return;
         }
 
-        user.editAccount(
+        if (!user || !account) {
+            return;
+        }
+
+        internal.editAccount(
             account.id,
             _name.text,
             _closingDay.text,

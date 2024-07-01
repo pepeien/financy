@@ -1,6 +1,7 @@
 #include "Purchase.hpp"
 
 #include "Base.hpp"
+#include "UI/User.hpp"
 
 #include <QQmlEngine>
 
@@ -85,6 +86,13 @@ namespace Financy
                 :
                 0
         );
+        setUserId(
+            inData.find("userId") != inData.end() ?
+                inData.at("userId").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("userId") : 0
+                :
+                0
+        );
         setAccountId(
             inData.find("accountId") != inData.end() ?
                 inData.at("accountId").is_number_unsigned() ?
@@ -155,6 +163,7 @@ namespace Financy
     {
         nlohmann::ordered_json result = {
             { "id",           m_id },
+            { "userId",       m_userId },
             { "accountId",    m_accountId },
             { "name",         m_name.toStdString() },
             { "description",  m_description.toStdString() },
@@ -167,6 +176,21 @@ namespace Financy
         return result;
     }
 
+    bool Purchase::isOwnedBy(User* inUser)
+    {
+        if (inUser == nullptr)
+        {
+            return false;
+        }
+
+        return isOwnedBy(inUser->getId());
+    }
+
+    bool Purchase::isOwnedBy(std::uint32_t inUserId)
+    {
+        return m_userId == inUserId;
+    }
+
     std::uint32_t Purchase::getId()
     {
         return m_id;
@@ -175,6 +199,16 @@ namespace Financy
     void Purchase::setId(std::uint32_t inId)
     {
         m_id = inId;
+    }
+
+    std::uint32_t Purchase::getUserId()
+    {
+        return m_userId;
+    }
+
+    void Purchase::setUserId(std::uint32_t inId)
+    {
+        m_userId = inId;
     }
 
     std::uint32_t Purchase::getAccountId()

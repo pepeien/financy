@@ -9,6 +9,7 @@
 
 namespace Financy
 {
+    class User;
     class Purchase : public QObject
     {
         Q_OBJECT
@@ -90,8 +91,14 @@ namespace Financy
         nlohmann::ordered_json toJSON();
 
     public:
+        bool isOwnedBy(User* inUser);
+        bool isOwnedBy(std::uint32_t inUserId);
+
         std::uint32_t getId();
         void setId(std::uint32_t inId);
+
+        std::uint32_t getUserId();
+        void setUserId(std::uint32_t inId);
 
         std::uint32_t getAccountId();
         void setAccountId(std::uint32_t inId);
@@ -132,6 +139,7 @@ namespace Financy
 
     private:
         std::uint32_t m_id;
+        std::uint32_t m_userId;
         std::uint32_t m_accountId;
 
         QString m_name;

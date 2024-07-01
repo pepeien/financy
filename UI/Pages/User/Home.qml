@@ -160,11 +160,16 @@ Components.Page {
 
             Components.Accounts {
                 id:         _accounts
+                user:       _root.user
                 model:      _root.expenseAccounts
                 isEditing:  _root._isOnEditMode
 
                 onEdit: function(inAccount) {
                     _root._isOnEditMode = false;
+
+                    if (inAccount.isOwnedBy(_root.user.id) == false) {
+                        return;
+                    }
 
                     internal.selectedUser.selectAccount(inAccount.id);
 
@@ -172,8 +177,8 @@ Components.Page {
                 }
 
                 onDelete: function(inAccount) {
-                    _root._deletingAccount = inAccount;
                     _root._isOnEditMode    = false;
+                    _root._deletingAccount = inAccount;
     
                     _deletionPopup.open();
                 }
@@ -410,13 +415,13 @@ Components.Page {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 onClick: function() {
-                    if (!_root._isOnEditMode) {
+                    if (!_root._deletingAccount) {
                         return;
                     }
 
                     _accounts.model = [];
 
-                    _root.user.deleteAccount(_root._deletingAccount.id);
+                    internal.deleteAccount(_root._deletingAccount.id);
 
                     _deletionPopup.close();
 
