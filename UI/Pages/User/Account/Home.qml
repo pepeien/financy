@@ -19,7 +19,7 @@ Components.Page {
     property int statementTitleHeight: 40
     property int statementHeight:      purchaseHeight + statementTitleHeight
 
-    leftButton.isDisabled: !account.isOwnedBy(user.id)
+    leftButton.isDisabled: !account?.isOwnedBy(user.id) ?? true
     leftButtonIcon: "qrc:/Icons/Edit.svg" 
     leftButtonOnClick: function() {
         if (leftButton.isDisabled) {

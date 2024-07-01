@@ -12,6 +12,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.SquircleContainer {
+    readonly property var user: internal.selectedUser
+
     property var statement
     property var purchases:     []
     property var subscriptions: []
@@ -173,7 +175,7 @@ Components.SquircleContainer {
                         purchase:  _data.purchases[index]
 
                         width:  _purchasesContent.width
-                        height: purchase.hasDescription() ? purchaseHeight + 20 :  purchaseHeight
+                        height: (purchase.hasDescription() || !purchase.isOwnedBy(user.id)) ? purchaseHeight + 20 :  purchaseHeight
 
                         anchors.top: _sibling ? _sibling.bottom : _purchasesContent.top
 

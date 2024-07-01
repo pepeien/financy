@@ -57,6 +57,11 @@ namespace Financy
         }
     }
 
+    bool Purchase::isOwnedBy(std::uint32_t inUserId)
+    {
+        return m_userId == inUserId;
+    }
+
     bool Purchase::isRecurring()
     {
         return m_type == Type::Bill || m_type == Type::Subscription;
@@ -184,11 +189,6 @@ namespace Financy
         }
 
         return isOwnedBy(inUser->getId());
-    }
-
-    bool Purchase::isOwnedBy(std::uint32_t inUserId)
-    {
-        return m_userId == inUserId;
     }
 
     std::uint32_t Purchase::getId()

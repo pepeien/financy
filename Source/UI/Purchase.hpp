@@ -21,6 +21,11 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
+            std::uint32_t userId
+            MEMBER m_userId
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
             QString name
             MEMBER m_name
             NOTIFY onEdit
@@ -79,6 +84,8 @@ namespace Financy
         static QString getTypeName(Type inType);
 
     public slots:
+        bool isOwnedBy(std::uint32_t inUserId);
+
         bool isRecurring();
 
         bool hasDescription();
@@ -92,7 +99,6 @@ namespace Financy
 
     public:
         bool isOwnedBy(User* inUser);
-        bool isOwnedBy(std::uint32_t inUserId);
 
         std::uint32_t getId();
         void setId(std::uint32_t inId);
