@@ -149,7 +149,7 @@ namespace Financy
 
         float result = 0.0f;
 
-        for (Purchase* purchase : getPurchases())
+        for (Purchase* purchase : m_purchases)
         {
             if (purchase->getDate().daysTo(now) < 0)
             {
@@ -330,6 +330,13 @@ namespace Financy
         const QString& inInstallments
     )
     {
+        User* user = Internal::getSelectedUser();
+
+        if (user == nullptr)
+        {
+            return;
+        }
+
         std::ifstream file(PURCHASE_FILE_NAME);
         nlohmann::ordered_json purchases = FileSystem::doesFileExist(PURCHASE_FILE_NAME) ? 
             nlohmann::ordered_json::parse(file):
@@ -350,6 +357,7 @@ namespace Financy
 
         Purchase* purchase = new Purchase();
         purchase->setId(          id);
+        purchase->setUserId(      user->getId());
         purchase->setAccountId(   m_id);
         purchase->setName(        inName);
         purchase->setDescription( inDescription);
@@ -731,7 +739,12 @@ namespace Financy
     {
         User* user = Internal::getSelectedUser();
 
-        QList<Purchase*> result{};
+        if (isOwnedBy(user))
+        {
+            return m_purchases;
+        }
+
+        QList<Purchase*> result {};
 
         if (user == nullptr)
         {
