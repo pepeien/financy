@@ -80,58 +80,6 @@ namespace Financy
         return m_firstName + " " + m_lastName;
     }
 
-    void User::addAccount(Account* inAccount)
-    {
-        if (inAccount == nullptr)
-        {
-            return;
-        }
-
-        if (!inAccount->isOwnedBy(m_id))
-        {
-            inAccount->shareWith(m_id);
-        }
-
-        m_accounts.push_back(inAccount);
-
-        sortAccounts();
-
-        emit onEdit();
-    }
-
-    void User::editAccount(Account* inAccount)
-    {
-        emit onEdit();
-    }
-
-    void User::deleteAccount(Account* inAccount)
-    {
-        if (!inAccount)
-        {
-            return;
-        }
-
-        auto foundAccountIt = std::find_if(
-            m_accounts.begin(),
-            m_accounts.end(),
-            [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
-        );
-
-        if (foundAccountIt == m_accounts.end())
-        {
-            return;
-        }
-
-        if (inAccount->isSharingWith(m_id))
-        {
-            inAccount->withholdFrom(m_id);
-        }
-
-        m_accounts.removeAt(foundAccountIt - m_accounts.begin());
-
-        emit onEdit();
-    }
-
     void User::refresh()
     {
         emit onEdit();
@@ -266,17 +214,6 @@ namespace Financy
         emit onEdit();
     }
 
-    void User::removeAccount(Account* inAccount)
-    {
-        m_accounts.removeAt(
-            std::find_if(
-                m_accounts.begin(),
-                m_accounts.end(),
-                [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
-            ) - m_accounts.begin()
-        );
-    }
-
     void User::edit(
         const QString& inFirstName,
         const QString& inLastName,
@@ -391,6 +328,69 @@ namespace Financy
         {
             account->clearHistory();
         }
+    }
+
+    void User::addAccount(Account* inAccount)
+    {
+        if (inAccount == nullptr)
+        {
+            return;
+        }
+
+        if (!inAccount->isOwnedBy(m_id))
+        {
+            inAccount->shareWith(m_id);
+        }
+
+        m_accounts.push_back(inAccount);
+
+        sortAccounts();
+
+        emit onEdit();
+    }
+
+    void User::editAccount(Account* inAccount)
+    {
+        emit onEdit();
+    }
+
+    void User::deleteAccount(Account* inAccount)
+    {
+        if (!inAccount)
+        {
+            return;
+        }
+
+        auto foundAccountIt = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+        );
+
+        if (foundAccountIt == m_accounts.end())
+        {
+            return;
+        }
+
+        if (inAccount->isSharingWith(m_id))
+        {
+            inAccount->withholdFrom(m_id);
+        }
+
+        m_accounts.removeAt(foundAccountIt - m_accounts.begin());
+
+        emit onEdit();
+    }
+
+    void User::removeAccount(Account* inAccount)
+    {
+        m_accounts.removeAt(
+            std::find_if(
+                m_accounts.begin(),
+                m_accounts.end(),
+                [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+            ) - m_accounts.begin()
+        );
     }
 
     QString User::formatPicture(const QUrl& inUrl)

@@ -52,9 +52,14 @@ namespace Financy
 
     Internal::~Internal()
     {
-        for (QObject* user : m_users)
+        for (User* user : m_users)
         {
             delete user;
+        }
+
+        for (Account* account : m_accounts)
+        {
+            delete account;
         }
 
         delete m_colors;
@@ -530,6 +535,28 @@ namespace Financy
         writeAccounts();
     }
 
+    void Internal::addAccount(std::uint32_t inId)
+    {
+        Account* account = getAccount(inId);
+
+        if (account == nullptr || m_selectedUser == nullptr)
+        {
+            return;
+        }
+        
+        if (account->isOwnedBy(m_selectedUser) || account->isSharingWith(m_selectedUser))
+        {
+            return;
+        }
+
+        m_selectedUser->addAccount(account);
+
+        emit onSelectAccountUpdate();
+        emit onAccountsUpdate();
+
+        writeAccounts();
+    }
+
     void Internal::editAccount(
         std::uint32_t inId,
         const QString& inName,
@@ -863,7 +890,7 @@ namespace Financy
                 continue;
             }
 
-            if (fileName == SETTINGS_FILE_NAME)
+            if (QString::fromLatin1(fileName).contains(SETTINGS_FILE_NAME))
             {
                 updateTheme(m_colorsTheme);
 
@@ -970,6 +997,8 @@ namespace Financy
         }
 
         nlohmann::ordered_json accounts = nlohmann::ordered_json::array();
+
+        sortAccounts();
 
         for (Account* account : m_accounts)
         {

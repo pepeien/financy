@@ -77,10 +77,6 @@ namespace Financy
     public slots:
         QString getFullName();
 
-        void addAccount(Account* inAccount);
-        void editAccount(Account* inAccount);
-        void deleteAccount(Account* inAccount);
-
         void refresh();
 
     public:
@@ -112,7 +108,6 @@ namespace Financy
         QList<Account*> getAccounts();
         QList<Account*> getAccounts(Account::Type inType);
         void setAccounts(const QList<Account*>& inAccounts);
-        void removeAccount(Account* inAccount);
 
         void edit(
             const QString& inFirstName,
@@ -128,6 +123,12 @@ namespace Financy
 
         void login();
         void logout();
+
+        // Account
+        void addAccount(Account* inAccount);
+        void editAccount(Account* inAccount);
+        void deleteAccount(Account* inAccount);
+        void removeAccount(Account* inAccount);
 
     private:
         QString formatPicture(const QUrl& inUrl);

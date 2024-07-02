@@ -119,6 +119,7 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+        void addAccount(std::uint32_t inId);
         void editAccount(
             std::uint32_t inId,
             const QString& inName,

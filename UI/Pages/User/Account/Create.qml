@@ -31,8 +31,7 @@ Components.Page {
         }
 
         if (_form.willBeShared) {
-            user.addAccount(_accountToShare);
-            user.onEdit();
+            internal.addAccount(_accountToShare.id);
         } else {
             internal.createAccount(
                 _name.text,
@@ -43,6 +42,8 @@ Components.Page {
                 _secondaryColor.picker.color
             );
         }
+
+        user.onEdit();
 
         stack.pop();
     }
@@ -279,7 +280,7 @@ Components.Page {
                 }
 
                 ListView {
-                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id) && _.isSharingWith(_root.user.id))
+                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id) && !_.isSharingWith(_root.user.id))
 
                     id:      _list
                     spacing: 25
