@@ -40,6 +40,8 @@ namespace Financy
         m_selectedUser(nullptr),
         m_selectedAccount(nullptr)
     {
+        createFiles();
+
         loadSettings();
         loadUsers();
         loadAccounts();
@@ -140,11 +142,16 @@ namespace Financy
 
     User* Internal::getUser(std::uint32_t inId)
     {
-        for (int i = 0, j = m_users.size() - 1; i < j; i++, j--)
+        for (int i = 0, j = m_users.size() - 1; i <= j; i++, j--)
         {
             if (m_users[i]->getId() == inId)
             {
                 return m_users[i];
+            }
+
+            if (i == j)
+            {
+                continue;
             }
 
             if (m_users[j]->getId() == inId)
@@ -651,13 +658,13 @@ namespace Financy
 
         removeAccount(sourceAccount);
 
-        delete sourceAccount;
-
         emit onAccountsUpdate();
 
-        //sourceAccount->removeFromFile();
+        sourceAccount->removeFromFile();
 
-        //writeAccounts();
+        writeAccounts();
+
+        delete sourceAccount;
     }
 
     void Internal::select(std::uint32_t inId)
@@ -832,6 +839,21 @@ namespace Financy
         }
 
         inList.clear();
+    }
+
+    void Internal::createFiles()
+    {
+        for (const char* fileName : FILE_NAMES)
+        {
+            if (FileSystem::doesFileExist(fileName))
+            {
+                continue;
+            }
+
+            std::ofstream stream(fileName);
+            stream << std::setw(4) << nlohmann::json::array() << std::endl;
+            stream.close();
+        }
     }
 
     void Internal::loadUsers()

@@ -31,7 +31,7 @@ Components.Page {
         }
 
         if (_form.willBeShared) {
-            user.addSharedAccount(_accountToShare);
+            user.addAccount(_accountToShare);
         } else {
             internal.createAccount(
                 _name.text,

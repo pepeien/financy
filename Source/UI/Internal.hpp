@@ -165,6 +165,9 @@ namespace Financy
 
         void clear(QList<void*> inList, bool willDelete = false);
 
+        // Prep
+        void createFiles();
+
     private:
         // User
         void loadUsers();

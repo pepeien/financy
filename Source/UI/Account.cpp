@@ -1015,15 +1015,72 @@ namespace Financy
             return;
         }
 
-        nlohmann::ordered_json purchases = nlohmann::ordered_json::array();
+        std::ifstream file(PURCHASE_FILE_NAME);
 
-        for (Purchase* purchase : m_purchases)
+        nlohmann::ordered_json purchases = nlohmann::ordered_json::parse(file);
+
+        if (!purchases.is_array())
         {
-            purchases.push_back(purchase->toJSON());
+            return;
+        }
+
+        nlohmann::ordered_json newPurchases = nlohmann::ordered_json::array();
+
+        if (purchases.size() == 0)
+        {
+            for (Purchase* purchase : m_purchases)
+            {
+                newPurchases.push_back(purchase->toJSON());
+            }
+        }
+        else
+        {
+            std::vector<std::uint32_t> insertedIds {};
+
+            for (auto& it : purchases.items())
+            {
+                std::uint32_t id = (std::uint32_t) it.value().at("id");
+
+                auto foundPurchase = std::find_if(
+                    m_purchases.begin(),
+                    m_purchases.end(),
+                    [id](Purchase* _) { return _->getId() == id; }
+                );
+
+                if (foundPurchase == m_purchases.end())
+                {
+                    newPurchases.push_back(it.value());
+
+                    continue;
+                }
+
+                insertedIds.push_back(id);
+
+                newPurchases.push_back(m_purchases[foundPurchase - m_purchases.begin()]->toJSON());
+            }
+
+            if (insertedIds.size() != m_purchases.size())
+            {
+                for (Purchase* purchase : m_purchases)
+                {
+                    if (
+                        std::find_if(
+                            insertedIds.begin(),
+                            insertedIds.end(),
+                            [purchase](std::uint32_t _) { return _ == purchase->getId(); }
+                        ) != insertedIds.end()
+                    )
+                    {
+                        continue;
+                    }
+
+                    newPurchases.push_back(purchase->toJSON());
+                }
+            }
         }
 
         std::ofstream stream(PURCHASE_FILE_NAME);
-        stream << std::setw(4) << purchases << std::endl;
+        stream << std::setw(4) << newPurchases << std::endl;
     }
 
     void Account::sortHistory()

@@ -18,9 +18,9 @@ Components.Page {
     property var _accountToShare
 
     id:    _root
-    title: account.name
+    title: account?.name ?? ""
 
-    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError || !account.isOwnedBy(user.id)
+    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError || !account?.isOwnedBy(user.id)
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (centerButton.isDisabled) {
@@ -36,7 +36,7 @@ Components.Page {
                 return;
             }
 
-            stack.pop();
+            stack.popToIndex(1);
 
             internal.mergeAccounts(
                 account.id,
@@ -150,7 +150,7 @@ Components.Page {
             Components.Input {
                 id:    _name
                 width: 256 * 1.25
-                text:  account.name
+                text:  account?.name ?? ""
 
                 label:     "Name"
                 color:     internal.colors.dark
@@ -166,7 +166,7 @@ Components.Page {
             Components.Input {
                 id:    _limit
                 width: _name.width
-                text:  account.limit
+                text:  account?.limit ?? 0
 
                 label: "Limit"
                 color: internal.colors.dark
@@ -197,7 +197,7 @@ Components.Page {
 
                     id:     _closingDay
                     width:  (parent.width / 2) - 10
-                    text:   account.closingDay
+                    text:   account?.closingDay ?? 1
 
                     label:       "Closing Day" 
                     color:       internal.colors.dark
@@ -236,7 +236,7 @@ Components.Page {
                     id:     _primaryColor
                     width:  (parent.width / 2) - 15
                     height: 60
-                    color:  account.primaryColor
+                    color:  account?.primaryColor ?? internal.colors.dark
                     label:  "Background Color"
 
                     anchors.left:           parent.left
@@ -247,7 +247,7 @@ Components.Page {
                     id:     _secondaryColor
                     width:  _primaryColor.width
                     height: _primaryColor.height
-                    color:  account.secondaryColor
+                    color:  account?.secondaryColor ?? internal.colors.foreground
                     label:  "Text Color"
 
                     anchors.left:           _primaryColor.right
