@@ -21,6 +21,9 @@ Components.Modal {
         hasShadow:       true
         backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter:   parent.verticalCenter
+
         Components.Text {
             id:    _title
             color: internal.colors.dark
