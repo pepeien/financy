@@ -196,9 +196,10 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
-        void remove();
 
-        void removeFromFile();
+        void remove();
+        void removeSelf();
+        void removePurchases();
 
         // Stats
         float getUsedLimit();
@@ -217,8 +218,6 @@ namespace Financy
 
         void deletePurchaseFromFile(std::uint32_t inId);
         void deletePurchaseFromMemory(std::uint32_t inId);
-
-        void removePurchases();
 
     private:
         bool m_didFetchPurchases;

@@ -321,26 +321,35 @@ namespace Financy
 
     void Internal::deleteUser(std::uint32_t inId)
     {
-        auto iterator = std::find_if(
-            m_users.begin(),
-            m_users.end(),
-            [=](User* user) { return user->getId() == inId; }
-        );
+        User* user = getUser(inId);
 
-        if (iterator == m_users.end())
+        if (user == nullptr)
         {
             return;
         }
+        
+        login(inId);
 
-        std::uint32_t index = iterator - m_users.begin();
+        for (Account* account : user->getAccounts())
+        {
+            deleteAccount(account->getId());
+        }
 
-        User* user = m_users[index];
         user->remove();
-        delete user;
 
-        m_users.removeAt(index);
+        m_users.removeAt(
+            std::find_if(
+                m_users.begin(),
+                m_users.end(),
+                [user](User* _) { return _->getId() == user->getId(); }
+            ) - m_users.begin()
+        );
+
+        logout();
 
         emit onUsersUpdate();
+
+        delete user;
     }
 
     void Internal::login(std::uint32_t inId)
@@ -606,10 +615,16 @@ namespace Financy
         }
 
         m_selectedUser->deleteAccount(account);
-        account->remove();
 
         if (account->isOwnedBy(m_selectedUser))
         {
+            for (User* user : getUsers(account->getSharedUserIds()))
+            {
+                user->deleteAccount(account);
+            }
+
+            account->remove();
+
             delete account;
 
             m_accounts.removeAt(index); 
@@ -659,8 +674,6 @@ namespace Financy
         removeAccount(sourceAccount);
 
         emit onAccountsUpdate();
-
-        sourceAccount->removeFromFile();
 
         writeAccounts();
 

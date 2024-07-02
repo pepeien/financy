@@ -242,6 +242,19 @@ namespace Financy
             newShareUserIds.push_back(id);
         }
 
+        std::vector<std::uint32_t> userPurchases {};
+
+        for (Purchase* purchase : getPurchases())
+        {
+            userPurchases.push_back(purchase->getId());
+        }
+
+        for (std::uint32_t purchaseId : userPurchases)
+        {
+            deletePurchaseFromMemory(purchaseId);
+            deletePurchaseFromFile(purchaseId);
+        }
+
         setSharedUserIds(newShareUserIds);
     }
 
@@ -860,26 +873,11 @@ namespace Financy
 
     void Account::remove()
     {
-        User* selectedUser = Internal::getSelectedUser();
-
-        if (selectedUser == nullptr)
-        {
-            return;
-        }
-
+        removeSelf();
         removePurchases();
-
-        if (!isOwnedBy(selectedUser))
-        {
-            withholdFrom(selectedUser->getId());
-
-            return;
-        }
-
-        removeFromFile();
     }
 
-    void Account::removeFromFile()
+    void Account::removeSelf()
     {
         if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
         {
@@ -900,16 +898,14 @@ namespace Financy
 
         for (auto& it : storedAccounts.items())
         {
-            if ((std::uint32_t) it.value().at("id") != m_id)
+            if ((std::uint32_t) it.value().at("id") == m_id)
             {
-                index++;
+                storedAccounts.erase(index);
 
-                continue;
+                break;
             }
 
-            storedAccounts.erase(index);
-
-            break;
+            index++;
         }
 
         if (lastSize == storedAccounts.size())
@@ -919,6 +915,19 @@ namespace Financy
 
         std::ofstream stream(ACCOUNT_FILE_NAME);
         stream << std::setw(4) << storedAccounts << std::endl;
+    }
+
+    void Account::removePurchases()
+    {
+        for (Purchase* purchase : getPurchases())
+        {
+            std::uint32_t id = purchase->getId();
+
+            deletePurchaseFromMemory(id);
+            deletePurchaseFromFile(  id);
+        }
+
+        m_purchases.clear();
     }
 
     QDate Account::getEarliestStatementDate()
@@ -1149,18 +1158,5 @@ namespace Financy
         }
 
         m_purchases.removeAt(iterator - m_purchases.begin());
-    }
-
-    void Account::removePurchases()
-    {
-        for (Purchase* purchase : getPurchases())
-        {
-            std::uint32_t id = purchase->getId();
-
-            deletePurchaseFromMemory(id);
-            deletePurchaseFromFile(  id);
-        }
-
-        m_purchases.clear();
     }
 }

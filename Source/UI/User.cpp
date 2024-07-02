@@ -122,7 +122,7 @@ namespace Financy
             return;
         }
 
-        if (!inAccount->isSharingWith(m_id))
+        if (inAccount->isSharingWith(m_id))
         {
             inAccount->withholdFrom(m_id);
         }
@@ -487,13 +487,6 @@ namespace Financy
 
     void User::removeAccounts()
     {
-        for (Account* account : m_accounts)
-        {
-            account->remove();
-
-            delete account;
-        }
-
         m_accounts.clear();
     }
 }
