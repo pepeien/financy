@@ -311,8 +311,8 @@ namespace Financy
             endDate.year(),
             endDate.month(),
             std::min(
-                (std::uint32_t) endDate.daysInMonth(),
-                inStatementClosingDay
+                endDate.daysInMonth(),
+                endDate.day()
             )
         );
 

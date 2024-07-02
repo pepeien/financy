@@ -317,23 +317,6 @@ namespace Financy
         return result;
     }
 
-    float Account::getDueAmount(Purchase::Type inType)
-    {
-        float result = 0.0f;
-
-        for(Purchase* purchase : getPurchases(QDate::currentDate()))
-        {
-            if (purchase->getType() != inType)
-            {
-                continue;
-            }
-
-            result += purchase->getInstallmentValue();
-        }
-
-        return result;
-    }
-
     void Account::createPurchase(
         const QString& inName,
         const QString& inDescription,

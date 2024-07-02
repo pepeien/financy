@@ -205,7 +205,6 @@ namespace Financy
         float getUsedLimit();
         float getRemainingLimit();
         float getDueAmount();
-        float getDueAmount(Purchase::Type inType);
 
     private:
         QDate getEarliestStatementDate();
