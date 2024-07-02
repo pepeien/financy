@@ -32,6 +32,7 @@ Components.Page {
 
         if (_form.willBeShared) {
             user.addAccount(_accountToShare);
+            user.onEdit();
         } else {
             internal.createAccount(
                 _name.text,
@@ -278,7 +279,7 @@ Components.Page {
                 }
 
                 ListView {
-                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id))
+                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id) && _.isSharingWith(_root.user.id))
 
                     id:      _list
                     spacing: 25

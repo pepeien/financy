@@ -46,7 +46,7 @@ namespace Financy
         loadUsers();
         loadAccounts();
         setUsersAccounts();
-    
+
         normalizePurchases();
     }
 
@@ -863,6 +863,13 @@ namespace Financy
                 continue;
             }
 
+            if (fileName == SETTINGS_FILE_NAME)
+            {
+                updateTheme(m_colorsTheme);
+
+                continue;
+            }
+
             std::ofstream stream(fileName);
             stream << std::setw(4) << nlohmann::json::array() << std::endl;
             stream.close();
@@ -999,13 +1006,16 @@ namespace Financy
     {
         if (!FileSystem::doesFileExist(SETTINGS_FILE_NAME))
         {
-            updateTheme(m_colorsTheme);
-
             return;
         }
 
         std::ifstream file(SETTINGS_FILE_NAME);
         nlohmann::json settings = nlohmann::json::parse(file);
+
+        if (!settings.is_object())
+        {
+            return;
+        }
 
         bool hasColorTheme = settings.find("colorTheme") != settings.end() || settings.at("colorTheme").is_number_unsigned();
         updateTheme(hasColorTheme ? (Colors::Theme) settings.at("colorTheme") : m_colorsTheme);
