@@ -26,6 +26,8 @@ Components.Modal {
         _value.clear();
         _installments.clear();
         _type.clear();
+
+        _date.set(internal.getLongDate(_datePicker.selectedDate));
     }
 
     Components.SquircleContainer {
