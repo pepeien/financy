@@ -152,7 +152,9 @@ Item {
             font.pointSize: 8
             font.weight:    Font.Bold
 
-            anchors.centerIn: parent
+            anchors.left:           parent.left
+            anchors.leftMargin:     6
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 

@@ -78,12 +78,13 @@ Components.Page {
             return;
         }
 
+        _overviewChart.legend.borderColor = colors.background;
+
         for (let i = 0; i < _overviewChartPie.count; i++) {
             const slice       = _overviewChartPie.at(i);
             slice.borderColor = colors.background;
         }
     }
-
 
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
@@ -125,9 +126,11 @@ Components.Page {
             }
 
             Components.Button {
-                id:     _moreButton
-                height: 25
-                width:  25
+                id:         _moreButton
+                height:     25
+                width:      25
+                visible:    expenseAccounts.length > 0
+                isDisabled: expenseAccounts.length <= 0
 
                 anchors.top:         parent.top
                 anchors.right:       parent.right
@@ -135,6 +138,10 @@ Components.Page {
                 anchors.rightMargin: 16
 
                 onClick: function() {
+                    if (expenseAccounts.length <= 0) {
+                        return;
+                    }
+
                     _root._isOnEditMode = !_root._isOnEditMode;
                 }
 
@@ -155,6 +162,24 @@ Components.Page {
                     source:       _moreIcon
                     color:        _cardsTitle.color
                     antialiasing: true
+                }
+            }
+
+            Item {
+                visible: _moreButton.isDisabled
+                width:   parent.width
+                height:  parent.height
+
+                anchors.top: parent.top
+
+                Components.Text {
+                    text:  "No expense accounts found"
+                    color: Qt.darker(internal.colors.foreground, 1.1)
+
+                    font.weight:    Font.Bold
+                    font.pointSize: 16
+
+                    anchors.centerIn: parent
                 }
             }
 
@@ -232,7 +257,7 @@ Components.Page {
 
                 legend.visible:        true
                 legend.markerShape:    Legend.MarkerShapeCircle
-                legend.color:          internal.colors.foreground
+                legend.labelColor:     internal.colors.dark
                 legend.font.family:    "Inter"
                 legend.font.pointSize: 13
                 legend.font.weight:    Font.Bold
