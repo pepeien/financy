@@ -166,7 +166,7 @@ Components.Popup {
                 width:  _gridRoot.width * 0.14
                 height: _gridRoot.width * 0.14
 
-                isDisabled:            model.month !== _grid.month
+                isDisabled:           model.month !== _grid.month
                 disableWillOverwrite: false
                 backgroundColor:      isSelected ? internal.colors.light : "transparent"
 
@@ -184,6 +184,8 @@ Components.Popup {
                     }
  
                     _date.selectedDate = model.date;
+
+                    _date.close();
 
                     if (!_date.onSelect) {
                         return;
