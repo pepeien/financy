@@ -62,7 +62,7 @@ ScrollView {
                 }
             }
 
-            Components.Account {
+            Components.FinanceAccountItem {
                 id:     _account
                 height: _scroll.isEditing ? _root.height - (_scroll._padding / 2) - _actions.height : _root.height - (_scroll._padding / 2)
                 width:  _root.width - _scroll._padding

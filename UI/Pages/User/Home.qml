@@ -183,7 +183,7 @@ Components.Page {
                 }
             }
 
-            Components.Accounts {
+            Components.FinanceAccountList {
                 id:         _accounts
                 user:       _root.user
                 model:      _root.expenseAccounts
