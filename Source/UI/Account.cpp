@@ -728,7 +728,7 @@ namespace Financy
 
         for (Purchase* purchase : m_purchases)
         {
-            if (purchase->isOwnedBy(user))
+            if (!purchase->isOwnedBy(user))
             {
                 continue;
             }
