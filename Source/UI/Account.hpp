@@ -139,6 +139,7 @@ namespace Financy
             const QString& inValue,
             const QString& inInstallments
         );
+        void cancelPurchase(std::uint32_t inId);
         void deletePurchase(std::uint32_t inId);
 
         QList<Statement*> getStatementPurchases(const QDate& inDate);
@@ -179,6 +180,7 @@ namespace Financy
 
         QList<Purchase*> getPurchases();
         QList<Purchase*> getPurchases(const QDate& inDate);
+        Purchase* getPurchase(std::uint32_t inId);
         void setPurchases(const QList<Purchase*>& inPurchases);
         void addPurchases(const QList<Purchase*>& inPurchases);
 

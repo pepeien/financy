@@ -409,6 +409,25 @@ namespace Financy
         writePurchases();
     }
 
+    void Account::cancelPurchase(std::uint32_t inId)
+    {
+        Purchase* purchase = getPurchase(inId);
+
+        if (purchase == nullptr)
+        {
+            return;
+        }
+
+        purchase->setEndDate(QDate::currentDate());
+        purchase->setHasEnded(true);
+
+        refreshHistory();
+
+        emit onEdit();
+
+        writePurchases();
+    }
+
     void Account::deletePurchase(std::uint32_t inId)
     {
         int userCount = m_purchases.size();
@@ -709,7 +728,7 @@ namespace Financy
 
         for (Purchase* purchase : m_purchases)
         {
-            if (purchase->getUserId() != user->getId())
+            if (purchase->isOwnedBy(user))
             {
                 continue;
             }
@@ -737,7 +756,7 @@ namespace Financy
             );
 
             bool isPast   = paidInstallments <= 0;
-            bool isFuture = purchase->isRecurring() ? false : paidInstallments > purchase->getInstallments();
+            bool isFuture = (purchase->isRecurring() && !purchase->hasEnded()) ? false : paidInstallments > purchase->getInstallments();
 
             if (isPast || isFuture)
             {
@@ -754,6 +773,31 @@ namespace Financy
         );
 
         return result;
+    }
+
+    Purchase* Account::getPurchase(std::uint32_t inId)
+    {
+        QList<Purchase*> purchases = getPurchases();
+
+        for (int i = 0, j = purchases.size() - 1; i <= j; i++, j--)
+        {
+            if (purchases[i]->getId() == inId)
+            {
+                return purchases[i];
+            }
+
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (purchases[j]->getId() == inId)
+            {
+                return purchases[j];
+            }
+        }
+
+        return nullptr;
     }
 
     void Account::setPurchases(const QList<Purchase*>& inPurchases)

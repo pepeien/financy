@@ -15,6 +15,7 @@ namespace Financy
         m_type(Type::Other),
         m_value(0.0f),
         m_installments(1),
+        m_hasEnded(false),
         m_endDate(QDate::currentDate())
     {
         qmlRegisterUncreatableType<Purchase>(
@@ -65,6 +66,11 @@ namespace Financy
     bool Purchase::isRecurring()
     {
         return m_type == Type::Bill || m_type == Type::Subscription;
+    }
+
+    bool Purchase::hasEnded()
+    {
+        return m_hasEnded;
     }
 
     bool Purchase::hasDescription()
@@ -152,6 +158,8 @@ namespace Financy
             return;
         }
 
+        setHasEnded(inData.find("endDate") != inData.end());
+
         setEndDate(
             inData.find("endDate") != inData.end() ?
                 QDate::fromString(
@@ -172,11 +180,16 @@ namespace Financy
             { "accountId",    m_accountId },
             { "name",         m_name.toStdString() },
             { "description",  m_description.toStdString() },
-            { "date",         m_date.toString("dd/MM/yyyy").toStdString() },
             { "type",         m_type },
             { "value",        m_value },
-            { "installments", m_installments }
+            { "installments", m_installments },
+            { "date",         m_date.toString("dd/MM/yyyy").toStdString() }
         };
+
+        if (hasEnded())
+        {
+            result["endDate"] = m_endDate.toString("dd/MM/yyyy").toStdString();
+        }
 
         return result;
     }
@@ -306,7 +319,12 @@ namespace Financy
             currentStatementClosingDate = currentStatementClosingDate.addMonths(-1);
         }
 
-        QDate endDate = isRecurring() ? getEndDate() : inFinalDate;
+        if (isRecurring() && !hasEnded())
+        {
+            return 1;
+        }
+
+        QDate endDate = inFinalDate;
         endDate = QDate(
             endDate.year(),
             endDate.month(),
@@ -334,6 +352,22 @@ namespace Financy
 
     std::uint32_t Purchase::getInstallments()
     {
+        if (isRecurring() && hasEnded())
+        {
+            int paidInstallments = 0;
+
+            QDate currentDate = m_date;
+
+            while (currentDate.daysTo(m_endDate) > 0)
+            {
+                paidInstallments++;
+
+                currentDate = currentDate.addMonths(1);
+            }
+
+            return paidInstallments;
+        }
+
         return m_installments;
     }
 
@@ -356,6 +390,11 @@ namespace Financy
     void Purchase::setEndDate(const QDate& inDate)
     {
         m_endDate = inDate;
+    }
+
+    void Purchase::setHasEnded(bool inHasEnded)
+    {
+        m_hasEnded = inHasEnded;
     }
 
     void Purchase::edit(
