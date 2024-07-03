@@ -20,6 +20,13 @@ Components.Popup {
 
     property var onSelect
 
+    function set(date) {
+        selectedDate = date;
+
+        _grid.month = date.getMonth();
+        _grid.year  = date.getFullYear();
+    }
+
     background: Components.SquircleContainer {
         backgroundColor: Qt.lighter(internal.colors.foreground, 1.1)
         hasShadow:       true
@@ -175,7 +182,7 @@ Components.Popup {
                     if (model.month !== _grid.month) {
                         return;
                     }
-
+ 
                     _date.selectedDate = model.date;
 
                     if (!_date.onSelect) {

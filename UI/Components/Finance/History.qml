@@ -105,8 +105,9 @@ Item {
             _root._xAxis,
             _root._yAxis
         );
-        _historyLine.color = internal.colors.foreground;
-        _historyLine.width = 2;
+        _historyLine.color     = internal.colors.foreground;
+        _historyLine.width     = 2;
+        _historyLine.useOpenGL = true;
 
         // Scatter
         _historyScatter = _chart.createSeries(
@@ -119,6 +120,7 @@ Item {
         _historyScatter.color       = "transparent";
         _historyScatter.borderWidth = 2;
         _historyScatter.borderColor = "transparent";
+        _historyScatter.useOpenGL   = true;
     }
 
     function _centerOnCurrentStatement() {

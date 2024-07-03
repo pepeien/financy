@@ -48,11 +48,6 @@ namespace Financy
             NOTIFY onEdit
         )
         Q_PROPERTY(
-            Account* selectedAccount
-            MEMBER m_selectedAccount
-            NOTIFY onEdit
-        )
-        Q_PROPERTY(
             QList<Account*> accounts
             MEMBER m_accounts
             NOTIFY onEdit
@@ -72,7 +67,7 @@ namespace Financy
 
     public:
         User();
-        ~User();
+        ~User() = default;
 
         User& operator=(const User&) = default;
 
@@ -81,26 +76,6 @@ namespace Financy
 
     public slots:
         QString getFullName();
-
-        void createAccount(
-            const QString& inName,
-            const QString& inClosingDay,
-            const QString& inLimit,
-            const QString& inType,
-            const QColor& inPrimaryColor,
-            const QColor& inSecondaryColor
-        );
-        void editAccount(
-            std::uint32_t inId,
-            const QString& inName,
-            const QString& inClosingDay,
-            const QString& inLimit,
-            const QString& inType,
-            const QColor& inPrimaryColor,
-            const QColor& inSecondaryColor
-        );
-        void deleteAccount(std::uint32_t inId);
-        void selectAccount(std::uint32_t inId);
 
         void refresh();
 
@@ -146,15 +121,26 @@ namespace Financy
         QVariantMap getExpenseMap();
         float getDueAmount();
 
+        void login();
+        void logout();
+
+        // Account
+        void addAccount(Account* inAccount);
+        void editAccount(Account* inAccount);
+        void deleteAccount(Account* inAccount);
+        void removeAccount(Account* inAccount);
+
     private:
         QString formatPicture(const QUrl& inUrl);
 
-        void fetchAccounts();
+        void sortAccounts();
 
         void removeFromFile();
         void removeAccounts();
 
     private:
+        bool m_fetchedAccounts;
+
         uint32_t m_id;
 
         QString m_firstName;
@@ -164,7 +150,6 @@ namespace Financy
         QColor m_primaryColor;
         QColor m_secondaryColor;
 
-        Account* m_selectedAccount;
         QList<Account*> m_accounts;
     };
 }

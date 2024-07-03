@@ -12,29 +12,31 @@ Item {
     width: size
     height: size
 
-    property int size: 200               // The size of the circle in pixel
-    property real arcBegin: 0            // start arc angle in degree
-    property real arcEnd: 270            // end arc angle in degree
-    property real arcOffset: 0           // rotation
-    property bool isPie: false           // paint a pie instead of an arc
-    property bool showBackground: false  // a full circle as a background of the arc
-    property real lineWidth: 20          // width of the line
-    property string colorCircle: "#CC3333"
-    property string colorBackground: "#779933"
+    property int size:               200             
+    property real arcBegin:          0          
+    property real arcEnd:            270          
+    property real arcOffset:         0         
+    property bool isPie:             false         
+    property bool showBackground:    false
+    property real lineWidth:         20        
+    property string colorCircle:     internal.colors.background
+    property string colorBackground: internal.colors.foreground
 
     property alias beginAnimation: animationArcBegin.enabled
-    property alias endAnimation: animationArcEnd.enabled
+    property alias endAnimation:   animationArcEnd.enabled
 
     property int animationDuration: 200
 
-    onArcBeginChanged: canvas.requestPaint()
-    onArcEndChanged: canvas.requestPaint()
+    onArcBeginChanged:        canvas.requestPaint()
+    onArcEndChanged:          canvas.requestPaint()
+    onColorCircleChanged:     canvas.requestPaint()
+    onColorBackgroundChanged: canvas.requestPaint()
 
     Behavior on arcBegin {
        id: animationArcBegin
        enabled: true
        NumberAnimation {
-           duration: root.animationDuration
+           duration:    root.animationDuration
            easing.type: Easing.InOutCubic
        }
     }
@@ -43,7 +45,7 @@ Item {
        id: animationArcEnd
        enabled: true
        NumberAnimation {
-           duration: root.animationDuration
+           duration:    root.animationDuration
            easing.type: Easing.InOutCubic
        }
     }
@@ -54,8 +56,8 @@ Item {
         rotation:     -90 + parent.arcOffset
         antialiasing: true
 
-        onPaint: {
-            const ctx    = getContext("2d");
+        onPaint: function() {
+            const ctx   = getContext("2d");
             const x     = width / 2;
             const y     = height / 2;
             const start = Math.PI * (Math.min(Math.max(parent.arcBegin, 0), 360) / 180);

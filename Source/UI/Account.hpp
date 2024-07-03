@@ -10,6 +10,7 @@
 
 namespace Financy
 {
+    class User;
     class Account : public QObject
     {
         Q_OBJECT
@@ -18,6 +19,16 @@ namespace Financy
         Q_PROPERTY(
             std::uint32_t id
             MEMBER m_id
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
+            std::uint32_t userId
+            MEMBER  m_userId
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
+            QList<int> sharedUserIds
+            MEMBER m_sharedUserIds
             NOTIFY onEdit
         )
         Q_PROPERTY(
@@ -96,6 +107,14 @@ namespace Financy
         static QString getTypeName(Type inType);
 
     public slots:
+        bool isOwnedBy(User* inUser);
+        bool isOwnedBy(std::uint32_t inUserId);
+        bool isSharingWith(User* inUser);
+        bool isSharingWith(std::uint32_t inUserId);
+
+        void shareWith(std::uint32_t inUserId);
+        void withholdFrom(std::uint32_t inUserId);
+
         bool hasFullyPaid(Purchase* inPurchase);
         std::uint32_t getPaidInstallments(Purchase* inPurchase);
         std::uint32_t getPaidInstallments(Purchase* inPurchase, const QDate& inStatementDate);
@@ -125,6 +144,12 @@ namespace Financy
         QList<Statement*> getStatementPurchases(const QDate& inDate);
         QList<Purchase*> getStatementSubscriptions(const QDate& inDate);
 
+        void refreshPurchases();
+        void clearPurchases();
+
+        void refreshHistory();
+        void clearHistory();
+
     public:
         void fromJSON(const nlohmann::json& inData);
         nlohmann::ordered_json toJSON();
@@ -135,6 +160,9 @@ namespace Financy
     
         std::uint32_t getUserId();
         void setUserId(std::uint32_t inId);
+
+        QList<int> getSharedUserIds();
+        void setSharedUserIds(const QList<int>& inUserIds);
 
         QString getName();
         void setName(const QString& inName);
@@ -152,6 +180,7 @@ namespace Financy
         QList<Purchase*> getPurchases();
         QList<Purchase*> getPurchases(const QDate& inDate);
         void setPurchases(const QList<Purchase*>& inPurchases);
+        void addPurchases(const QList<Purchase*>& inPurchases);
 
         QColor getPrimaryColor();
         void setPrimaryColor(const QColor& inColor);
@@ -167,33 +196,34 @@ namespace Financy
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
         );
+
         void remove();
+        void removeSelf();
+        void removePurchases();
 
         // Stats
         float getUsedLimit();
         float getRemainingLimit();
         float getDueAmount();
-        float getDueAmount(Purchase::Type inType);
 
     private:
         QDate getEarliestStatementDate();
         QDate getLatestStatementDate();
 
         void sortPurchases();
-        void refreshPurchases();
+        void writePurchases();
 
         void sortHistory();
-        void refreshHistory();
 
         void deletePurchaseFromFile(std::uint32_t inId);
         void deletePurchaseFromMemory(std::uint32_t inId);
 
-        void removeFromFile();
-        void removePurchases();
-
     private:
+        bool m_didFetchPurchases;
+
         std::uint32_t m_id;
         std::uint32_t m_userId;
+        QList<int> m_sharedUserIds;
 
         QString m_name;
         std::uint32_t m_closingDay;

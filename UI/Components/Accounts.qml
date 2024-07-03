@@ -12,6 +12,7 @@ ScrollView {
     readonly property real _padding:       35
     readonly property real _actionsHeight: 35
 
+    property var user
     property bool isEditing: false
 
     property var onDelete
@@ -45,6 +46,10 @@ ScrollView {
         delegate: Item {
             readonly property var _item:           _grid.model[index]
             readonly property real _ultilization:  _item.usedLimit / _item.limit
+
+            function _canEdit() {
+                return _scroll.isEditing && _item.isOwnedBy(_scroll.user.id);
+            }
 
             id:     _root
             height: _grid.cellHeight
@@ -91,7 +96,7 @@ ScrollView {
                         return;
                     }
 
-                    internal.selectedUser.selectAccount(_item.id);
+                    internal.select(_item.id);
 
                     stack.push("qrc:/Pages/UserAccountHome.qml");
                 }
@@ -147,15 +152,16 @@ ScrollView {
                 }
 
                 Components.Button {
-                    id:     _moreEditButton
-                    width:  parent.width * 0.5
-                    height: parent.height
+                    id:      _moreEditButton
+                    width:   parent.width * 0.5
+                    height:  parent.height
+                    visible: _root._canEdit()
 
                     anchors.top:  parent.top
                     anchors.left: parent.left
 
                     onHover: function(inMouseArea) {
-                        if (!_scroll.isEditing) {
+                        if (!_root._canEdit()) {
                             inMouseArea.cursorShape = Qt.ArrowCursor;
 
                             return;
@@ -165,7 +171,7 @@ ScrollView {
                     }
 
                     onLeave: function(inMouseArea) {
-                        if (!_scroll.isEditing) {
+                        if (!_root._canEdit()) {
                             inMouseArea.cursorShape = Qt.ArrowCursor;
 
                             return;
@@ -175,7 +181,7 @@ ScrollView {
                     }
 
                     onClick: function() {
-                        if (!_scroll.isEditing || !_scroll.onEdit) {
+                        if (!_root._canEdit() || !_scroll.onEdit) {
                             return;
                         }
 
@@ -216,17 +222,18 @@ ScrollView {
                 }
 
                 Rectangle {
-                    id:     _separator
-                    width:  1
-                    height: parent.height
-                    color:  _editText.color
+                    id:      _separator
+                    width:   1
+                    height:  parent.height
+                    color:   _editText.color
+                    visible: _root._canEdit()
 
                     anchors.left: _moreEditButton.right
                 }
 
                 Components.Button {
                     id:     _moreDeleteButton
-                    width:  _moreEditButton.width
+                    width:  _root._canEdit() ? _moreEditButton.width : parent.width
                     height: parent.height
 
                     anchors.top:         parent.top

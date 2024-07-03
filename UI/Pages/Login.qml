@@ -26,7 +26,8 @@ Components.Page {
 
     ScrollView {
         width:  parent.width * 0.7
-        height: parent.height
+        height: parent.height * 0.9
+        clip:   true
 
         anchors.top:              parent.top
         anchors.horizontalCenter: parent.horizontalCenter
@@ -49,7 +50,7 @@ Components.Page {
                 property var user: internal.users[index]
 
                 onClick: function() {
-                    internal.login(user);
+                    internal.login(user.id);
     
                     stack.push("qrc:/Pages/UserHome.qml")
                 }
@@ -156,8 +157,8 @@ Components.Page {
         id: _deletionPopup
 
         Components.SquircleContainer {
-            width:  parent.width * 0.4
-            height: parent.height * 0.2
+            width:  670
+            height: 180
 
             hasShadow:       true
             backgroundColor: Qt.lighter(internal.colors.background, 0.965)

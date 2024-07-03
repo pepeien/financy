@@ -8,12 +8,16 @@
 #include "Base.hpp"
 #include "Core/FileSystem.hpp"
 #include "Core/Helper.hpp"
+#include "UI/User.hpp"
+#include "UI/Internal.hpp"
 
 namespace Financy
 {
     Account::Account()
         : QObject(),
+        m_didFetchPurchases(false),
         m_id(0),
+        m_userId(0),
         m_name(""),
         m_closingDay(MIN_STATEMENT_CLOSING_DAY),
         m_type(Type::Expense),
@@ -68,6 +72,24 @@ namespace Financy
                 :
                 0
         );
+
+        if (inData.find("sharedUserIds") != inData.end() && inData.at("sharedUserIds").is_array())
+        {
+            QList<int> sharedUserIds {};
+
+            for (auto& it : inData.at("sharedUserIds").items())
+            {
+                if (!it.value().is_number_unsigned())
+                {
+                    continue;
+                }
+
+                sharedUserIds.push_back((std::uint32_t) it.value());
+            }
+
+            setSharedUserIds(sharedUserIds);
+        }
+
         setName(
             inData.find("name") != inData.end() ?
                 QString::fromStdString((std::string) inData.at("name")) :
@@ -104,8 +126,6 @@ namespace Financy
                 :
                 "#000000"
         );
-
-        refreshPurchases();
     }
 
     nlohmann::ordered_json Account::toJSON()
@@ -113,6 +133,7 @@ namespace Financy
         return nlohmann::ordered_json{
             { "id",             m_id },
             { "userId",         m_userId },
+            { "sharedUserIds",  m_sharedUserIds },
             { "name",           m_name.toStdString() },
             { "closingDay",     m_closingDay },
             { "type",           m_type },
@@ -156,6 +177,85 @@ namespace Financy
     float Account::getRemainingLimit()
     {
         return m_limit - getUsedLimit();
+    }
+
+    bool Account::isOwnedBy(User* inUser)
+    {
+        if (inUser == nullptr)
+        {
+            return false;
+        }
+
+        return isOwnedBy(inUser->getId());
+    }
+
+    bool Account::isOwnedBy(std::uint32_t inUserId)
+    {
+        return m_userId == inUserId;
+    }
+
+    bool Account::isSharingWith(User* inUser)
+    {
+        if (inUser == nullptr)
+        {
+            return false;
+        }
+
+        return isSharingWith(inUser->getId());
+    }
+
+    bool Account::isSharingWith(std::uint32_t inUserId)
+    {
+        return std::find(
+            m_sharedUserIds.begin(),
+            m_sharedUserIds.end(),
+            inUserId
+        ) != m_sharedUserIds.end();
+    }
+
+    void Account::shareWith(std::uint32_t inUserId)
+    {
+        if (isOwnedBy(inUserId) || isSharingWith(inUserId))
+        {
+            return;
+        }
+
+        m_sharedUserIds.push_back(inUserId);
+    }
+
+    void Account::withholdFrom(std::uint32_t inUserId)
+    {
+        if (isOwnedBy(inUserId) || !isSharingWith(inUserId))
+        {
+            return;
+        }
+
+        QList<int> newShareUserIds {};
+    
+        for (std::uint32_t id : m_sharedUserIds) 
+        {
+            if (id == inUserId)
+            {
+                continue;
+            }
+
+            newShareUserIds.push_back(id);
+        }
+
+        std::vector<std::uint32_t> userPurchases {};
+
+        for (Purchase* purchase : getPurchases())
+        {
+            userPurchases.push_back(purchase->getId());
+        }
+
+        for (std::uint32_t purchaseId : userPurchases)
+        {
+            deletePurchaseFromMemory(purchaseId);
+            deletePurchaseFromFile(purchaseId);
+        }
+
+        setSharedUserIds(newShareUserIds);
     }
 
     bool Account::hasFullyPaid(Purchase* inPurchase)
@@ -217,23 +317,6 @@ namespace Financy
         return result;
     }
 
-    float Account::getDueAmount(Purchase::Type inType)
-    {
-        float result = 0.0f;
-
-        for(Purchase* purchase : getPurchases(QDate::currentDate()))
-        {
-            if (purchase->getType() != inType)
-            {
-                continue;
-            }
-
-            result += purchase->getInstallmentValue();
-        }
-
-        return result;
-    }
-
     void Account::createPurchase(
         const QString& inName,
         const QString& inDescription,
@@ -243,6 +326,13 @@ namespace Financy
         const QString& inInstallments
     )
     {
+        User* user = Internal::getSelectedUser();
+
+        if (user == nullptr)
+        {
+            return;
+        }
+
         std::ifstream file(PURCHASE_FILE_NAME);
         nlohmann::ordered_json purchases = FileSystem::doesFileExist(PURCHASE_FILE_NAME) ? 
             nlohmann::ordered_json::parse(file):
@@ -263,6 +353,7 @@ namespace Financy
 
         Purchase* purchase = new Purchase();
         purchase->setId(          id);
+        purchase->setUserId(      user->getId());
         purchase->setAccountId(   m_id);
         purchase->setName(        inName);
         purchase->setDescription( inDescription);
@@ -277,11 +368,7 @@ namespace Financy
 
         refreshHistory();
 
-        // Write
-        purchases.push_back(purchase->toJSON());
-
-        std::ofstream stream(PURCHASE_FILE_NAME);
-        stream << std::setw(4) << purchases << std::endl;
+        writePurchases();
     }
 
     void Account::editPurchase(
@@ -319,38 +406,7 @@ namespace Financy
 
         refreshHistory();
 
-        // Write
-        std::ifstream file(PURCHASE_FILE_NAME);
-        nlohmann::ordered_json purchases = FileSystem::doesFileExist(PURCHASE_FILE_NAME) ? 
-            nlohmann::ordered_json::parse(file):
-            nlohmann::ordered_json::array();
-
-        if (!purchases.is_array())
-        {
-            return;
-        }
-
-        nlohmann::ordered_json updatedPurchases = nlohmann::ordered_json::array();
-
-        for (auto& [key, data] : purchases.items())
-        {
-            if (data.find("id") == data.end())
-            {
-                continue;
-            }
-
-            if ((std::uint32_t) data.at("id") != foundPurchase->getId())
-            {
-                updatedPurchases.push_back(data);
-
-                continue;
-            }
-
-            updatedPurchases.push_back(foundPurchase->toJSON());
-        }
- 
-        std::ofstream stream(PURCHASE_FILE_NAME);
-        stream << std::setw(4) << updatedPurchases << std::endl;
+        writePurchases();
     }
 
     void Account::deletePurchase(std::uint32_t inId)
@@ -362,6 +418,8 @@ namespace Financy
 
         if (userCount == m_purchases.size())
         {
+            clearHistory();
+
             return;
         }
 
@@ -372,7 +430,8 @@ namespace Financy
     {
         QList<Statement*> result{};
 
-        for (Purchase* purchase : getPurchases(inDate)) {
+        for (Purchase* purchase : getPurchases(inDate))
+        {
             if (purchase->isRecurring())
             {
                 continue;
@@ -386,7 +445,8 @@ namespace Financy
 
             int foundIndex = foundItem - result.begin();
 
-            if (foundItem == result.end()) {
+            if (foundItem == result.end())
+            {
                 foundIndex = result.size();
 
                 result.push_back(new Statement());
@@ -422,6 +482,129 @@ namespace Financy
         return result;
     }
 
+    void Account::refreshPurchases()
+    {
+        if (m_didFetchPurchases)
+        {
+            return;
+        }
+
+        if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::json purchases = nlohmann::json::parse(std::ifstream(PURCHASE_FILE_NAME));
+
+        if (!purchases.is_array())
+        {
+            return;
+        }
+
+        QList<Purchase*> newPurchases {};
+
+        for (auto& [key, data] : purchases.items())
+        {
+            if (
+                data.find("accountId") == data.end() ||
+                data.find("userId") == data.end()
+            )
+            {
+                continue;
+            }
+
+            if ((std::uint32_t) data.at("accountId") != m_id)
+            {
+                continue;
+            }
+
+            Purchase* purchase = new Purchase();
+            purchase->fromJSON(data);
+
+            newPurchases.push_back(purchase);
+        }
+
+        setPurchases(newPurchases);
+
+        m_didFetchPurchases = true;
+    }
+
+    void Account::clearPurchases()
+    {
+        m_purchases.clear();
+
+        emit onEdit();
+    }
+
+    void Account::refreshHistory()
+    {
+        m_history.clear();
+
+        QList<Purchase*> purchases = getPurchases();
+
+        if (purchases.isEmpty())
+        {
+            return;
+        }
+
+        QDate earliestStatement    = getEarliestStatementDate();
+        QDate latestStatement      = getLatestStatementDate();
+        QDate currentStatementDate = earliestStatement;
+
+        while(latestStatement.daysTo(currentStatementDate) <= 0)
+        {
+            Statement* statement = new Statement();
+            statement->setDate(currentStatementDate);
+
+            float purchaseDueAmount  = 0.0f;
+            float recurringDueAmount = 0.0f;
+
+            for (Purchase* purchase : getPurchases(currentStatementDate))
+            {
+                if (purchase->isRecurring())
+                {
+                    recurringDueAmount += purchase->getInstallmentValue();
+
+                    continue;
+                }
+ 
+                purchaseDueAmount += purchase->getInstallmentValue();
+            }
+
+            currentStatementDate = QDate(
+                currentStatementDate.year(),
+                currentStatementDate.month(),
+                getClosingDay(currentStatementDate)
+            );
+            currentStatementDate = currentStatementDate.addMonths(1);
+
+            bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
+            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) > 0;
+
+            if (isFirstEmpty || isLastEmpty)
+            {
+                delete statement;
+
+                continue;
+            }
+
+            statement->setDueAmount(purchaseDueAmount + recurringDueAmount);
+
+            m_history.push_back(statement);
+        }
+
+        sortHistory();
+
+        emit onEdit();
+    }
+
+    void Account::clearHistory()
+    {
+        m_history.clear();
+
+        emit onEdit();
+    }
+
     std::uint32_t Account::getId()
     {
         return m_id;
@@ -440,6 +623,16 @@ namespace Financy
     void Account::setUserId(std::uint32_t inId)
     {
         m_userId = inId;
+    }
+
+    QList<int> Account::getSharedUserIds()
+    {
+        return m_sharedUserIds;
+    }
+
+    void Account::setSharedUserIds(const QList<int>& inUserIds)
+    {
+        m_sharedUserIds = inUserIds;
     }
 
     QString Account::getName()
@@ -500,14 +693,39 @@ namespace Financy
 
     QList<Purchase*> Account::getPurchases()
     {
-        return m_purchases;
+        User* user = Internal::getSelectedUser();
+
+        if (isOwnedBy(user))
+        {
+            return m_purchases;
+        }
+
+        QList<Purchase*> result {};
+
+        if (user == nullptr)
+        {
+            return result;
+        }
+
+        for (Purchase* purchase : m_purchases)
+        {
+            if (purchase->getUserId() != user->getId())
+            {
+                continue;
+            }
+
+            result.push_back(purchase);
+        }
+
+        return result;
     }
 
     QList<Purchase*> Account::getPurchases(const QDate& inDate)
     {
-        QList<Purchase*> result{};
+        QList<Purchase*> result {};
 
-        for (Purchase* purchase : getPurchases()) {
+        for (Purchase* purchase : getPurchases())
+        {
             if (purchase == nullptr)
             {
                 continue;
@@ -529,6 +747,12 @@ namespace Financy
             result.push_back(purchase);
         }
 
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() > b->getDate().toJulianDay(); }
+        );
+
         return result;
     }
 
@@ -538,9 +762,23 @@ namespace Financy
 
         sortPurchases();
 
+        emit onEdit();
+    }
+
+    void Account::addPurchases(const QList<Purchase*>& inPurchases)
+    {
+        for (Purchase* purchase : inPurchases)
+        {
+            purchase->setAccountId(m_id);
+
+            m_purchases.push_back(purchase);
+        }
+
+        sortPurchases();
+
         refreshHistory();
 
-        emit onEdit();
+        writePurchases();
     }
 
     QColor Account::getPrimaryColor()
@@ -618,18 +856,73 @@ namespace Financy
 
     void Account::remove()
     {
+        removeSelf();
         removePurchases();
-        removeFromFile();
+    }
+
+    void Account::removeSelf()
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        std::ifstream file(ACCOUNT_FILE_NAME);
+
+        nlohmann::json storedAccounts = nlohmann::json::parse(file);
+
+        if (storedAccounts.size() < 0 || !storedAccounts.is_array())
+        {
+            return;
+        }
+
+        std::uint32_t index  = 0;
+        std::size_t lastSize = storedAccounts.size();
+
+        for (auto& it : storedAccounts.items())
+        {
+            if ((std::uint32_t) it.value().at("id") == m_id)
+            {
+                storedAccounts.erase(index);
+
+                break;
+            }
+
+            index++;
+        }
+
+        if (lastSize == storedAccounts.size())
+        {
+            return;
+        }
+
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << storedAccounts << std::endl;
+    }
+
+    void Account::removePurchases()
+    {
+        for (Purchase* purchase : getPurchases())
+        {
+            std::uint32_t id = purchase->getId();
+
+            deletePurchaseFromMemory(id);
+            deletePurchaseFromFile(  id);
+        }
+
+        m_purchases.clear();
     }
 
     QDate Account::getEarliestStatementDate()
     {
-        if (m_purchases.isEmpty())
+        QList<Purchase*> purchase = getPurchases();
+
+        if (purchase.isEmpty())
         {
             return QDate::currentDate();
         }
 
-        QDate earliestPurchaseDate = m_purchases[0]->getDate();
+        QDate earliestPurchaseDate = purchase[0]->getDate();
         QDate earliestStatementClosingDate(
             earliestPurchaseDate.year(),
             earliestPurchaseDate.month(),
@@ -639,7 +932,8 @@ namespace Financy
             )
         );
 
-        if (earliestStatementClosingDate.daysTo(earliestPurchaseDate) < 0) {
+        if (earliestStatementClosingDate.daysTo(earliestPurchaseDate) < 0)
+        {
             earliestStatementClosingDate = earliestStatementClosingDate.addMonths(-1);
         }
 
@@ -652,7 +946,7 @@ namespace Financy
 
         bool isOnlyRecurring = true;
 
-        for (Purchase* purchase : m_purchases)
+        for (Purchase* purchase : getPurchases())
         {
             if (!purchase->isRecurring())
             {
@@ -680,7 +974,7 @@ namespace Financy
 
         QDate currentStatementDate = getEarliestStatementDate();
 
-        for (Purchase* purchase : m_purchases)
+        for (Purchase* purchase : getPurchases())
         {
             std::uint32_t installments = purchase->getInstallments();
 
@@ -706,43 +1000,79 @@ namespace Financy
         );
     }
 
-    void Account::refreshPurchases()
+    void Account::writePurchases()
     {
         if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
         {
             return;
         }
 
-        nlohmann::json purchases = nlohmann::json::parse(std::ifstream(PURCHASE_FILE_NAME));
+        std::ifstream file(PURCHASE_FILE_NAME);
+
+        nlohmann::ordered_json purchases = nlohmann::ordered_json::parse(file);
 
         if (!purchases.is_array())
         {
             return;
         }
 
-        QList<Purchase*> newPurchases{};
+        nlohmann::ordered_json newPurchases = nlohmann::ordered_json::array();
 
-        for (auto& [key, data] : purchases.items())
+        if (purchases.size() == 0)
         {
-            if (data.find("accountId") == data.end() || !data.at("accountId").is_number_unsigned())
+            for (Purchase* purchase : m_purchases)
             {
-                continue;
+                newPurchases.push_back(purchase->toJSON());
+            }
+        }
+        else
+        {
+            std::vector<std::uint32_t> insertedIds {};
+
+            for (auto& it : purchases.items())
+            {
+                std::uint32_t id = (std::uint32_t) it.value().at("id");
+
+                auto foundPurchase = std::find_if(
+                    m_purchases.begin(),
+                    m_purchases.end(),
+                    [id](Purchase* _) { return _->getId() == id; }
+                );
+
+                if (foundPurchase == m_purchases.end())
+                {
+                    newPurchases.push_back(it.value());
+
+                    continue;
+                }
+
+                insertedIds.push_back(id);
+
+                newPurchases.push_back(m_purchases[foundPurchase - m_purchases.begin()]->toJSON());
             }
 
-            if ((std::uint32_t) data.at("accountId") != m_id)
+            if (insertedIds.size() != m_purchases.size())
             {
-                continue;
+                for (Purchase* purchase : m_purchases)
+                {
+                    if (
+                        std::find_if(
+                            insertedIds.begin(),
+                            insertedIds.end(),
+                            [purchase](std::uint32_t _) { return _ == purchase->getId(); }
+                        ) != insertedIds.end()
+                    )
+                    {
+                        continue;
+                    }
+
+                    newPurchases.push_back(purchase->toJSON());
+                }
             }
-
-            Purchase* purchase = new Purchase();
-            purchase->fromJSON(data);
-
-            newPurchases.push_back(purchase);
         }
 
-        setPurchases(newPurchases);
-
-        refreshHistory();
+        std::ofstream stream(PURCHASE_FILE_NAME);
+        stream << std::setw(4) << newPurchases << std::endl;
     }
 
     void Account::sortHistory()
@@ -752,65 +1082,6 @@ namespace Financy
             m_history.end(),
             [](Statement* a, Statement* b) { return a->getDate().toJulianDay() < b->getDate().toJulianDay(); }
         );
-    }
-
-    void Account::refreshHistory()
-    {
-        m_history.clear();
-
-        if (m_purchases.isEmpty())
-        {
-            return;
-        }
-
-        QDate earliestStatement    = getEarliestStatementDate();
-        QDate latestStatement      = getLatestStatementDate();
-        QDate currentStatementDate = earliestStatement;
-
-        while(latestStatement.daysTo(currentStatementDate) <= 0)
-        {
-            Statement* statement = new Statement();
-            statement->setDate(currentStatementDate);
-
-            float purchaseDueAmount  = 0.0f;
-            float recurringDueAmount = 0.0f;
-
-            for (Purchase* purchase : getPurchases(currentStatementDate)) {
-                if (purchase->isRecurring())
-                {
-                    recurringDueAmount += purchase->getInstallmentValue();
-
-                    continue;
-                }
- 
-                purchaseDueAmount += purchase->getInstallmentValue();
-            }
-
-            currentStatementDate = QDate(
-                currentStatementDate.year(),
-                currentStatementDate.month(),
-                getClosingDay(currentStatementDate)
-            );
-            currentStatementDate = currentStatementDate.addMonths(1);
-
-            bool isFirstEmpty = purchaseDueAmount == 0 && recurringDueAmount == 0 && m_history.size() == 0;
-            bool isLastEmpty  = purchaseDueAmount == 0 && latestStatement.daysTo(currentStatementDate) > 0;
-
-            if (isFirstEmpty || isLastEmpty)
-            {
-                delete statement;
-
-                continue;
-            }
-
-            statement->setDueAmount(purchaseDueAmount + recurringDueAmount);
-
-            m_history.push_back(statement);
-        }
-
-        sortHistory();
-
-        emit onEdit();
     }
 
     void Account::deletePurchaseFromFile(std::uint32_t inId)
@@ -870,61 +1141,5 @@ namespace Financy
         }
 
         m_purchases.removeAt(iterator - m_purchases.begin());
-    }
-
-    void Account::removeFromFile()
-    {
-        // Remove from file
-        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
-        {
-            return;
-        }
-
-        std::ifstream file(ACCOUNT_FILE_NAME);
-
-        nlohmann::json storedAccounts = nlohmann::json::parse(file);
-
-        if (storedAccounts.size() < 0 || !storedAccounts.is_array())
-        {
-            return;
-        }
-
-        std::uint32_t index  = 0;
-        std::size_t lastSize = storedAccounts.size();
-
-        for (auto& it : storedAccounts.items())
-        {
-            if ((std::uint32_t) it.value().at("id") != m_id)
-            {
-                index++;
-
-                continue;
-            }
-
-            storedAccounts.erase(index);
-
-            break;
-        }
-
-        if (lastSize == storedAccounts.size())
-        {
-            return;
-        }
-
-        std::ofstream stream(ACCOUNT_FILE_NAME);
-        stream << std::setw(4) << storedAccounts << std::endl;
-    }
-
-    void Account::removePurchases()
-    {
-        for (Purchase* purchase : m_purchases)
-        {
-            std::uint32_t id = purchase->getId();
-
-            deletePurchaseFromMemory(id);
-            deletePurchaseFromFile(  id);
-        }
-
-        m_purchases.clear();
     }
 }

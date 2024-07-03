@@ -12,15 +12,24 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Page {
-    property var user:    internal.selectedUser
-    property var account: user.selectedAccount
+    readonly property var user:    internal.selectedUser
+    readonly property var account: internal.selectedAccount
 
     property int purchaseHeight:       45
     property int statementTitleHeight: 40
     property int statementHeight:      purchaseHeight + statementTitleHeight
 
+    leftButton.isDisabled: !account?.isOwnedBy(user.id) ?? true
     leftButtonIcon: "qrc:/Icons/Edit.svg" 
     leftButtonOnClick: function() {
+        if (leftButton.isDisabled) {
+            return;
+        }
+
+        if (!user || !account) {
+            return;
+        }
+
         stack.push("qrc:/Pages/UserAccountEdit.qml");
     }
 
@@ -31,10 +40,14 @@ Components.Page {
 
     onReturn: function() {
         _history.visible = false;
+
+        clearListing();
+
+        internal.deselect();
     }
 
     id:    _root
-    title: account.name
+    title: account?.name ?? ""
 
     function clearListing() {
         _history.refresh([]);
@@ -137,7 +150,8 @@ Components.Page {
         onSubmit: function() {
             _root.clearListing();
 
-            _root.account.deletePurchase(purchase.id);
+            account.deletePurchase(purchase.id);
+
             _root.account.onEdit();
             _root.user.onEdit();
 

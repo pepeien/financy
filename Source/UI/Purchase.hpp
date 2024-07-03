@@ -9,6 +9,7 @@
 
 namespace Financy
 {
+    class User;
     class Purchase : public QObject
     {
         Q_OBJECT
@@ -17,6 +18,11 @@ namespace Financy
         Q_PROPERTY(
             std::uint32_t id
             MEMBER m_id
+            NOTIFY onEdit
+        )
+        Q_PROPERTY(
+            std::uint32_t userId
+            MEMBER m_userId
             NOTIFY onEdit
         )
         Q_PROPERTY(
@@ -78,6 +84,8 @@ namespace Financy
         static QString getTypeName(Type inType);
 
     public slots:
+        bool isOwnedBy(std::uint32_t inUserId);
+
         bool isRecurring();
 
         bool hasDescription();
@@ -90,8 +98,13 @@ namespace Financy
         nlohmann::ordered_json toJSON();
 
     public:
+        bool isOwnedBy(User* inUser);
+
         std::uint32_t getId();
         void setId(std::uint32_t inId);
+
+        std::uint32_t getUserId();
+        void setUserId(std::uint32_t inId);
 
         std::uint32_t getAccountId();
         void setAccountId(std::uint32_t inId);
@@ -132,6 +145,7 @@ namespace Financy
 
     private:
         std::uint32_t m_id;
+        std::uint32_t m_userId;
         std::uint32_t m_accountId;
 
         QString m_name;

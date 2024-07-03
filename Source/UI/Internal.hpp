@@ -46,12 +46,31 @@ namespace Financy
             NOTIFY onUsersUpdate
         )
 
+        // Account
+        Q_PROPERTY(
+            Account* selectedAccount
+            MEMBER m_selectedAccount
+            NOTIFY onSelectAccountUpdate
+        )
+        Q_PROPERTY(
+            QList<Account*> accounts
+            MEMBER m_accounts
+            NOTIFY onAccountsUpdate
+        )
+
     signals:
         void onThemeUpdate();
         void onShowcaseThemeUpdate();
 
         void onSelectUserUpdate();
         void onUsersUpdate();
+
+        void onSelectAccountUpdate();
+        void onAccountsUpdate();
+
+    public:
+        static void setSelectedUser(User* inUser);
+        static User* getSelectedUser();
 
     public:
         Internal(QObject* parent = nullptr);
@@ -66,6 +85,8 @@ namespace Financy
         QList<QColor> getUserColorsFromImage(const QString& inImage);
 
         // User
+        User* getUser(std::uint32_t inId);
+        QList<User*> getUsers(const QList<int>& inIds);
         User* createUser(
             const QString& inFirstName,
             const QString& inLastName,
@@ -83,8 +104,40 @@ namespace Financy
         );
         void deleteUser(std::uint32_t inId);
 
-        void login(User* inUser);
+        void login(std::uint32_t inId);
         void logout();
+
+        // Account
+        Account* getAccount(std::uint32_t inId);
+        QList<Account*> getAccounts(Account::Type inType);
+        QList<Account*> getAccounts(const QList<int>& inIds);
+        void createAccount(
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void addAccount(std::uint32_t inId);
+        void editAccount(
+            std::uint32_t inId,
+            const QString& inName,
+            const QString& inClosingDay,
+            const QString& inLimit,
+            const QString& inType,
+            const QColor& inPrimaryColor,
+            const QColor& inSecondaryColor
+        );
+        void deleteAccount(std::uint32_t inId);
+
+        void mergeAccounts(
+            std::uint32_t inSourceId,
+            std::uint32_t inTargedId
+        );
+
+        void select(std::uint32_t inId);
+        void deselect();
 
         // Theme
         void updateTheme(Colors::Theme inTheme);
@@ -108,12 +161,26 @@ namespace Financy
         std::uint32_t getMinStatementClosingDay();
         std::uint32_t getMaxStatementClosingDay();
 
+        std::uint32_t getMinInstallmentCount();
+        std::uint32_t getMaxInstallmentCount();
+
         void clear(QList<void*> inList, bool willDelete = false);
+
+        // Prep
+        void createFiles();
 
     private:
         // User
         void loadUsers();
-        User* getUser(std::uint32_t inId);
+        void setUsersAccounts();
+
+        // Account
+        void loadAccounts();
+        void sortAccounts();
+        void writeAccounts();
+
+        void addAccount(Account* inAccount);
+        void removeAccount(Account* inAccount);
 
         // Settings
         void loadSettings();
@@ -122,6 +189,9 @@ namespace Financy
         // Theme
         void reloadTheme();
         void reloadShowcaseTheme();
+
+        // Utils
+        void normalizePurchases();
 
     private:
         // Settings
@@ -136,5 +206,9 @@ namespace Financy
         // User
         User* m_selectedUser;
         QList<User*> m_users;
+
+        // Account
+        Account* m_selectedAccount;
+        QList<Account*> m_accounts;
     };
 }

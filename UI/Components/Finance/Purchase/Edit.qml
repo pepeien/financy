@@ -12,6 +12,8 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Components.Modal {
+    readonly property var account: internal.selectedAccount
+
     property var purchase
     property var onSubmit
 
@@ -22,11 +24,18 @@ Components.Modal {
 
         _description.set(_root.purchase.description);
 
-        _date.set(internal.getLongDate(_root.purchase.date));
+        _date.set(      internal.getLongDate(_root.purchase.date));
+        _datePicker.set(_root.purchase.date);
 
         _value.set(_root.purchase.value.toFixed(2));
 
         _installments.set(_root.purchase.installments);
+
+        _type.set(
+            internal.getPurchaseTypeName(
+                _root.purchase.type
+            )
+        );
     }
 
     Components.SquircleContainer {
@@ -110,8 +119,8 @@ Components.Modal {
                 anchors.left: parent.left
 
                 validator: IntValidator {
-                    bottom: 1
-                    top: 999
+                    bottom: internal.getMinInstallmentCount()
+                    top:    internal.getMaxInstallmentCount()
                 }
 
                 KeyNavigation.tab: _value.input
@@ -237,7 +246,7 @@ Components.Modal {
                     return;
                 }
 
-                user.selectedAccount.editPurchase(
+                _root.account.editPurchase(
                     _root.purchase.id,
                     _name.text,
                     _description.text,

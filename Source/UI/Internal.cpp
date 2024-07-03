@@ -19,23 +19,47 @@
 #include "Core/FileSystem.hpp"
 #include "Core/Helper.hpp"
 
+Financy::User* selectedUser;
+
 namespace Financy
 {
+    void Internal::setSelectedUser(User* inUser)
+    {
+        selectedUser = inUser;
+    }
+
+    User* Internal::getSelectedUser()
+    {
+        return selectedUser;
+    }
+
     Internal::Internal(QObject* parent)
         : QObject(parent),
         m_colors(new Colors(parent)),
         m_showcaseColors(new Colors(parent)),
-        m_selectedUser(nullptr)
+        m_selectedUser(nullptr),
+        m_selectedAccount(nullptr)
     {
+        createFiles();
+
         loadSettings();
         loadUsers();
+        loadAccounts();
+        setUsersAccounts();
+
+        normalizePurchases();
     }
 
     Internal::~Internal()
     {
-        for (QObject* user : m_users)
+        for (User* user : m_users)
         {
             delete user;
+        }
+
+        for (Account* account : m_accounts)
+        {
+            delete account;
         }
 
         delete m_colors;
@@ -117,6 +141,75 @@ namespace Financy
         QList<QColor> result;
         result.push_back(primaryColor);
         result.push_back(secondaryColor);
+
+        return result;
+    }
+
+    User* Internal::getUser(std::uint32_t inId)
+    {
+        for (int i = 0, j = m_users.size() - 1; i <= j; i++, j--)
+        {
+            if (m_users[i]->getId() == inId)
+            {
+                return m_users[i];
+            }
+
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (m_users[j]->getId() == inId)
+            {
+                return m_users[j];
+            }
+        }
+
+        return nullptr;
+    }
+
+    QList<User*> Internal::getUsers(const QList<int>& inIds)
+    {
+        QList<User*> result {};
+
+        for (int i = 0, j = m_users.size() - 1; i <= j; i++, j--)
+        {
+            std::uint32_t leftUserId  = m_users[i]->getId();
+            std::uint32_t rightUserId = m_users[j]->getId();
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [leftUserId](int _) { return _ == leftUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_users[i]);
+            }
+
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [rightUserId](int _) { return _ == rightUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_users[j]);
+            }
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](User* a, User* b) { return a->getId() < b->getId(); }
+        );
 
         return result;
     }
@@ -221,8 +314,6 @@ namespace Financy
             }
 
             updatedUsers.push_back(m_selectedUser->toJSON());
-
-            break;
         }
 
         // Write
@@ -235,41 +326,61 @@ namespace Financy
 
     void Internal::deleteUser(std::uint32_t inId)
     {
-        auto iterator = std::find_if(
-            m_users.begin(),
-            m_users.end(),
-            [=](User* user) { return user->getId() == inId; }
+        User* user = getUser(inId);
+
+        if (user == nullptr)
+        {
+            return;
+        }
+        
+        login(inId);
+
+        for (Account* account : user->getAccounts())
+        {
+            deleteAccount(account->getId());
+        }
+
+        user->remove();
+
+        m_users.removeAt(
+            std::find_if(
+                m_users.begin(),
+                m_users.end(),
+                [user](User* _) { return _->getId() == user->getId(); }
+            ) - m_users.begin()
         );
 
-        if (iterator == m_users.end())
-        {
-            return;
-        }
-
-        std::uint32_t index = iterator - m_users.begin();
-
-        User* user = m_users[index];
-        user->remove();
-        delete user;
-
-        m_users.removeAt(index);
+        logout();
 
         emit onUsersUpdate();
+
+        delete user;
     }
 
-    void Internal::login(User* inUser)
+    void Internal::login(std::uint32_t inId)
     {
-        if (inUser == nullptr)
+        User* user = getUser(inId);
+
+        if (user == nullptr)
         {
             return;
         }
 
-        if (m_selectedUser != nullptr && inUser->getId() == m_selectedUser->getId())
+        if (m_selectedUser != nullptr && user->getId() == m_selectedUser->getId())
         {
             return;
         }
 
-        m_selectedUser = inUser;
+        if (m_selectedUser != nullptr)
+        {
+            m_selectedUser->logout();
+            m_selectedUser = nullptr;
+        }
+
+        setSelectedUser(user);
+
+        m_selectedUser = user;
+        m_selectedUser->login();
 
         emit onSelectUserUpdate();
     }
@@ -281,9 +392,357 @@ namespace Financy
             return;
         }
 
+        m_selectedUser->logout();
         m_selectedUser = nullptr;
 
+        setSelectedUser(m_selectedUser);
+
         emit onSelectUserUpdate();
+    }
+
+    Account* Internal::getAccount(std::uint32_t inId)
+    {
+        for (Account* account : m_accounts)
+        {
+            if (account->getId() != inId)
+            {
+                continue;
+            }
+
+            return account;
+        }
+
+        return nullptr;
+    }
+
+    QList<Account*> Internal::getAccounts(Account::Type inType)
+    {
+        QList<Account*> result {};
+
+        for (Account* account : m_accounts)
+        {
+            if (account->getType() != inType)
+            {
+                continue;
+            }
+
+            result.push_back(account);
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+
+        return result;
+    }
+
+    QList<Account*> Internal::getAccounts(const QList<int>& inIds)
+    {
+        QList<Account*> result {};
+
+        for (int i = 0, j = m_accounts.size() - 1; i <= j; i++, j--)
+        {
+            std::uint32_t leftUserId  = m_accounts[i]->getId();
+            std::uint32_t rightUserId = m_accounts[j]->getId();
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [leftUserId](int _) { return _ == leftUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_accounts[i]);
+            }
+
+            if (i == j)
+            {
+                continue;
+            }
+
+            if (
+                std::find_if(
+                    inIds.begin(),
+                    inIds.end(),
+                    [rightUserId](int _) { return _ == rightUserId; }
+                ) != inIds.end()
+            )
+            {
+                result.push_back(m_accounts[j]);
+            }
+        }
+
+        std::sort(
+            result.begin(),
+            result.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+
+        return result;
+    }
+
+    void Internal::createAccount(
+        const QString& inName,
+        const QString& inClosingDay,
+        const QString& inLimit,
+        const QString& inType,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (m_selectedUser == nullptr)
+        {
+            return;
+        }
+
+        std::ifstream file(ACCOUNT_FILE_NAME);
+        nlohmann::ordered_json accounts = FileSystem::doesFileExist(ACCOUNT_FILE_NAME) ? 
+            nlohmann::ordered_json::parse(file):
+            nlohmann::ordered_json::array();
+
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+        std::uint32_t id = 0;
+
+        if (accounts.size() > 0)
+        {
+            id = (std::uint32_t) accounts[accounts.size() - 1].at("id");
+            id++;
+        }
+
+        Account* account = new Account();
+        account->setId(            id);
+        account->setUserId(        m_selectedUser->getId());
+        account->setName(          inName);
+        account->setClosingDay(    inClosingDay.toUInt());
+        account->setLimit(         inLimit.toUInt());
+        account->setPrimaryColor(  inPrimaryColor);
+        account->setSecondaryColor(inSecondaryColor);
+        account->setType(          Account::getTypeValue(inType));
+
+        m_accounts.push_back(account);
+
+        emit onAccountsUpdate();
+
+        m_selectedUser->addAccount(account);
+
+        writeAccounts();
+    }
+
+    void Internal::addAccount(std::uint32_t inId)
+    {
+        Account* account = getAccount(inId);
+
+        if (account == nullptr || m_selectedUser == nullptr)
+        {
+            return;
+        }
+        
+        if (account->isOwnedBy(m_selectedUser) || account->isSharingWith(m_selectedUser))
+        {
+            return;
+        }
+
+        m_selectedUser->addAccount(account);
+
+        emit onSelectAccountUpdate();
+        emit onAccountsUpdate();
+
+        writeAccounts();
+    }
+
+    void Internal::editAccount(
+        std::uint32_t inId,
+        const QString& inName,
+        const QString& inClosingDay,
+        const QString& inLimit,
+        const QString& inType,
+        const QColor& inPrimaryColor,
+        const QColor& inSecondaryColor
+    )
+    {
+        if (m_selectedUser == nullptr)
+        {
+            return;
+        }
+
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::ordered_json accounts = nlohmann::ordered_json::parse(std::ifstream(ACCOUNT_FILE_NAME));
+
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+        nlohmann::ordered_json updatedAccounts = nlohmann::ordered_json::array();
+
+        Account* account = getAccount(inId);
+
+        if (account == nullptr)
+        {
+            return;
+        }
+
+        if (!account->isOwnedBy(m_selectedUser))
+        {
+            return;
+        }
+
+        account->edit(
+            inName,
+            inClosingDay,
+            inLimit,
+            inType,
+            inPrimaryColor,
+            inSecondaryColor
+        );
+
+        emit onAccountsUpdate();
+
+        m_selectedUser->editAccount(account);
+
+        writeAccounts();
+    }
+
+    void Internal::deleteAccount(std::uint32_t inId)
+    {
+        if (m_selectedUser == nullptr)
+        {
+            return;
+        }
+
+        auto iterator = std::find_if(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [=](Account* account) { return account->getId() == inId; }
+        );
+
+        if (iterator == m_accounts.end())
+        {
+            return;
+        }
+
+        std::uint32_t index = iterator - m_accounts.begin();
+
+        Account* account = m_accounts[index];
+
+        if (account == nullptr)
+        {
+            return;
+        }
+
+        m_selectedUser->deleteAccount(account);
+
+        if (account->isOwnedBy(m_selectedUser))
+        {
+            for (User* user : getUsers(account->getSharedUserIds()))
+            {
+                user->deleteAccount(account);
+            }
+
+            account->remove();
+
+            delete account;
+
+            m_accounts.removeAt(index); 
+        }
+
+        emit onAccountsUpdate();
+
+        writeAccounts();
+    }
+
+    void Internal::mergeAccounts(
+        std::uint32_t inSourceId,
+        std::uint32_t inTargedId
+    )
+    {
+        if (inSourceId == inTargedId)
+        {
+            return;
+        }
+
+        Account* sourceAccount = getAccount(inSourceId);
+        Account* targetAccount = getAccount(inTargedId);
+
+        if (sourceAccount == nullptr || targetAccount == nullptr)
+        {
+            return;
+        }
+
+        if (
+            !sourceAccount->isOwnedBy(m_selectedUser->getId()) ||
+            targetAccount->isOwnedBy(m_selectedUser->getId())
+        )
+        {
+            return;
+        }
+
+        targetAccount->addPurchases(sourceAccount->getPurchases());
+
+        m_selectedUser->removeAccount(sourceAccount);
+        m_selectedUser->addAccount(targetAccount);
+
+        if (m_selectedAccount->getId() == sourceAccount->getId())
+        {
+            deselect();
+        }
+
+        removeAccount(sourceAccount);
+
+        emit onAccountsUpdate();
+
+        writeAccounts();
+
+        delete sourceAccount;
+    }
+
+    void Internal::select(std::uint32_t inId)
+    {
+        Account* account = getAccount(inId);
+
+        if (account == nullptr)
+        {
+            return;
+        }
+
+        if (m_selectedAccount)
+        {
+            if (m_selectedAccount->getId() == account->getId())
+            {
+                return;
+            }
+
+            deselect();
+        }
+
+        m_selectedAccount = account;
+        m_selectedAccount->refreshHistory();
+
+        emit onSelectAccountUpdate();
+    }
+
+    void Internal::deselect()
+    {
+        if (m_selectedAccount == nullptr)
+        {
+            return;
+        }
+
+        m_selectedAccount->clearHistory();
+        m_selectedAccount = nullptr;
+
+        emit onSelectAccountUpdate();
     }
 
     void Internal::updateTheme(Colors::Theme inTheme)
@@ -318,7 +777,8 @@ namespace Financy
         return inDateA.daysTo(inDateB) == 0;
     }
 
-    QString Internal::getLongDate(const QDate& inDate) {
+    QString Internal::getLongDate(const QDate& inDate)
+    {
         return inDate.toString("dd/MM/yyyy");
     }
 
@@ -398,6 +858,16 @@ namespace Financy
         return MAX_STATEMENT_CLOSING_DAY;
     }
 
+    std::uint32_t Internal::getMinInstallmentCount()
+    {
+        return MIN_INSTALLMENT_COUNT;
+    }
+
+    std::uint32_t Internal::getMaxInstallmentCount()
+    {
+        return MAX_INSTALLMENT_COUNT;
+    }
+
     void Internal::clear(QList<void*> inList, bool willDelete)
     {
         if (willDelete)
@@ -409,6 +879,28 @@ namespace Financy
         }
 
         inList.clear();
+    }
+
+    void Internal::createFiles()
+    {
+        for (const char* fileName : FILE_NAMES)
+        {
+            if (FileSystem::doesFileExist(fileName))
+            {
+                continue;
+            }
+
+            if (QString::fromLatin1(fileName).contains(SETTINGS_FILE_NAME))
+            {
+                updateTheme(m_colorsTheme);
+
+                continue;
+            }
+
+            std::ofstream stream(fileName);
+            stream << std::setw(4) << nlohmann::json::array() << std::endl;
+            stream.close();
+        }
     }
 
     void Internal::loadUsers()
@@ -426,7 +918,8 @@ namespace Financy
             return;
         }
 
-        for (auto& it : users.items()) {
+        for (auto& it : users.items())
+        {
             User* user = new User();
             user->fromJSON(it.value());
 
@@ -434,33 +927,124 @@ namespace Financy
         }
     }
 
-    User* Internal::getUser(std::uint32_t inId)
+    void Internal::setUsersAccounts()
     {
-        auto iterator = std::find_if(
-            m_users.begin(),
-            m_users.end(),
-            [inId](User* _) { return _->getId() == inId; }
-        );
-
-        if (iterator == m_users.end())
+        for (User* user : m_users)
         {
-            return nullptr;
+            QList<Account*> userAccounts {};
+
+            for (Account* account : m_accounts)
+            {
+                if (!account->isOwnedBy(user) && !account->isSharingWith(user))
+                {
+                    continue;
+                }
+
+                userAccounts.push_back(account);
+            }
+
+            user->setAccounts(userAccounts);
+        }
+    }
+
+    void Internal::loadAccounts()
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
         }
 
-        return m_users[iterator - m_users.begin()];
+        std::ifstream file(ACCOUNT_FILE_NAME);
+        nlohmann::json accounts = nlohmann::json::parse(file);
+
+        if (!accounts.is_array())
+        {
+            return;
+        }
+
+        for (auto& it : accounts.items())
+        {
+            Account* account = new Account();
+            account->fromJSON(it.value());
+
+            if (getUser(account->getUserId()) == nullptr)
+            {
+                delete account;
+
+                continue;
+            }
+
+            m_accounts.push_back(account);
+        }
+
+        sortAccounts();
+    }
+
+    void Internal::sortAccounts()
+    {
+        std::sort(
+            m_accounts.begin(),
+            m_accounts.end(),
+            [](Account* a, Account* b) { return a->getId() < b->getId(); }
+        );
+    }
+
+    void Internal::writeAccounts()
+    {
+        if (!FileSystem::doesFileExist(ACCOUNT_FILE_NAME))
+        {
+            return;
+        }
+
+        nlohmann::ordered_json accounts = nlohmann::ordered_json::array();
+
+        sortAccounts();
+
+        for (Account* account : m_accounts)
+        {
+            accounts.push_back(account->toJSON());
+        }
+
+        std::ofstream stream(ACCOUNT_FILE_NAME);
+        stream << std::setw(4) << accounts << std::endl;
+    }
+
+    void Internal::addAccount(Account* inAccount)
+    {
+        m_accounts.push_back(inAccount);
+
+        sortAccounts();
+
+        emit onAccountsUpdate();
+    }
+
+    void Internal::removeAccount(Account* inAccount)
+    {
+        m_accounts.removeAt(
+            std::find_if(
+                m_accounts.begin(),
+                m_accounts.end(),
+                [inAccount](Account* _) { return _->getId() == inAccount->getId(); }
+            ) - m_accounts.begin()
+        );
+
+        emit onAccountsUpdate();
     }
 
     void Internal::loadSettings()
     {
         if (!FileSystem::doesFileExist(SETTINGS_FILE_NAME))
         {
-            updateTheme(m_colorsTheme);
-
             return;
         }
 
         std::ifstream file(SETTINGS_FILE_NAME);
         nlohmann::json settings = nlohmann::json::parse(file);
+
+        if (!settings.is_object())
+        {
+            return;
+        }
 
         bool hasColorTheme = settings.find("colorTheme") != settings.end() || settings.at("colorTheme").is_number_unsigned();
         updateTheme(hasColorTheme ? (Colors::Theme) settings.at("colorTheme") : m_colorsTheme);
@@ -524,5 +1108,80 @@ namespace Financy
 
             break;
         }
+    }
+
+    void Internal::normalizePurchases()
+    {
+        if (!FileSystem::doesFileExist(PURCHASE_FILE_NAME))
+        {
+            return;
+        }
+
+        std::ifstream file(PURCHASE_FILE_NAME);
+
+        nlohmann::json purchases    = nlohmann::json::parse(file);
+        nlohmann::json newPurchases = nlohmann::json::array();
+
+        if (!purchases.is_array())
+        {
+            return;
+        }
+
+        bool didNormalize = false;
+
+        for (auto& it : purchases.items())
+        {
+            auto purchase = it.value();
+
+            if (purchase.find("userId") != purchase.end())
+            {
+                newPurchases.push_back(purchase);
+
+                continue;
+            }
+
+            Account* account = getAccount((std::uint32_t) purchase.at("accountId"));
+
+            if (account == nullptr)
+            {
+                newPurchases.push_back(purchase);
+
+                continue;
+            }
+
+            User* buyer = getUser(account->getUserId());
+
+            if (buyer == nullptr)
+            {
+                newPurchases.push_back(purchase);
+
+                continue;
+            }
+
+            newPurchases.push_back(
+                {
+                    { "id",           purchase.at("id") },
+                    { "userId",       buyer->getId() },
+                    { "accountId",    purchase.at("accountId") },
+                    { "name",         purchase.at("name") },
+                    { "description",  purchase.at("description") },
+                    { "date",         purchase.at("date") },
+                    { "type",         purchase.at("type") },
+                    { "value",        purchase.at("value") },
+                    { "installments", purchase.at("installments") }
+                }
+            );
+
+            didNormalize = true;
+        }
+
+        if (!didNormalize)
+        {
+            return;
+        }
+
+        // Write
+        std::ofstream stream(PURCHASE_FILE_NAME);
+        stream << std::setw(4) << newPurchases << std::endl;
     }
 }

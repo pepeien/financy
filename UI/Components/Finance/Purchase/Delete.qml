@@ -15,10 +15,14 @@ Components.Modal {
     id: _root
 
     Components.SquircleContainer {
+        width:  670
+        height: 180
+
         hasShadow:       true
         backgroundColor: Qt.lighter(internal.colors.background, 0.965)
 
-        anchors.fill: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter:   parent.verticalCenter
 
         Components.Text {
             id:    _title

@@ -25,6 +25,22 @@ Item {
     // Vars
     readonly property real textPadding: 16
 
+    function set(value) {
+        for (let i = 0; i <  model.length; i++) {
+            if (value !== model[i]) {
+                continue;
+            }
+
+            _control.currentIndex = i;
+
+            break;
+        }
+    }
+
+    function clear() {
+        _control.currentIndex = 0;
+    }
+
     width: _root.itemWidth
 
     ComboBox {
@@ -39,25 +55,24 @@ Item {
             required property var model
             required property int index
 
-            id:     delegate
+            id:     _delegate
             height: _root.itemHeight
             width:  _root.itemWidth
 
             hoverEnabled: true
 
             contentItem: Components.Text {
-                text:              delegate.model[_control.textRole]
-                color:             delegate.hovered ? internal.colors.background : internal.colors.dark
+                text:              _delegate.model[_control.textRole]
+                color:             _delegate.hovered ? internal.colors.background : internal.colors.dark
                 font:              _control.font
                 verticalAlignment: Text.AlignVCenter
                 padding:           _root.textPadding
             }
 
-            background: Components.Button {
-                color: delegate.hovered ? internal.colors.light : "transparent"
-                clip:  true
+            background: Components.SquircleButton {
+                backgroundColor: _delegate.hovered ? internal.colors.light : "transparent"
 
-                anchors.fill: delegate
+                anchors.fill: _delegate
             }
         }
 

@@ -12,12 +12,15 @@ import Financy.Types 1.0
 import "qrc:/Components" as Components
 
 Item {
-    readonly property var account: internal.selectedUser.selectedAccount
-
     property var purchase
     property var statement
 
-    readonly property bool hasDescription: purchase.hasDescription()
+    readonly property var user:    internal.selectedUser
+    readonly property var account: internal.selectedAccount
+
+    readonly property bool hasDescription:    purchase.hasDescription()
+    readonly property bool hasDifferentOwner: !purchase.isOwnedBy(user.id)
+    readonly property bool hasExtras:         hasDescription || hasDifferentOwner
 
     property var onPurchaseEdit
     property var onPurchaseDelete
@@ -57,11 +60,11 @@ Item {
 
         backgroundColor: internal.colors.dark
 
-        anchors.top:            hasDescription ? _purchaseName.top : undefined
+        anchors.top:            hasExtras ? _purchaseName.top : undefined
         anchors.left:           parent.left
-        anchors.topMargin:      hasDescription ? 5 : 0
+        anchors.topMargin:      hasExtras ? 5 : 0
         anchors.leftMargin:     15
-        anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
+        anchors.verticalCenter: hasExtras ? undefined : parent.verticalCenter
 
         Image {
             id:     _iconImage
@@ -91,17 +94,17 @@ Item {
         font.pointSize: 9
         font.weight:    Font.Normal
 
-        anchors.top:            hasDescription ? parent.top : undefined
+        anchors.top:            hasExtras ? parent.top : undefined
         anchors.left:           _icon.right
         anchors.leftMargin:     10
-        anchors.topMargin:      hasDescription ? 10 : 0
-        anchors.verticalCenter: hasDescription ? undefined : parent.verticalCenter
+        anchors.topMargin:      hasExtras ? 10 : 0
+        anchors.verticalCenter: hasExtras ? undefined : parent.verticalCenter
     }
 
     Components.SquircleContainer {
-        id:     _description
-        height: _text.paintedHeight + 2
-        width:  _text.paintedWidth + 10
+        id:      _description
+        height:  _text.paintedHeight + 2
+        width:   _text.paintedWidth + 10
         visible: hasDescription
 
         backgroundColor: Qt.lighter(internal.colors.dark, 2)
@@ -115,6 +118,34 @@ Item {
             id:    _text
             text:  purchase.description
             color: internal.colors.background
+
+            font.pointSize: 8
+            font.weight:    Font.Bold
+
+            anchors.centerIn: parent
+        }
+    }
+
+    Components.SquircleContainer {
+        readonly property var owner: internal.getUser(purchase.userId)
+
+        id:      _owner
+        height:  _ownerText.paintedHeight + 2
+        width:   _ownerText.paintedWidth + 10
+        visible: hasDifferentOwner
+
+        backgroundColor: owner.primaryColor ?? "transparent"
+
+        anchors.top:            hasDescription ? undefined : _purchaseName.bottom
+        anchors.left:           hasDescription ? _description.right : _purchaseName.anchors.left
+        anchors.topMargin:      hasDescription ? 0 : 7
+        anchors.leftMargin:     _purchaseName.anchors.leftMargin
+        anchors.verticalCenter: hasDescription ? _description.verticalCenter :undefined
+
+        Components.Text {
+            id:    _ownerText
+            text:  _owner.owner.getFullName() ?? ""
+            color: _owner.owner.secondaryColor ?? "transparent" 
 
             font.pointSize: 8
             font.weight:    Font.Bold

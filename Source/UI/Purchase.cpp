@@ -1,5 +1,8 @@
 #include "Purchase.hpp"
 
+#include "Base.hpp"
+#include "UI/User.hpp"
+
 #include <QQmlEngine>
 
 namespace Financy
@@ -54,6 +57,11 @@ namespace Financy
         }
     }
 
+    bool Purchase::isOwnedBy(std::uint32_t inUserId)
+    {
+        return m_userId == inUserId;
+    }
+
     bool Purchase::isRecurring()
     {
         return m_type == Type::Bill || m_type == Type::Subscription;
@@ -80,6 +88,13 @@ namespace Financy
             inData.find("id") != inData.end() ?
                 inData.at("id").is_number_unsigned() ?
                     (std::uint32_t) inData.at("id") : 0
+                :
+                0
+        );
+        setUserId(
+            inData.find("userId") != inData.end() ?
+                inData.at("userId").is_number_unsigned() ?
+                    (std::uint32_t) inData.at("userId") : 0
                 :
                 0
         );
@@ -153,6 +168,7 @@ namespace Financy
     {
         nlohmann::ordered_json result = {
             { "id",           m_id },
+            { "userId",       m_userId },
             { "accountId",    m_accountId },
             { "name",         m_name.toStdString() },
             { "description",  m_description.toStdString() },
@@ -165,6 +181,16 @@ namespace Financy
         return result;
     }
 
+    bool Purchase::isOwnedBy(User* inUser)
+    {
+        if (inUser == nullptr)
+        {
+            return false;
+        }
+
+        return isOwnedBy(inUser->getId());
+    }
+
     std::uint32_t Purchase::getId()
     {
         return m_id;
@@ -173,6 +199,16 @@ namespace Financy
     void Purchase::setId(std::uint32_t inId)
     {
         m_id = inId;
+    }
+
+    std::uint32_t Purchase::getUserId()
+    {
+        return m_userId;
+    }
+
+    void Purchase::setUserId(std::uint32_t inId)
+    {
+        m_userId = inId;
     }
 
     std::uint32_t Purchase::getAccountId()
@@ -275,16 +311,18 @@ namespace Financy
             endDate.year(),
             endDate.month(),
             std::min(
-                (std::uint32_t) endDate.daysInMonth(),
-                inStatementClosingDay
+                endDate.daysInMonth(),
+                endDate.day()
             )
         );
 
         QDate currentDate = currentStatementClosingDate;
 
-        while (currentStatementClosingDate.daysTo(currentDate) >= 0 && endDate.daysTo(currentDate) <= 0)
+        while (endDate.daysTo(currentDate) <= 0)
         {
-            if (currentDate.day() == std::min(inStatementClosingDay, (std::uint32_t) currentDate.daysInMonth())) {
+            std::uint32_t closingDay = std::min(inStatementClosingDay, (std::uint32_t) currentDate.daysInMonth());
+
+            if (currentDate.day() == closingDay) {
                 paidInstallments++;
             }
 
@@ -301,7 +339,11 @@ namespace Financy
 
     void Purchase::setInstallments(std::uint32_t inInstallments)
     {
-        m_installments = inInstallments;
+        m_installments = std::clamp(
+            inInstallments,
+            MIN_INSTALLMENT_COUNT,
+            MAX_INSTALLMENT_COUNT
+        );
 
         emit onEdit();
     }
