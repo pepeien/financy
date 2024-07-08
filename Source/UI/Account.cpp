@@ -305,18 +305,6 @@ namespace Financy
         return inPurchase->getValue() - (inPurchase->getInstallmentValue() * (getPaidInstallments(inPurchase) - 1));
     }
 
-    float Account::getDueAmount()
-    {
-        float result = 0.0f;
-
-        for(Purchase* purchase : getPurchases(QDate::currentDate()))
-        {
-            result += purchase->getInstallmentValue();
-        }
-
-        return result;
-    }
-
     void Account::createPurchase(
         const QString& inName,
         const QString& inDescription,
@@ -622,6 +610,28 @@ namespace Financy
         m_history.clear();
 
         emit onEdit();
+    }
+
+    float Account::getDueAmount()
+    {
+        return getDueAmount(-1);
+    }
+
+    float Account::getDueAmount(int inUserId)
+    {
+        float result = 0.0f;
+
+        for(Purchase* purchase : getPurchases(QDate::currentDate()))
+        {
+            if (inUserId >= 0 && purchase->getUserId() != inUserId)
+            {
+                continue;
+            }
+
+            result += purchase->getInstallmentValue();
+        }
+
+        return result;
     }
 
     std::uint32_t Account::getId()

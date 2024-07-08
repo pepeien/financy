@@ -151,6 +151,9 @@ namespace Financy
         void refreshHistory();
         void clearHistory();
 
+        float getDueAmount();
+        float getDueAmount(int inUserId);
+
     public:
         void fromJSON(const nlohmann::json& inData);
         nlohmann::ordered_json toJSON();
@@ -206,7 +209,6 @@ namespace Financy
         // Stats
         float getUsedLimit();
         float getRemainingLimit();
-        float getDueAmount();
 
     private:
         QDate getEarliestStatementDate();
