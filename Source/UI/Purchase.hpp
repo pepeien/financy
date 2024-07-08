@@ -87,6 +87,7 @@ namespace Financy
         bool isOwnedBy(std::uint32_t inUserId);
 
         bool isRecurring();
+        bool hasEnded();
 
         bool hasDescription();
 
@@ -134,6 +135,8 @@ namespace Financy
         QDate getEndDate();
         void setEndDate(const QDate& inDate);
 
+        void setHasEnded(bool inHasEnded);
+
         void edit(
             const QString& inName,
             const QString& inDescription,
@@ -157,6 +160,7 @@ namespace Financy
         std::uint32_t m_installments;
 
         // Subscription
+        bool m_hasEnded;
         QDate m_endDate;
     };
 

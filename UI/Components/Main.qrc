@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/Components/">
-        <file>Account.qml</file>
-        <file>Accounts.qml</file>
+        <!-- Common -->
         <file>Button.qml</file>
         <file>ButtonUser.qml</file>
         <file>ColorPicker.qml</file>
@@ -20,9 +19,15 @@
         <file>Switch.qml</file>
         <file>Text.qml</file>
 
+        <!-- Chart -->
         <file alias="ChartCircle.qml">Chart/Circle.qml</file>
 
+        <!-- Finance -->
         <file alias="FinanceHistory.qml">Finance/History.qml</file>
+        <file alias="FinanceAccountItem.qml">Finance/Account/Item.qml</file>
+        <file alias="FinanceAccountList.qml">Finance/Account/List.qml</file>
+        <file alias="FinanceAccountShareList.qml">Finance/Account/ShareList.qml</file>
+        <file alias="FinancePurchaseCancel.qml">Finance/Purchase/Cancel.qml</file>
         <file alias="FinancePurchaseCreate.qml">Finance/Purchase/Create.qml</file>
         <file alias="FinancePurchaseDelete.qml">Finance/Purchase/Delete.qml</file>
         <file alias="FinancePurchaseEdit.qml">Finance/Purchase/Edit.qml</file>

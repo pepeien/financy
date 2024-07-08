@@ -27,6 +27,7 @@ Components.Modal {
         _installments.clear();
         _type.clear();
 
+        _datePicker.set(new Date());
         _date.set(internal.getLongDate(_datePicker.selectedDate));
     }
 

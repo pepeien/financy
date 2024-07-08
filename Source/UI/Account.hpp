@@ -139,6 +139,7 @@ namespace Financy
             const QString& inValue,
             const QString& inInstallments
         );
+        void cancelPurchase(std::uint32_t inId);
         void deletePurchase(std::uint32_t inId);
 
         QList<Statement*> getStatementPurchases(const QDate& inDate);
@@ -149,6 +150,9 @@ namespace Financy
 
         void refreshHistory();
         void clearHistory();
+
+        float getDueAmount();
+        float getDueAmount(int inUserId);
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -179,6 +183,7 @@ namespace Financy
 
         QList<Purchase*> getPurchases();
         QList<Purchase*> getPurchases(const QDate& inDate);
+        Purchase* getPurchase(std::uint32_t inId);
         void setPurchases(const QList<Purchase*>& inPurchases);
         void addPurchases(const QList<Purchase*>& inPurchases);
 
@@ -204,7 +209,6 @@ namespace Financy
         // Stats
         float getUsedLimit();
         float getRemainingLimit();
-        float getDueAmount();
 
     private:
         QDate getEarliestStatementDate();

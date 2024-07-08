@@ -18,7 +18,12 @@ Components.Page {
 
     property var _deletingAccount
 
+    // Filter
+    property int _userToFilter: -1
+
     property bool _isOnEditMode: false
+
+    property double _dueAmount: user?.getDueAmount(_userToFilter) ?? 0
 
     id:    _root
     title: user ? user.getFullName() : ""
@@ -39,17 +44,68 @@ Components.Page {
 
     onUserChanged: function() {
         _overviewChartPie.clear();
+        _userFilter.clear();
 
         if (!user) {
+            _userFilter.model = [];
+
             return;
         }
 
+        _updateFilter(-1);
+
+        const userIds = [];
+
+        user.accounts.forEach((account) => {
+            if (!account.isOwnedBy(user.id)) {
+                return;
+            }
+
+            account.sharedUserIds.forEach((sharedUser) => {
+                if (userIds.find((user) => user == sharedUser)) {
+                    return;
+                }
+
+                userIds.push(sharedUser);
+            });
+        });
+
+        const sharedUsers = userIds.map((_) => internal.getUser(_));
+        sharedUsers.push(user);
+
+        if (userIds.length > 0) {
+            sharedUsers.push(user);
+        }
+
+        sharedUsers.sort((userA, userB) => userA.id - userB.id);
+
+        _userFilter.model = sharedUsers;
+    }
+
+    onColorsChanged: function() {
+        if (!colors) {
+            return;
+        }
+
+        _overviewChart.legend.borderColor = colors.background;
+
+        for (let i = 0; i < _overviewChartPie.count; i++) {
+            const slice       = _overviewChartPie.at(i);
+            slice.borderColor = colors.background;
+        }
+    }
+
+    function _updateOverviewChart() {
+        _overviewChartPie.clear();
+
         const usedColors = [765, 0];
 
-        for (const key in user.expenseMap) {
+        const expenseMap = user.getExpenseMap(_root._userToFilter);
+
+        for (const key in expenseMap) {
             const createdComponent = _overviewChartPie.append(
                 key,
-                user.expenseMap[key]
+                expenseMap[key]
             );
             
             const red   = Math.random();
@@ -70,20 +126,15 @@ Components.Page {
                 blue,
                 1
             );
+            createdComponent.borderColor = colors.background;
         }
     }
 
-    onColorsChanged: function() {
-        if (!colors) {
-            return;
-        }
+    function _updateFilter(inId) {
+        _root._dueAmount = user.getDueAmount(inId);
 
-        for (let i = 0; i < _overviewChartPie.count; i++) {
-            const slice       = _overviewChartPie.at(i);
-            slice.borderColor = colors.background;
-        }
+        _updateOverviewChart();
     }
-
 
     readonly property real padding:      80
     readonly property real innerPadding: padding / 2
@@ -96,7 +147,7 @@ Components.Page {
         width:  (parent.width * 0.5) - (_root.innerPadding * 0.5) - (padding * 0.5)
         height: parent.height
 
-        anchors.left:       parent.left
+        anchors.left:        parent.left
         anchors.leftMargin: _root.innerPadding
 
         Components.SquircleContainer {
@@ -125,9 +176,11 @@ Components.Page {
             }
 
             Components.Button {
-                id:     _moreButton
-                height: 25
-                width:  25
+                id:         _moreButton
+                height:     25
+                width:      25
+                visible:    expenseAccounts.length > 0
+                isDisabled: expenseAccounts.length <= 0
 
                 anchors.top:         parent.top
                 anchors.right:       parent.right
@@ -135,6 +188,10 @@ Components.Page {
                 anchors.rightMargin: 16
 
                 onClick: function() {
+                    if (expenseAccounts.length <= 0) {
+                        return;
+                    }
+
                     _root._isOnEditMode = !_root._isOnEditMode;
                 }
 
@@ -158,7 +215,25 @@ Components.Page {
                 }
             }
 
-            Components.Accounts {
+            Item {
+                visible: _moreButton.isDisabled
+                width:   parent.width
+                height:  parent.height
+
+                anchors.top: parent.top
+
+                Components.Text {
+                    text:  "No expense accounts found"
+                    color: Qt.darker(internal.colors.foreground, 1.1)
+
+                    font.weight:    Font.Bold
+                    font.pointSize: 16
+
+                    anchors.centerIn: parent
+                }
+            }
+
+            Components.FinanceAccountList {
                 id:         _accounts
                 user:       _root.user
                 model:      _root.expenseAccounts
@@ -219,6 +294,38 @@ Components.Page {
                 anchors.leftMargin: 25
             }
 
+            Components.Dropdown {
+                id: _userFilter
+
+                label: "Users"
+
+                itemWidth:  250
+                itemHeight: 50
+
+                getOptionDisplay: function(option, index) {
+                    if (!option) {
+                        return "";
+                    }
+
+                    return index === 0 ? "All" : option.getFullName().trim();
+                }
+
+                onSelect: function(option, index) {
+                    const nextId = index === 0 ? -1 : option.id;
+
+                    if (_root._userToFilter === nextId) {
+                        return;
+                    }
+
+                    _root._updateFilter(nextId);
+                }
+
+                anchors.top:         parent.top
+                anchors.right:       parent.right
+                anchors.topMargin:   15
+                anchors.rightMargin: 25
+            }
+
             ChartView {
                 id:           _overviewChart
                 height:       parent.height - _overviewTitle.height
@@ -232,7 +339,7 @@ Components.Page {
 
                 legend.visible:        true
                 legend.markerShape:    Legend.MarkerShapeCircle
-                legend.color:          internal.colors.foreground
+                legend.labelColor:     internal.colors.dark
                 legend.font.family:    "Inter"
                 legend.font.pointSize: 13
                 legend.font.weight:    Font.Bold
@@ -308,7 +415,7 @@ Components.Page {
                 }
 
                 Components.Text {
-                    text:  user?.dueAmount.toFixed(2) ?? "0.0"
+                    text:  _root._dueAmount.toFixed(2)
                     color: Qt.lighter(internal.colors.dark, 1.1)
 
                     font.pointSize: 22

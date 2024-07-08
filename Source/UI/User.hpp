@@ -79,6 +79,12 @@ namespace Financy
 
         void refresh();
 
+        QVariantMap getExpenseMap();
+        QVariantMap getExpenseMap(int inUserId);
+
+        float getDueAmount();
+        float getDueAmount(int inUserId);
+
     public:
         void fromJSON(const nlohmann::json& inData);
         nlohmann::ordered_json toJSON();
@@ -117,9 +123,6 @@ namespace Financy
             const QColor& inSecondaryColor
         );
         void remove();
-
-        QVariantMap getExpenseMap();
-        float getDueAmount();
 
         void login();
         void logout();

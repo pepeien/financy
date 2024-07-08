@@ -12,6 +12,7 @@
 #include <base64.hpp>
 
 #include "Base.hpp"
+#include "Internal.hpp"
 #include "Core/FileSystem.hpp"
 #include "Core/Helper.hpp"
 
@@ -83,6 +84,72 @@ namespace Financy
     void User::refresh()
     {
         emit onEdit();
+    }
+
+    QVariantMap User::getExpenseMap()
+    {
+        return getExpenseMap(-1);
+    }
+
+    QVariantMap User::getExpenseMap(int inUserId)
+    {
+        QDate now = QDate::currentDate();
+
+        QMap<QString, float> map;
+
+        for (Account* account : m_accounts)
+        {
+            if (account->getType() != Account::Type::Expense)
+            {
+                continue;
+            }
+
+            for (Purchase* purchase : account->getPurchases(now))
+            {
+                if (inUserId >= 0 && purchase->getUserId() != inUserId)
+                {
+                    continue;
+                }
+
+                QString type = purchase->getTypeName();
+
+                if (!map.contains(type))
+                {
+                    map.insert(type, 0);
+                }
+
+                map[type] += purchase->getInstallmentValue();
+            }
+        }
+
+        QVariantMap result;
+
+        for (QMap<QString, float>::iterator iterator = map.begin(); iterator != map.end(); iterator++)
+        {
+            result.insert(
+                iterator.key(),
+                iterator.value()
+            );
+        }
+
+        return result;
+    }
+
+    float User::getDueAmount()
+    {
+        return getDueAmount(-1);
+    }
+
+    float User::getDueAmount(int inUserId)
+    {
+        float result = 0;
+
+        for (Account* expenseAccount : getAccounts(Account::Type::Expense))
+        {
+            result += expenseAccount->getDueAmount(inUserId);
+        }
+
+        return result;
     }
 
     uint32_t User::getId()
@@ -261,57 +328,6 @@ namespace Financy
     {
         removeAccounts();
         removeFromFile();
-    }
-
-    QVariantMap User::getExpenseMap()
-    {
-        QDate now = QDate::currentDate();
-
-        QMap<QString, float> map;
-
-        for (Account* account : m_accounts)
-        {
-            if (account->getType() != Account::Type::Expense)
-            {
-                continue;
-            }
-
-            for (Purchase* purchase : account->getPurchases(now))
-            {
-                QString type = purchase->getTypeName();
-
-                if (!map.contains(type))
-                {
-                    map.insert(type, 0);
-                }
-
-                map[type] += purchase->getInstallmentValue();
-            }
-        }
-
-        QVariantMap result;
-
-        for (QMap<QString, float>::iterator iterator = map.begin(); iterator != map.end(); iterator++)
-        {
-            result.insert(
-                iterator.key(),
-                iterator.value()
-            );
-        }
-
-        return result;
-    }
-
-    float User::getDueAmount()
-    {
-        float result = 0;
-
-        for (Account* expenseAccount : getAccounts(Account::Type::Expense))
-        {
-            result += expenseAccount->getDueAmount();
-        }
-
-        return result;
     }
 
     void User::login()

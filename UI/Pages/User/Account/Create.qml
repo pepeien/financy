@@ -264,71 +264,24 @@ Components.Page {
             anchors.top:       _selector.bottom
             anchors.topMargin: 80
 
-            ScrollView {
+            Components.FinanceAccountShareList {
                 readonly property real _padding: 35
 
-                id:            _scroll
                 height:        parent.height - (_padding * 2)
                 width:         parent.width * 0.6
                 bottomPadding: _padding
-                clip:          true
 
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                ScrollBar.vertical: Components.ScrollBar {
-                    isVertical: true
-                }
+                onClick: function(inAccount) {
+                    _root._accountToShare = inAccount;
 
-                ListView {
-                    property var _accounts: internal.getAccounts(Account.Expense).filter((_) => !_.isOwnedBy(_root.user.id) && !_.isSharingWith(_root.user.id))
-
-                    id:      _list
-                    spacing: 25
-                    model:   _accounts
-
-                    anchors.fill: parent
-
-                    delegate: Item {
-                        property var _item: _list._accounts[index]
-    
-                        height: 100
-                        width:  _list.width * 0.95
-
-                        Components.Account {
-                            id:     _account
-
-                            backgroundColor: _item.primaryColor
-                            textColor:       _item.secondaryColor
-
-                            title:     _item.name
-                            limit:     _item.limit
-                            usedLimit: _item.usedLimit
-                            dueAmount: _item.dueAmount
-
-                            anchors.fill: parent
-
-                            onClick: function() {
-                                _root._accountToShare = _item;
-
-                                _name.set(            _item.name)
-                                _closingDay.set(      _item.closingDay);
-                                _limit.set(           _item.limit);
-                                _type.set(            internal.getAccountTypeName(_item.type));
-                                _primaryColor.set(    _item.primaryColor);
-                                _secondaryColor.set(  _item.secondaryColor);
-                            }
-
-                            onHover: function(inMouseArea) {
-                                inMouseArea.cursorShape = Qt.PointingHandCursor;
-                                opacity = 0.7;
-                            }
-
-                            onLeave: function(inMouseArea) {
-                                inMouseArea.cursorShape = Qt.ArrowCursor;
-                                opacity = 1;
-                            }
-                        }
-                    }
+                    _name.set(            inAccount.name)
+                    _closingDay.set(      inAccount.closingDay);
+                    _limit.set(           inAccount.limit);
+                    _type.set(            internal.getAccountTypeName(inAccount.type));
+                    _primaryColor.set(    inAccount.primaryColor);
+                    _secondaryColor.set(  inAccount.secondaryColor);
                 }
             }
         }
@@ -392,7 +345,7 @@ Components.Page {
                 }
             }
 
-            Components.Account {
+            Components.FinanceAccountItem {
                 height: 95
                 width:  parent.width * 0.7
 

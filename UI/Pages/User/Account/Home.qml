@@ -120,6 +120,12 @@ Components.Page {
                 _purchaseEdition.open();
             }
 
+            onCancel: function(purchase) {
+                _purchaseCancelation.purchase = purchase;
+
+                _purchaseCancelation.open();
+            }
+
             onDelete: function(purchase) {
                 _purchaseDeletion.purchase = purchase;
 
@@ -140,6 +146,21 @@ Components.Page {
         id: _purchaseEdition
 
         onSubmit: function() {
+            _root.refreshListing();
+        }
+    }
+
+    Components.FinancePurchaseCancel {
+        id: _purchaseCancelation
+
+        onSubmit: function() {
+            _root.clearListing();
+
+            account.cancelPurchase(purchase.id);
+
+            _root.account.onEdit();
+            _root.user.onEdit();
+
             _root.refreshListing();
         }
     }

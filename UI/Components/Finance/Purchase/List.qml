@@ -29,6 +29,7 @@ Components.SquircleContainer {
     }
 
     property var onEdit
+    property var onCancel
     property var onDelete
 
     function update(inStatement, inPurchases, inSubscriptions) {
@@ -295,6 +296,14 @@ Components.SquircleContainer {
                         }
 
                         onEdit(purchase);
+                    }
+
+                    onPurchaseCancel: function() {
+                        if (!onCancel) {
+                            return;
+                        }
+
+                        onCancel(purchase);
                     }
 
                     onPurchaseDelete: function() {

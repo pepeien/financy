@@ -21,8 +21,10 @@ Item {
     readonly property bool hasDescription:    purchase.hasDescription()
     readonly property bool hasDifferentOwner: !purchase.isOwnedBy(user.id)
     readonly property bool hasExtras:         hasDescription || hasDifferentOwner
+    readonly property bool isRecurring:       purchase.isRecurring() && !purchase.hasEnded()
 
     property var onPurchaseEdit
+    property var onPurchaseCancel
     property var onPurchaseDelete
 
     function _getIcon() {
@@ -150,7 +152,9 @@ Item {
             font.pointSize: 8
             font.weight:    Font.Bold
 
-            anchors.centerIn: parent
+            anchors.left:           parent.left
+            anchors.leftMargin:     6
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 
@@ -213,7 +217,7 @@ Item {
  
                 id:          popup
                 width:       100
-                height:      80
+                height:      isRecurring ? _editButton.height * 3 : _editButton.height * 2
                 focus:       true
                 closePolicy: Popup.CloseOnPressOutsideParent
                 padding:     0
@@ -313,11 +317,73 @@ Item {
                     }
 
                     Components.Button {
+                        id:         _cancelButton
+                        width:      parent.width
+                        height:     40
+                        visible:    isRecurring
+                        isDisabled: !isRecurring
+
+                        anchors.top: _editButton.bottom
+
+                        onClick: function() {
+                            if (!onPurchaseCancel || !isRecurring)
+                            {
+                                return;
+                            }
+
+                            onPurchaseCancel();
+                        }
+
+                        onHover: function() {
+                            _cancelButton.color         = internal.colors.dark;
+                            _cancelButtonIconFill.color = internal.colors.background;
+                            _cancelButtonText.color     = internal.colors.background;
+                        }
+
+                        onLeave: function() {
+                            _cancelButton.color         = internal.colors.background;
+                            _cancelButtonIconFill.color = internal.colors.dark;
+                            _cancelButtonText.color     = internal.colors.dark;
+                        }
+
+                        Image {
+                            id:                _cancelButtonIcon
+                            source:            "qrc:/Icons/Close.svg"
+                            sourceSize.width:  parent.height * 0.4
+                            sourceSize.height: parent.height * 0.4
+                            antialiasing:      true
+                            visible:           false
+
+                            anchors.left:           parent.left
+                            anchors.leftMargin:     13
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        ColorOverlay {
+                            id:           _cancelButtonIconFill
+                            anchors.fill: _cancelButtonIcon
+                            source:       _cancelButtonIcon
+                            color:        internal.colors.dark
+                            antialiasing: true
+                        }
+
+                        Components.Text {
+                            id:    _cancelButtonText
+                            text:  "Cancel"
+                            color: internal.colors.dark
+
+                            anchors.left:           _cancelButtonIcon.right
+                            anchors.leftMargin:     5
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                    }
+
+                    Components.Button {
                         id:     _deleteButton
                         width:  parent.width
                         height: 40
 
-                        anchors.top: _editButton.bottom
+                        anchors.top: isRecurring ? _cancelButton.bottom : _editButton.bottom
 
                         bottomLeftRadius:  popup.background.backgroundRadius
                         bottomRightRadius: popup.background.backgroundRadius
