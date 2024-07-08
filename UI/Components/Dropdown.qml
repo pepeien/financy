@@ -19,6 +19,12 @@ Item {
     property alias model: _control.model
     property alias label: _label.text
 
+    property var getOptionDisplay: function(option) {
+        return option;
+    }
+
+    property var onSelect
+
     // Output
     readonly property alias value: _control.currentValue
 
@@ -52,8 +58,9 @@ Item {
         font.weight:    Font.Normal
 
         delegate: ItemDelegate {
-            required property var model
             required property int index
+
+            property var item: _control.model[index]
 
             id:     _delegate
             height: _root.itemHeight
@@ -61,8 +68,16 @@ Item {
 
             hoverEnabled: true
 
+            onClicked: function() {
+                if (!onSelect) {
+                    return;
+                }
+
+                onSelect(item, index);
+            }
+
             contentItem: Components.Text {
-                text:              _delegate.model[_control.textRole]
+                text:              _root.getOptionDisplay(item, index)
                 color:             _delegate.hovered ? internal.colors.background : internal.colors.dark
                 font:              _control.font
                 verticalAlignment: Text.AlignVCenter
@@ -113,7 +128,7 @@ Item {
 
         contentItem: Components.Text {
             padding:           _root.textPadding
-            text:              _control.displayText
+            text:              _root.getOptionDisplay(_control.model[_control.currentIndex], _control.currentIndex)
             font:              _control.font
             color:             internal.colors.dark
             elide:             Text.ElideRight
@@ -122,7 +137,7 @@ Item {
             anchors.topMargin: _root.itemHeight * 0.1
         }
 
-        background: Components.SquircleContainer {
+        background: Components.SquircleButton {
             width:  _root.itemWidth
             height: _root.itemHeight
             clip:   true
@@ -164,7 +179,6 @@ Item {
             background: Components.SquircleContainer {
                 backgroundColor:  internal.colors.foreground
                 backgroundRadius: _root.radius
-                hasShadow:        true
                 clip:             true
             }
 
