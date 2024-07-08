@@ -60,7 +60,7 @@ Item {
         delegate: ItemDelegate {
             required property int index
 
-            property var item: _control.model[index]
+            readonly property var item: _control.model[index]
 
             id:     _delegate
             height: _root.itemHeight

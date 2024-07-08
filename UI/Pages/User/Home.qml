@@ -19,16 +19,14 @@ Components.Page {
     property var _deletingAccount
 
     // Filter
-    property var _sharedUsers: []
-
     property int _userToFilter: -1
 
     property bool _isOnEditMode: false
 
     property double _dueAmount: user?.getDueAmount(_userToFilter) ?? 0
 
-    id:        _root
-    title:     user ? user.getFullName() : ""
+    id:    _root
+    title: user ? user.getFullName() : ""
 
     leftButtonIcon:   "qrc:/Icons/Edit.svg"
     leftButtonOnClick: function() {
@@ -46,14 +44,17 @@ Components.Page {
 
     onUserChanged: function() {
         _overviewChartPie.clear();
+        _userFilter.clear();
 
         if (!user) {
+            _userFilter.model = [];
+
             return;
         }
 
         _updateFilter(-1);
 
-        const sharedUsers = [];
+        const userIds = [];
 
         user.accounts.forEach((account) => {
             if (!account.isOwnedBy(user.id)) {
@@ -61,22 +62,24 @@ Components.Page {
             }
 
             account.sharedUserIds.forEach((sharedUser) => {
-                if (sharedUsers.find((user) => user == sharedUser)) {
+                if (userIds.find((user) => user == sharedUser)) {
                     return;
                 }
 
-                sharedUsers.push(sharedUser);
+                userIds.push(sharedUser);
             });
         });
 
-        _root._sharedUsers = sharedUsers.map((user) => internal.getUser(user));
-        _root._sharedUsers.push(_root.user);
+        const sharedUsers = userIds.map((_) => internal.getUser(_));
+        sharedUsers.push(user);
 
-        if (sharedUsers.length > 0) {
-            _root._sharedUsers.push(_root.user);
+        if (userIds.length > 0) {
+            sharedUsers.push(user);
         }
 
-        _root._sharedUsers.sort((userA, userB) => userA.id - userB.id);
+        sharedUsers.sort((userA, userB) => userA.id - userB.id);
+
+        _userFilter.model = sharedUsers;
     }
 
     onColorsChanged: function() {
@@ -128,8 +131,7 @@ Components.Page {
     }
 
     function _updateFilter(inId) {
-        _root._userToFilter = inId;
-        _root._dueAmount    = user.getDueAmount(inId);
+        _root._dueAmount = user.getDueAmount(inId);
 
         _updateOverviewChart();
     }
@@ -295,13 +297,16 @@ Components.Page {
             Components.Dropdown {
                 id: _userFilter
 
-                label: "Filter"
-                model: _root._sharedUsers
+                label: "Users"
 
-                itemWidth:  140
+                itemWidth:  250
                 itemHeight: 50
 
                 getOptionDisplay: function(option, index) {
+                    if (!option) {
+                        return "";
+                    }
+
                     return index === 0 ? "All" : option.getFullName().trim();
                 }
 
