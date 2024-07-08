@@ -131,7 +131,8 @@ Components.Page {
     }
 
     function _updateFilter(inId) {
-        _root._dueAmount = user.getDueAmount(inId);
+        _root._userToFilter = inId;
+        _root._dueAmount    = user.getDueAmount(inId);
 
         _updateOverviewChart();
     }
