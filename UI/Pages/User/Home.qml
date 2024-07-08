@@ -123,6 +123,7 @@ Components.Page {
                 blue,
                 1
             );
+            createdComponent.borderColor = colors.background;
         }
     }
 
