@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(NAME "Financy")
 
-project(${NAME} VERSION 1.5)
+project(${NAME} VERSION 1.5.5)
 
 ##############  Set values  #######################
 set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
