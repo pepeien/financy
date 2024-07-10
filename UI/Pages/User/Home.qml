@@ -235,10 +235,11 @@ Components.Page {
             }
 
             Components.FinanceAccountList {
-                id:         _accounts
-                user:       _root.user
-                model:      _root.expenseAccounts
-                isEditing:  _root._isOnEditMode
+                id:           _accounts
+                user:         _root.user
+                filterUserId: _root._userToFilter
+                model:        _root.expenseAccounts
+                isEditing:    _root._isOnEditMode
 
                 onEdit: function(inAccount) {
                     _root._isOnEditMode = false;

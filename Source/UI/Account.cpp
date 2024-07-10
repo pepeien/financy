@@ -433,11 +433,11 @@ namespace Financy
         refreshHistory();
     }
 
-    QList<Statement*> Account::getStatementPurchases(const QDate& inDate)
+    QList<Statement*> Account::getStatementPurchases(const QDate& inDate, int inUserId)
     {
         QList<Statement*> result{};
 
-        for (Purchase* purchase : getPurchases(inDate))
+        for (Purchase* purchase : getPurchases(inDate, inUserId))
         {
             if (purchase->isRecurring())
             {
@@ -472,11 +472,11 @@ namespace Financy
         return result;
     }
 
-    QList<Purchase*> Account::getStatementSubscriptions(const QDate& inDate)
+    QList<Purchase*> Account::getStatementSubscriptions(const QDate& inDate, int inUserId)
     {
         QList<Purchase*> result{};
 
-        for (Purchase* purchase : getPurchases(inDate))
+        for (Purchase* purchase : getPurchases(inDate, inUserId))
         {
             if (!purchase->isRecurring())
             {
@@ -543,7 +543,7 @@ namespace Financy
         emit onEdit();
     }
 
-    void Account::refreshHistory()
+    void Account::refreshHistory(int inUserId)
     {
         m_history.clear();
 
@@ -554,8 +554,8 @@ namespace Financy
             return;
         }
 
-        QDate earliestStatement    = getEarliestStatementDate();
-        QDate latestStatement      = getLatestStatementDate();
+        QDate earliestStatement    = getEarliestStatementDate(inUserId);
+        QDate latestStatement      = getLatestStatementDate(inUserId);
         QDate currentStatementDate = earliestStatement;
 
         while(latestStatement.daysTo(currentStatementDate) <= 0)
@@ -566,7 +566,7 @@ namespace Financy
             float purchaseDueAmount  = 0.0f;
             float recurringDueAmount = 0.0f;
 
-            for (Purchase* purchase : getPurchases(currentStatementDate))
+            for (Purchase* purchase : getPurchases(currentStatementDate, inUserId))
             {
                 if (purchase->isRecurring())
                 {
@@ -621,13 +621,8 @@ namespace Financy
     {
         float result = 0.0f;
 
-        for(Purchase* purchase : getPurchases(QDate::currentDate()))
+        for(Purchase* purchase : getPurchases(QDate::currentDate(), inUserId))
         {
-            if (inUserId >= 0 && purchase->getUserId() != inUserId)
-            {
-                continue;
-            }
-
             result += purchase->getInstallmentValue();
         }
 
@@ -720,40 +715,11 @@ namespace Financy
         emit onEdit();
     }
 
-    QList<Purchase*> Account::getPurchases()
-    {
-        User* user = Internal::getSelectedUser();
-
-        if (isOwnedBy(user))
-        {
-            return m_purchases;
-        }
-
-        QList<Purchase*> result {};
-
-        if (user == nullptr)
-        {
-            return result;
-        }
-
-        for (Purchase* purchase : m_purchases)
-        {
-            if (!purchase->isOwnedBy(user))
-            {
-                continue;
-            }
-
-            result.push_back(purchase);
-        }
-
-        return result;
-    }
-
-    QList<Purchase*> Account::getPurchases(const QDate& inDate)
+    QList<Purchase*> Account::getPurchases(const QDate& inDate, int inUserId)
     {
         QList<Purchase*> result {};
 
-        for (Purchase* purchase : getPurchases())
+        for (Purchase* purchase : getPurchases(inUserId))
         {
             if (purchase == nullptr)
             {
@@ -781,6 +747,35 @@ namespace Financy
             result.end(),
             [](Purchase* a, Purchase* b) { return a->getDate().toJulianDay() > b->getDate().toJulianDay(); }
         );
+
+        return result;
+    }
+
+    QList<Purchase*> Account::getPurchases(int inUserId)
+    {
+        User* user = Internal::getSelectedUser();
+
+        if (inUserId < 0 && isOwnedBy(user))
+        {
+            return m_purchases;
+        }
+
+        QList<Purchase*> result {};
+
+        if (user == nullptr)
+        {
+            return result;
+        }
+
+        for (Purchase* purchase : m_purchases)
+        {
+            if (!purchase->isOwnedBy(inUserId >= 0 ? inUserId : user->getId()))
+            {
+                continue;
+            }
+
+            result.push_back(purchase);
+        }
 
         return result;
     }
@@ -967,9 +962,9 @@ namespace Financy
         m_purchases.clear();
     }
 
-    QDate Account::getEarliestStatementDate()
+    QDate Account::getEarliestStatementDate(int inUserId)
     {
-        QList<Purchase*> purchase = getPurchases();
+        QList<Purchase*> purchase = getPurchases(inUserId);
 
         if (purchase.isEmpty())
         {
@@ -994,13 +989,15 @@ namespace Financy
         return earliestStatementClosingDate;
     }
 
-    QDate Account::getLatestStatementDate()
+    QDate Account::getLatestStatementDate(int inUserId)
     {
         QDate now = QDate::currentDate();
 
         bool isOnlyRecurring = true;
 
-        for (Purchase* purchase : getPurchases())
+        QList<Purchase*> purchases = getPurchases(inUserId);
+
+        for (Purchase* purchase : purchases)
         {
             if (!purchase->isRecurring())
             {
@@ -1028,7 +1025,7 @@ namespace Financy
 
         QDate currentStatementDate = getEarliestStatementDate();
 
-        for (Purchase* purchase : getPurchases())
+        for (Purchase* purchase : purchases)
         {
             std::uint32_t installments = purchase->getInstallments();
 

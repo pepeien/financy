@@ -13,7 +13,8 @@ ScrollView {
     readonly property real _actionsHeight: 35
 
     property var user
-    property bool isEditing: false
+    property int filterUserId: -1
+    property bool isEditing:   false
 
     property var onDelete
     property var onEdit
@@ -79,7 +80,7 @@ ScrollView {
                 title:     _item.name
                 limit:     _item.limit
                 usedLimit: _item.usedLimit
-                dueAmount: _item.dueAmount
+                dueAmount: _item.getDueAmount(filterUserId)
 
                 backgroundBottomLeftRadius:  _scroll.isEditing ? 0 : Math.min((height * 0.25), 9)
                 backgroundBottomRightRadius: _scroll.isEditing ? 0 : Math.min((height * 0.25), 9)
