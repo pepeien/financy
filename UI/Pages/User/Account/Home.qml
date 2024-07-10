@@ -19,6 +19,12 @@ Components.Page {
     property int statementTitleHeight: 40
     property int statementHeight:      purchaseHeight + statementTitleHeight
 
+    // Filter
+    property int _userToFilter: -1
+
+    id:    _root
+    title: account?.name ?? ""
+
     leftButton.isDisabled: !account?.isOwnedBy(user.id) ?? true
     leftButtonIcon: "qrc:/Icons/Edit.svg" 
     leftButtonOnClick: function() {
@@ -46,22 +52,96 @@ Components.Page {
         internal.deselect();
     }
 
-    id:    _root
-    title: account?.name ?? ""
+    onUserChanged: function () {
+        _userFilter.clear();
+
+        if (!user || !account || !account.isOwnedBy(user.id)) {
+            _userFilter.model = [];
+
+            return;
+        }
+
+        _updateFilter(-1);
+
+        const userIds = [];
+
+        account.sharedUserIds.forEach((sharedUser) => {
+            if (userIds.find((user) => user == sharedUser)) {
+                return;
+            }
+
+            userIds.push(sharedUser);
+        });
+
+        const sharedUsers = userIds.map((_) => internal.getUser(_));
+        sharedUsers.push(user);
+
+        if (userIds.length > 0) {
+            sharedUsers.push(user);
+        }
+
+        sharedUsers.sort((userA, userB) => userA.id - userB.id);
+
+        _userFilter.model = sharedUsers;
+    }
 
     function clearListing() {
         _history.refresh([]);
         _purchases.clear();
     }
 
-    function refreshListing() {
+    function _refreshListing() {
         _root.clearListing();
 
         _history.refresh(_root.account.history);
     }
 
+    function _updateFilter(inId) {
+        _root._userToFilter = inId;
+    }
+
     Component.onCompleted: function() {
-        _root.refreshListing();
+        _root._refreshListing();
+    }
+
+    Components.Dropdown {
+        id:      _userFilter
+        visible: account?.isOwnedBy(user.id) ?? false
+
+        label: "Users"
+
+        itemWidth:  250
+        itemHeight: 50
+
+        getOptionDisplay: function(option, index) {
+            if (!option) {
+                return "";
+            }
+
+            return index === 0 ? "All" : option.getFullName().trim();
+        }
+
+        onSelect: function(option, index) {
+            if (!account.isOwnedBy(user.id)) {
+                return;
+            }
+
+            const nextId = index === 0 ? -1 : option.id;
+
+            if (_root._userToFilter === nextId) {
+                return;
+            }
+
+            _root.account.refreshHistory(nextId);
+
+            _root._updateFilter(nextId);
+            _root._refreshListing();
+        }
+
+        anchors.top:         parent.top
+        anchors.right:       parent.right
+        anchors.topMargin:   -90
+        anchors.rightMargin: 25
     }
 
     Components.Text {
@@ -95,8 +175,8 @@ Components.Page {
 
             _purchases.update(
                 _history.selectedHistory,
-                account.getStatementPurchases(    _history.selectedHistory.date),
-                account.getStatementSubscriptions(_history.selectedHistory.date)
+                account.getStatementPurchases(    _history.selectedHistory.date, _root._userToFilter),
+                account.getStatementSubscriptions(_history.selectedHistory.date, _root._userToFilter)
             );
         }
     }
@@ -138,7 +218,7 @@ Components.Page {
         id: _purchaseCreation
 
         onSubmit: function() {
-            _root.refreshListing();
+            _root._refreshListing();
         }
     }
 
@@ -146,7 +226,7 @@ Components.Page {
         id: _purchaseEdition
 
         onSubmit: function() {
-            _root.refreshListing();
+            _root._refreshListing();
         }
     }
 
@@ -161,7 +241,7 @@ Components.Page {
             _root.account.onEdit();
             _root.user.onEdit();
 
-            _root.refreshListing();
+            _root._refreshListing();
         }
     }
 
@@ -176,7 +256,7 @@ Components.Page {
             _root.account.onEdit();
             _root.user.onEdit();
 
-            _root.refreshListing();
+            _root._refreshListing();
         }
     }
 }

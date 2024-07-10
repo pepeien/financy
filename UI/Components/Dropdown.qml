@@ -128,7 +128,7 @@ Item {
 
         contentItem: Components.Text {
             padding:           _root.textPadding
-            text:              _root.getOptionDisplay(_control.model[_control.currentIndex], _control.currentIndex)
+            text:              !_control.model || _control.model.length === 0 ? "Select" : _root.getOptionDisplay(_control.model[_control.currentIndex], _control.currentIndex)
             font:              _control.font
             color:             internal.colors.dark
             elide:             Text.ElideRight

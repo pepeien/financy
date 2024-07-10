@@ -142,13 +142,13 @@ namespace Financy
         void cancelPurchase(std::uint32_t inId);
         void deletePurchase(std::uint32_t inId);
 
-        QList<Statement*> getStatementPurchases(const QDate& inDate);
-        QList<Purchase*> getStatementSubscriptions(const QDate& inDate);
+        QList<Statement*> getStatementPurchases(const QDate& inDate, int inUserId = -1);
+        QList<Purchase*> getStatementSubscriptions(const QDate& inDate, int inUserId = -1);
 
         void refreshPurchases();
         void clearPurchases();
 
-        void refreshHistory();
+        void refreshHistory(int inUserId = -1);
         void clearHistory();
 
         float getDueAmount();
@@ -181,8 +181,8 @@ namespace Financy
         float getLimit();
         void setLimit(float inLimit);
 
-        QList<Purchase*> getPurchases();
-        QList<Purchase*> getPurchases(const QDate& inDate);
+        QList<Purchase*> getPurchases(const QDate& inDate, int inUserId = -1);
+        QList<Purchase*> getPurchases(int inUserId = -1);
         Purchase* getPurchase(std::uint32_t inId);
         void setPurchases(const QList<Purchase*>& inPurchases);
         void addPurchases(const QList<Purchase*>& inPurchases);
@@ -211,8 +211,8 @@ namespace Financy
         float getRemainingLimit();
 
     private:
-        QDate getEarliestStatementDate();
-        QDate getLatestStatementDate();
+        QDate getEarliestStatementDate(int inUserId = -1);
+        QDate getLatestStatementDate(int inUserId = -1);
 
         void sortPurchases();
         void writePurchases();
