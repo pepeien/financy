@@ -1,4 +1,4 @@
-[![financy](.github/Images/project-thumbnail.png)](https://github.com/pepeien/financy/releases)
+[![financy](.github/images/project-thumbnail.png)](https://github.com/pepeien/financy/releases)
 
 # Financy
 
