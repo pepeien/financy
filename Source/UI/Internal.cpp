@@ -17,6 +17,7 @@
 
 #include "Base.hpp"
 #include "Core/FileSystem.hpp"
+#include "Core/Globals.hpp"
 #include "Core/Helper.hpp"
 
 Financy::User* selectedUser;
@@ -770,6 +771,16 @@ namespace Financy
     QDate Internal::addMonths(const QDate& inDate, int inMonths)
     {
         return inDate.addMonths(inMonths);
+    }
+
+    const QDate& Internal::getCurrentDate() const
+    {
+        return Globals::getCurrentDate();
+    }
+
+    void Internal::setCurrentDate(const QDate& inDate)
+    {
+        Globals::setCurrentDate(inDate);
     }
 
     bool Internal::isSameDate(const QDate& inDateA, const QDate& inDateB)

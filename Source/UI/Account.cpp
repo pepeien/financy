@@ -6,7 +6,9 @@
 #include <QQmlEngine>
 
 #include "Base.hpp"
+#include "Core/Application.hpp"
 #include "Core/FileSystem.hpp"
+#include "Core/Globals.hpp"
 #include "Core/Helper.hpp"
 #include "UI/User.hpp"
 #include "UI/Internal.hpp"
@@ -145,7 +147,7 @@ namespace Financy
 
     float Account::getUsedLimit()
     {
-        QDate now = QDate::currentDate();
+        QDate now = Globals::getCurrentDate();
 
         float result = 0.0f;
 
@@ -260,7 +262,7 @@ namespace Financy
 
     bool Account::hasFullyPaid(Purchase* inPurchase)
     {
-        QDate now = QDate::currentDate();
+        QDate now = Globals::getCurrentDate();
 
         return inPurchase->isFullyPaid(
             now,
@@ -270,7 +272,7 @@ namespace Financy
 
     std::uint32_t Account::getPaidInstallments(Purchase* inPurchase)
     {
-        QDate now = QDate::currentDate();
+        QDate now = Globals::getCurrentDate();
 
         return inPurchase->getPaidInstallments(
             now,
@@ -406,7 +408,7 @@ namespace Financy
             return;
         }
 
-        purchase->setEndDate(QDate::currentDate());
+        purchase->setEndDate(Globals::getCurrentDate());
         purchase->setHasEnded(true);
 
         refreshHistory();
@@ -621,7 +623,7 @@ namespace Financy
     {
         float result = 0.0f;
 
-        for(Purchase* purchase : getPurchases(QDate::currentDate(), inUserId))
+        for(Purchase* purchase : getPurchases(Globals::getCurrentDate(), inUserId))
         {
             result += purchase->getInstallmentValue();
         }
@@ -968,7 +970,7 @@ namespace Financy
 
         if (purchase.isEmpty())
         {
-            return QDate::currentDate();
+            return Globals::getCurrentDate();
         }
 
         QDate earliestPurchaseDate = purchase[0]->getDate();
@@ -991,7 +993,7 @@ namespace Financy
 
     QDate Account::getLatestStatementDate(int inUserId)
     {
-        QDate now = QDate::currentDate();
+        QDate now = Globals::getCurrentDate();
 
         bool isOnlyRecurring = true;
 
