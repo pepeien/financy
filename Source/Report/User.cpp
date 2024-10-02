@@ -6,6 +6,7 @@
 
 #include "hpdf.h"
 
+#include "Core/Globals.hpp"
 #include "UI/Account.hpp"
 #include "UI/Purchase.hpp"
 #include "UI/User.hpp"
@@ -62,7 +63,7 @@ namespace Financy
                     rect.left - PAGE_HORIZONTAL_PADDING,
                     rect.top,
                     rect.right + PAGE_HORIZONTAL_PADDING,
-                    2
+                    1
                 );
             HPDF_Page_ClosePathFillStroke(outPage);
 
@@ -92,6 +93,8 @@ namespace Financy
         void generatePurchaseItem(
             HPDF_Page& outPage,
             Purchase* inPurchase,
+            const QDate& inCurrentDate,
+            std::uint32_t closingDay,
             const HPDF_Font& inFont,
             const HPDF_Rect& inRect,
             bool bContainsBackground
@@ -102,6 +105,21 @@ namespace Financy
 
             std::string date          = inPurchase->getDate().toString("dd/MM/yy").toStdString();
             std::string establishment = inPurchase->getName().toStdString();
+            establishment.append(" ");
+            establishment.append(
+                std::to_string(
+                    inPurchase->getPaidInstallments(
+                        inCurrentDate,
+                        closingDay
+                    )
+                )
+            );
+            establishment.append("/");
+            establishment.append(
+                std::to_string(
+                    inPurchase->getInstallments()
+                )
+            );
             std::string value         = std::to_string(inPurchase->getInstallmentValue());
             value                     = std::string(value.begin(), value.end() - 5);
 
@@ -264,6 +282,8 @@ namespace Financy
 
             HPDF_Rect currentRect = defaultRect;
 
+            QDate currentDate = Globals::getCurrentDate();
+
             for (Account* account : inProps.user->getAccounts(Account::Type::Expense))
             {
                 if (account->getDueAmount() <= 0.0f)
@@ -284,13 +304,22 @@ namespace Financy
 
                 std::uint32_t purchaseCount = 0;
 
+                std::uint32_t closingDay = account->getClosingDay();
+
                 for (Purchase* purchase : account->getPurchases())
                 {
+                    if (purchase->isFullyPaid(currentDate, closingDay))
+                    {
+                        continue;
+                    }
+
                     currentRect.top -= PURCHASE_HEIGHT;
    
                     generatePurchaseItem(
                         page,
                         purchase,
+                        currentDate,
+                        closingDay,
                         font,
                         currentRect,
                         purchaseCount % 2 == 0

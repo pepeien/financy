@@ -1,5 +1,5 @@
 <?define name        = "Financy"?>
-<?define version     = "1.7.0"?>
+<?define version     = "1.7.5"?>
 <?define publisher   = "Pepeien"?>
 <?define guid        = "c5c7d034-23a9-4f9f-8d09-35adc13ed83e"?>
 <?define appLocation = "..\..\..\..\Deploy\win-64x"?>
