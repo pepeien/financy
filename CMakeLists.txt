@@ -12,10 +12,17 @@ set(NAME "Financy")
 project(${NAME} VERSION 1.6.0)
 
 ##############  Set values  #######################
-set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+if (NOT DEFINED CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+set(ASSETS_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/Assets")
+set(BUILD_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/Bin/${CMAKE_BUILD_TYPE}")
 set(SOURCES_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 set(UI_DIR       "${CMAKE_CURRENT_SOURCE_DIR}/UI")
 set(VENDOR_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/Vendors")
+
+set(ASSETS_TARGET_NAME "${NAME}_Assets")
 
 ##############  Set source files  #######################
 file(
@@ -24,6 +31,7 @@ file(
 
     // Sources
     ${SOURCES_DIR}/*.cpp
+    ${VENDOR_DIR}/libharu/src/*.c
 
     // Vendors
     ${VENDOR_DIR}/QtOpenCV/cvmatandqimage.cpp
@@ -43,7 +51,9 @@ list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
 set(CMAKE_AUTORCC ON)
 
 set(SKIP_AUTOMOC TRUE)
-set(SKIP_AUTOUIC TRUE) 
+set(SKIP_AUTOUIC TRUE)
+
+set(LIBHPDF_STATIC TRUE)
 
 set(OpenCV_DIR "${VENDOR_DIR}/opencv/build/lib")
 
@@ -53,17 +63,17 @@ find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 qt_standard_project_setup()
 
 if (WIN32)
-    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")  
         qt_add_executable(
             ${NAME}
-                WIN32
+
             ${SOURCES}
             ${UI_SOURCES}
         )
     else()
         qt_add_executable(
             ${NAME}
-
+                WIN32
             ${SOURCES}
             ${UI_SOURCES}
         )
@@ -87,6 +97,7 @@ target_include_directories(
         ${VENDOR_DIR}/QtOpenCV
         ${OpenCV_INCLUDE_DIRS}
         ${VENDOR_DIR}/json/include
+        ${VENDOR_DIR}/libharu/include
 )
 
 target_link_libraries(
@@ -109,19 +120,25 @@ set_target_properties(
     PROPERTIES
 
     VS_DEBUGGER_WORKING_DIRECTORY
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}"
 
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELEASE
-    "${BUILD_DIR}/Release"
+    "${BUILD_DIR}"
 
     ARCHIVE_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}"
     LIBRARY_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_DEBUG
-    "${BUILD_DIR}/Debug"
+    "${BUILD_DIR}"
 )
+
+add_subdirectory(${ASSETS_DIR})
+
+add_subdirectory(${VENDOR_DIR}/libharu)
+
+add_dependencies(${NAME} ${ASSETS_TARGET_NAME})

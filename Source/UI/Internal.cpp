@@ -19,6 +19,7 @@
 #include "Core/FileSystem.hpp"
 #include "Core/Globals.hpp"
 #include "Core/Helper.hpp"
+#include "Report/User.hpp"
 
 Financy::User* selectedUser;
 
@@ -894,24 +895,61 @@ namespace Financy
 
     void Internal::createFiles()
     {
-        for (const char* fileName : FILE_NAMES)
+        std::filesystem::create_directories(DATA_FOLDER_NAME);
+
+        std::string dataFolderPath = DATA_FOLDER_NAME;
+        dataFolderPath.append("/");
+
+        for (const char* filePath : FILES)
         {
-            if (FileSystem::doesFileExist(fileName))
+            std::string fileName = Helper::splitString(
+                filePath,
+                dataFolderPath
+            )[1];
+
+            if (FileSystem::doesFileExist(fileName) && !FileSystem::doesFileExist(filePath))
+            {
+                std::filesystem::rename(
+                    fileName,
+                    filePath
+                );
+
+                continue;
+            }
+
+            if (FileSystem::doesFileExist(filePath))
             {
                 continue;
             }
 
-            if (QString::fromLatin1(fileName).contains(SETTINGS_FILE_NAME))
+            if (QString::fromLatin1(filePath).contains(SETTINGS_FILE_NAME))
             {
                 updateTheme(m_colorsTheme);
 
                 continue;
             }
 
-            std::ofstream stream(fileName);
+            std::ofstream stream(filePath);
             stream << std::setw(4) << nlohmann::json::array() << std::endl;
             stream.close();
         }
+    }
+
+    void Internal::createReport()
+    {
+        if (!m_selectedUser)
+        {
+            return;
+        }
+
+        Report::UserProps props {};
+        props.path = "Reports";
+        props.name = std::to_string(m_selectedUser->getId());
+        props.name.append("_");
+        props.name.append(getCurrentDate().toString("dd-MM-yy").toStdString());
+        props.user = m_selectedUser;
+
+        Report::generatreUserReport(props);
     }
 
     void Internal::loadUsers()

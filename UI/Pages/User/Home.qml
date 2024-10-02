@@ -32,9 +32,9 @@ Components.Page {
         stack.push("qrc:/Pages/UserEdit.qml");
     }
 
-    centerButtonIcon: "qrc:/Icons/Plus.svg"
+    centerButtonIcon: "qrc:/Icons/Download.svg"
     centerButtonOnClick: function() {
-        stack.push("qrc:/Pages/UserAccountCreate.qml");
+        internal.createReport();
     }
 
     onReturn: function() {
@@ -164,7 +164,7 @@ Components.Page {
         Components.SquircleContainer {
             id:     _cards
             width:  parent.width
-            height: (parent.height * 0.5) - (_root.innerPadding * 0.5)
+            height: parent.height
 
             backgroundColor: Qt.lighter(internal.colors.background, 0.965)
             hasShadow:       true

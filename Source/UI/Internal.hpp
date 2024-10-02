@@ -172,6 +172,9 @@ namespace Financy
         // Prep
         void createFiles();
 
+        // PDF
+        void createReport();
+
     private:
         // User
         void loadUsers();

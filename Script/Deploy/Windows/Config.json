@@ -4,6 +4,8 @@
     "extractPlugins": true,
     "allQMlDependes": true,
     "bin": "../../Bin/Release",
+    "extraData": "../../Bin/Release/Assets",
+    "extraDataout": "Assets",
     "qmlDir": "../../UI",
     "targetDir": "../../Deploy/win-64x"
 }
