@@ -37,6 +37,11 @@ Components.Page {
         internal.createReport();
     }
 
+    rightButtonIcon:   "qrc:/Icons/Plus.svg"
+    rightButtonOnClick: function() {
+        stack.push("qrc:/Pages/UserAccountCreate.qml");
+    }
+
     onReturn: function() {
         internal.logout();
     }
