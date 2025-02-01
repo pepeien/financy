@@ -90,6 +90,7 @@ namespace Financy
         User* createUser(
             const QString& inFirstName,
             const QString& inLastName,
+            float inIncome,
             const QUrl& inPicture,
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
@@ -98,6 +99,7 @@ namespace Financy
             std::uint32_t inId,
             const QString& inFirstName,
             const QString& inLastName,
+            float inIncome,
             const QUrl& inPicture,
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor

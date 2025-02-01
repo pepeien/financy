@@ -88,8 +88,7 @@ namespace Financy
     public:
         enum class Type
         {
-            Expense = 0,
-            Saving  = 1
+            Expense = 0
         };
         Q_ENUM(Type)
 
@@ -153,6 +152,7 @@ namespace Financy
 
         float getDueAmount();
         float getDueAmount(int inUserId);
+        float getDueAmount(const QDate& inDate, int inUserId);
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -210,6 +210,8 @@ namespace Financy
         float getUsedLimit();
         float getRemainingLimit();
 
+        const QList<Statement*>& getHistory();
+
     private:
         QDate getEarliestStatementDate(int inUserId = -1);
         QDate getLatestStatementDate(int inUserId = -1);
@@ -244,6 +246,5 @@ namespace Financy
 
     static std::unordered_map<std::string, Account::Type> ACCOUNT_TYPES = {
         { "Expense", Account::Type::Expense },
-        //{ "Saving",  Account::Type::Saving } Disabled until rework
     };
 }

@@ -50,8 +50,6 @@ namespace Financy
     {
         switch (inType)
         {
-        case Type::Saving:
-            return "Saving";
         case Type::Expense:
         default:
             return "Expense";
@@ -179,6 +177,11 @@ namespace Financy
     float Account::getRemainingLimit()
     {
         return m_limit - getUsedLimit();
+    }
+
+    const QList<Statement*>& Account::getHistory()
+    {
+        return m_history;
     }
 
     bool Account::isOwnedBy(User* inUser)
@@ -621,9 +624,14 @@ namespace Financy
 
     float Account::getDueAmount(int inUserId)
     {
+        return getDueAmount(Globals::getCurrentDate(), inUserId);
+    }
+
+    float Account::getDueAmount(const QDate& inDate, int inUserId)
+    {
         float result = 0.0f;
 
-        for(Purchase* purchase : getPurchases(Globals::getCurrentDate(), inUserId))
+        for(Purchase* purchase : getPurchases(inDate, inUserId))
         {
             result += purchase->getInstallmentValue();
         }
@@ -881,11 +889,6 @@ namespace Financy
         }
 
         Type type = Type::Expense;
-
-        if (inType.contains("Saving"))
-        {
-            type = Type::Saving;
-        }
 
         if (m_type != type)
         {

@@ -71,6 +71,8 @@ ScrollView {
                 anchors.left:       index % 2 != 0 ? parent.left : undefined
                 anchors.leftMargin: index % 2 != 0 ? (_scroll._padding / 4) : 0
 
+                anchors.verticalCenter: parent.verticalCenter
+
                 backgroundColor: _item.primaryColor
                 textColor:       _item.secondaryColor
 

@@ -30,6 +30,11 @@ namespace Financy
             MEMBER m_lastName
             NOTIFY onEdit
         )
+        Q_PROPERTY(
+            float income
+            MEMBER m_income
+            NOTIFY onEdit
+        )
 
         // Looks
         Q_PROPERTY(
@@ -77,13 +82,14 @@ namespace Financy
     public slots:
         QString getFullName();
 
-        void refresh();
-
         QVariantMap getExpenseMap();
         QVariantMap getExpenseMap(int inUserId);
 
         float getDueAmount();
         float getDueAmount(int inUserId);
+
+        float getSavedAmount();
+        float getSavedAmount(int inUserId);
 
     public:
         void fromJSON(const nlohmann::json& inData);
@@ -98,6 +104,9 @@ namespace Financy
 
         QString getLastName();
         void setLastName(const QString& inLastName);
+
+        float getIncome();
+        void setIncome(float inIncome);
 
         QString getPicture();
         void setPicture(const QUrl& inUrl);
@@ -118,6 +127,7 @@ namespace Financy
         void edit(
             const QString& inFirstName,
             const QString& inLastName,
+            float inIncome,
             const QUrl& inPicture,
             const QColor& inPrimaryColor,
             const QColor& inSecondaryColor
@@ -148,6 +158,7 @@ namespace Financy
 
         QString m_firstName;
         QString m_lastName;
+        float m_income;
         QString m_picture; // Base64
 
         QColor m_primaryColor;

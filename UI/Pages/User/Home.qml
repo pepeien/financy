@@ -21,6 +21,8 @@ Components.Page {
     property bool _isOnEditMode: false
 
     property double _dueAmount: user?.getDueAmount(_userToFilter) ?? 0
+    property double _savedAmount: user?.getSavedAmount(_userToFilter) ?? 0
+    property double _incomeAmount: user?.income ?? 1.0
 
     property var _currentDate: new Date()
 
@@ -148,6 +150,7 @@ Components.Page {
     function _updateFilter(inId) {
         _root._userToFilter = inId;
         _root._dueAmount    = user.getDueAmount(inId);
+        _root._savedAmount  = user.getSavedAmount(inId);
 
         _updateOverviewChart();
     }
@@ -413,7 +416,7 @@ Components.Page {
 
             ChartView {
                 id:           _overviewChart
-                height:       parent.height - _overviewTitle.height
+                height:       parent.height - _overviewTitle.height - savings.height - 20
                 width:        parent.width - _overviewTitle.height
                 antialiasing: true
                 visible:      _root.expenseAccounts.length > 0
@@ -487,7 +490,7 @@ Components.Page {
                     }
                 }
 
-               Components.Text {
+                Components.Text {
                     id:    _overviewInnerText
                     text:  "Total"
                     color: internal.colors.dark
@@ -509,6 +512,30 @@ Components.Page {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top:              _overviewInnerText.bottom
                     anchors.topMargin:        10
+                }
+            }
+
+            Components.SquircleContainer {
+                id:     savings
+                width:  parent.width - 50
+                height: 50
+
+                backgroundWidth: (_root._savedAmount / _root._incomeAmount) * savings.width
+                backgroundColor: Qt.darker(internal.colors.light, 0.9)
+                backgroundBorder.color: backgroundColor
+
+                anchors.top:              _overviewChart.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Components.Text {
+                    text:  "Savings " + _root._savedAmount.toFixed(2)
+                    color: Qt.lighter(internal.colors.dark, 1.1)
+
+                    font.pointSize: 11
+                    font.weight:    Font.DemiBold
+
+                    anchors.verticalCenter:   parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
         }

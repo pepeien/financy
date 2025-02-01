@@ -28,6 +28,7 @@ Components.Page {
             user.id,
             firstName.text,
             lastName.text,
+            income.text,
             profilePicture,
             _primaryColor.picker.color,
             _secondaryColor.picker.color
@@ -168,11 +169,30 @@ Components.Page {
             anchors.horizontalCenter: parent.horizontalCenter
         }
 
+        Components.Input {
+            id:    income
+            width: firstName.width
+
+            label:      "Income"
+            color:      internal.colors.dark
+            isRequired: true
+
+            validator: DoubleValidator {
+                locale: "en"
+                bottom: 0.1
+                decimals: 2
+            }
+
+            anchors.top:              lastName.bottom
+            anchors.topMargin:        10
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
         Item {
             id:    _colors
             width: lastName.width
 
-            anchors.top:              lastName.bottom
+            anchors.top:              income.bottom
             anchors.topMargin:        40
             anchors.horizontalCenter: parent.horizontalCenter
 

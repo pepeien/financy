@@ -219,6 +219,7 @@ namespace Financy
     User* Internal::createUser(
         const QString& inFirstName,
         const QString& inLastName,
+        float inIncome,
         const QUrl& inPicture,
         const QColor& inPrimaryColor,
         const QColor& inSecondaryColor
@@ -246,6 +247,7 @@ namespace Financy
         user->setId(            id);
         user->setFirstName(     inFirstName);
         user->setLastName(      inLastName);
+        user->setIncome(        inIncome);
         user->setPicture(       inPicture);
         user->setPrimaryColor(  inPrimaryColor);
         user->setSecondaryColor(inSecondaryColor);
@@ -267,6 +269,7 @@ namespace Financy
         std::uint32_t inId,
         const QString& inFirstName,
         const QString& inLastName,
+        float inIncome,
         const QUrl& inPicture,
         const QColor& inPrimaryColor,
         const QColor& inSecondaryColor
@@ -294,6 +297,7 @@ namespace Financy
         user->edit(
             inFirstName,
             inLastName,
+            inIncome,
             inPicture,
             inPrimaryColor,
             inSecondaryColor

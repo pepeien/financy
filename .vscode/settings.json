@@ -115,6 +115,7 @@
         "qscatterseries": "cpp",
         "qdate": "cpp",
         "stack": "cpp",
-        "xstddef": "cpp"
+        "xstddef": "cpp",
+        "queue": "cpp"
     }
 }

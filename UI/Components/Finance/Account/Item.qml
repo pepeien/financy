@@ -7,8 +7,6 @@ import "qrc:/Components" as Components
 Components.SquircleButton {
     id: _root
 
-    anchors.verticalCenter: parent.verticalCenter
-
     property alias textColor: _title.color
     property alias title:     _title.text
 
@@ -72,7 +70,7 @@ Components.SquircleButton {
 
         Components.Text {
             id:    _limitText
-            text:  _root.usedLimit.toFixed(2) + " | " + _root.limit
+            text:  _root.usedLimit.toFixed(2) + " | " + _root.limit.toFixed(2)
             color: _title.color
 
             font.pointSize: 9

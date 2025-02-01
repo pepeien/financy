@@ -21,6 +21,7 @@ Components.SquircleButton {
     clip:   true
 
     backgroundColor: primaryColor
+    backgroundRadius: 15
 
     anchors.horizontalCenter: parent.horizontalCenter
 

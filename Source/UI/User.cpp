@@ -25,7 +25,8 @@ namespace Financy
         m_lastName(""),
         m_picture(""),
         m_primaryColor("#FFFFFF"),
-        m_secondaryColor("#000000")
+        m_secondaryColor("#000000"),
+        m_accounts({})
     {}
 
     void User::fromJSON(const nlohmann::json& inData)
@@ -36,6 +37,13 @@ namespace Financy
                     (std::uint32_t) inData.at("id") : 0
                 :
                 0
+        );
+        setIncome(
+            inData.find("income") != inData.end() ?
+                inData.at("income").is_number_float() ?
+                    (float) inData.at("income") : 0.0f
+                :
+                0.0f
         );
         setFirstName(
             inData.find("firstName") != inData.end() ?
@@ -70,6 +78,7 @@ namespace Financy
             { "id",             m_id },
             { "firstName",      m_firstName.toStdString() },
             { "lastName",       m_lastName.toStdString() },
+            { "income",         m_income },
             { "picture",        m_picture.toStdString() },
             { "primaryColor",   m_primaryColor.name().toStdString() },
             { "secondaryColor", m_secondaryColor.name().toStdString() }
@@ -79,11 +88,6 @@ namespace Financy
     QString User::getFullName()
     {
         return m_firstName + " " + m_lastName;
-    }
-
-    void User::refresh()
-    {
-        emit onEdit();
     }
 
     QVariantMap User::getExpenseMap()
@@ -152,6 +156,16 @@ namespace Financy
         return result;
     }
 
+    float User::getSavedAmount()
+    {
+        return getSavedAmount(-1);
+    }
+
+    float User::getSavedAmount(int inUserId)
+    {
+        return m_income - getDueAmount(inUserId);
+    }
+
     uint32_t User::getId()
     {
         return m_id;
@@ -190,6 +204,16 @@ namespace Financy
         }
 
         m_lastName = inLastName;
+    }
+
+    float User::getIncome()
+    {
+        return m_income;
+    }
+
+    void User::setIncome(float inIncome)
+    {
+        m_income = inIncome;
     }
 
     QString User::getPicture()
@@ -284,6 +308,7 @@ namespace Financy
     void User::edit(
         const QString& inFirstName,
         const QString& inLastName,
+        float inIncome,
         const QUrl& inPicture,
         const QColor& inPrimaryColor,
         const QColor& inSecondaryColor
@@ -297,6 +322,14 @@ namespace Financy
         if (m_lastName.compare(inLastName) != 0)
         {
             m_lastName = inLastName;
+        }
+
+        if (m_income != inIncome)
+        {
+            m_income = std::max(
+                inIncome,
+                0.0f
+            );
         }
 
         if (m_picture.compare(inPicture.toString()) != 0)
