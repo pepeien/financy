@@ -771,7 +771,7 @@ namespace Financy
 
     QDate Internal::addMonths(const QDate& inDate, int inMonths)
     {
-        return inDate.addMonths(inMonths);
+        return inDate.addMonths(inMonths).addDays(1);
     }
 
     const QDate& Internal::getCurrentDate() const
