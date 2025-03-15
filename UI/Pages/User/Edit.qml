@@ -172,6 +172,7 @@ Components.Page {
         Components.Input {
             id:    income
             width: firstName.width
+            text:  user?.income ? user?.income.toFixed(2) : 0
 
             label:      "Income"
             color:      internal.colors.dark

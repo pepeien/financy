@@ -143,42 +143,6 @@ namespace Financy
         };
     }
 
-    float Account::getUsedLimit()
-    {
-        QDate now = Globals::getCurrentDate();
-
-        float result = 0.0f;
-
-        for (Purchase* purchase : m_purchases)
-        {
-            if (purchase->getDate().daysTo(now) < 0)
-            {
-                continue;
-            }
-
-            if (purchase->getType() == Purchase::Type::Subscription || purchase->getType() == Purchase::Type::Bill)
-            {
-                result += purchase->getValue();
-
-                continue;
-            }
-
-            if (hasFullyPaid(purchase))
-            {
-                continue;
-            }
-    
-            result += getRemainingValue(purchase);
-        }
-
-        return result;
-    }
-
-    float Account::getRemainingLimit()
-    {
-        return m_limit - getUsedLimit();
-    }
-
     const QList<Statement*>& Account::getHistory()
     {
         return m_history;
@@ -634,6 +598,45 @@ namespace Financy
         for(Purchase* purchase : getPurchases(inDate, inUserId))
         {
             result += purchase->getInstallmentValue();
+        }
+
+        return result;
+    }
+
+    float Account::getUsedLimit()
+    {
+        return getUsedLimit(-1);
+    }
+
+    float Account::getUsedLimit(int inUserId)
+    {
+        return getUsedLimit(Globals::getCurrentDate(), inUserId);
+    }
+
+    float Account::getUsedLimit(const QDate& inDate, int inUserId)
+    {
+        float result = 0.0f;
+
+        for (Purchase* purchase : m_purchases)
+        {
+            if (purchase->getDate().daysTo(inDate) < 0)
+            {
+                continue;
+            }
+
+            if (purchase->getType() == Purchase::Type::Subscription || purchase->getType() == Purchase::Type::Bill)
+            {
+                result += purchase->getValue();
+
+                continue;
+            }
+
+            if (hasFullyPaid(purchase))
+            {
+                continue;
+            }
+    
+            result += getRemainingValue(purchase);
         }
 
         return result;

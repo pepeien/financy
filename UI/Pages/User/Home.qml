@@ -159,7 +159,6 @@ Components.Page {
     readonly property real innerPadding: padding / 2
 
     readonly property var expenseAccounts: user ? user.accounts.filter((account) => account.type == Account.Expense) : []
-    readonly property var savingAccounts:  user ? user.accounts.filter((account) => account.type == Account.Saving) : []
 
     Item {
         id:     _selector

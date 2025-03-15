@@ -43,7 +43,7 @@ ScrollView {
 
         delegate: Item {
             readonly property var _item:           _grid.model[index]
-            readonly property real _ultilization:  _item.usedLimit / _item.limit
+            readonly property real _ultilization:  _item.getUsedLimit(filterUserId) / _item.limit
 
             function _canEdit() {
                 return _scroll.isEditing && _item.isOwnedBy(_scroll.user.id);
@@ -78,7 +78,7 @@ ScrollView {
 
                 title:     _item.name
                 limit:     _item.limit
-                usedLimit: _item.usedLimit
+                usedLimit: _item.getUsedLimit(filterUserId)
                 dueAmount: _item.getDueAmount(filterUserId)
 
                 backgroundBottomLeftRadius:  _scroll.isEditing ? 0 : Math.min((height * 0.25), 9)
