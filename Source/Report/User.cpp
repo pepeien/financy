@@ -120,8 +120,8 @@ namespace Financy
                     inPurchase->getInstallments()
                 )
             );
-            std::string value         = std::to_string(inPurchase->getInstallmentValue());
-            value                     = std::string(value.begin(), value.end() - 5);
+            std::string value = std::to_string(inPurchase->getInstallmentValue());
+            value             = std::string(value.begin(), value.end() - 5);
 
             HPDF_Rect rect;
             rect.top    = inRect.top;

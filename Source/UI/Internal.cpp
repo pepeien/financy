@@ -775,7 +775,11 @@ namespace Financy
 
     QDate Internal::addMonths(const QDate& inDate, int inMonths)
     {
-        return inDate.addMonths(inMonths).addDays(1);
+        if (inMonths == 0) {
+            return inDate;
+        }
+
+        return QDate(inDate.year(), inDate.month(), inMonths > 0 ? 2 : 1).addMonths(inMonths);
     }
 
     const QDate& Internal::getCurrentDate() const
@@ -949,6 +953,8 @@ namespace Financy
         Report::UserProps props {};
         props.path = "Reports";
         props.name = std::to_string(m_selectedUser->getId());
+        props.name.append("_");
+        props.name.append(m_selectedUser->getFirstName().toStdString());
         props.name.append("_");
         props.name.append(getCurrentDate().toString("dd-MM-yy").toStdString());
         props.user = m_selectedUser;
