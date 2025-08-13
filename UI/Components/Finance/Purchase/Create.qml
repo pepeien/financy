@@ -26,6 +26,7 @@ Components.Modal {
 
         _datePicker.set(new Date());
         _date.set(internal.getLongDate(_datePicker.selectedDate));
+        _installments.set("1");
     }
 
     Components.SquircleContainer {
@@ -128,7 +129,6 @@ Components.Modal {
 
                 validator: DoubleValidator {
                     locale: "en"
-                    bottom: 0.1
                     decimals: 2
                 }
 

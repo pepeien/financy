@@ -167,10 +167,10 @@ namespace Financy
     static std::unordered_map<std::string, Purchase::Type> PURCHASE_TYPES = {
         { "Debt",         Purchase::Type::Debt },
         { "Food",         Purchase::Type::Food},
-        { "Subscription", Purchase::Type::Subscription },
+        { "Subscription", Purchase::Type::Subscription }, { "Subscriptions", Purchase::Type::Subscription },
         { "Transport",    Purchase::Type::Transport },
-        { "Utility",      Purchase::Type::Utility },
-        { "Bill",         Purchase::Type::Bill },
-        { "Other",        Purchase::Type::Other }
+        { "Utility",      Purchase::Type::Utility }, { "Utilities", Purchase::Type::Utility },
+        { "Bill",         Purchase::Type::Bill }, { "Bills", Purchase::Type::Bill },
+        { "Other",        Purchase::Type::Other }, { "Others", Purchase::Type::Other }
     };
 }

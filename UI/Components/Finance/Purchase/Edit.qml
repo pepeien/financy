@@ -28,11 +28,7 @@ Components.Modal {
 
         _installments.set(_root.purchase.installments);
 
-        _type.set(
-            internal.getPurchaseTypeName(
-                _root.purchase.type
-            )
-        );
+        _type.set(internal.getPurchaseTypeName(_root.purchase.type));
     }
 
     Components.SquircleContainer {

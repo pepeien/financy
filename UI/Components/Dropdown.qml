@@ -29,7 +29,7 @@ Item {
     readonly property real textPadding: 16
 
     function set(value) {
-        for (let i = 0; i <  model.length; i++) {
+        for (let i = 0; i < model.length; i++) {
             if (value !== model[i]) {
                 continue;
             }
