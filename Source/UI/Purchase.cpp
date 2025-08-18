@@ -33,29 +33,27 @@ namespace Financy
         {
             return Type::Other;
         }
-    
+
         return PURCHASE_TYPES.at(inName.toStdString());
     }
 
     QString Purchase::getTypeName(Type inType)
     {
-        switch (inType)
+        auto result = std::find_if(
+            PURCHASE_TYPES.begin(),
+            PURCHASE_TYPES.end(),
+            [inType](const std::pair<std::string, Purchase::Type>& inEntry)
+            {
+                return inEntry.second == inType;
+            }
+        );
+
+        if (result == PURCHASE_TYPES.end())
         {
-        case Type::Utility:
-            return "Utilities";
-        case Type::Subscription:
-            return "Subscriptions";
-        case Type::Transport:
-            return "Transport";
-        case Type::Debt:
-            return "Debts";
-        case Type::Food:
-            return "Food";
-        case Type::Bill:
-            return "Bills";
-        default:
             return "Others";
         }
+    
+        return QString::fromStdString(result->first);
     }
 
     bool Purchase::isOwnedBy(std::uint32_t inUserId)

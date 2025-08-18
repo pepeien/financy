@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(NAME "Financy")
 
-project(${NAME} VERSION 1.8.3)
+project(${NAME} VERSION 1.8.4)
 
 ##############  Set values  #######################
 if (NOT DEFINED CMAKE_BUILD_TYPE)
