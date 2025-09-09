@@ -779,7 +779,7 @@ namespace Financy
             return inDate;
         }
 
-        return QDate(inDate.year(), inDate.month(), inMonths > 0 ? 2 : 1).addMonths(inMonths);
+        return QDate(inDate.year(), inDate.month(), 15).addMonths(inMonths);
     }
 
     const QDate& Internal::getCurrentDate() const

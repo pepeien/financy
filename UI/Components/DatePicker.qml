@@ -31,11 +31,13 @@ Components.Popup {
 
     GridLayout {
         id:      _gridRoot
-        width:   parent.width * 0.9
-        height:  parent.height * 0.9
+        width:   parent.width * 0.88
+        height:  parent.height * 0.8
         columns: 1
 
-        anchors.centerIn: parent
+        anchors.top: parent.top
+        anchors.topMargin: parent.height * 0.07
+        anchors.horizontalCenter: parent.horizontalCenter
 
         Components.SquircleContainer {
             height: 30
@@ -181,16 +183,83 @@ Components.Popup {
                     }
  
                     _date.selectedDate = model.date;
-
-                    _date.close();
-
-                    if (!_date.onSelect) {
-                        return;
-                    }
-
-                    _date.onSelect(model.date);
                 }
             }
+        }
+    }
+
+    Components.SquircleButton {
+        id: _nowButton
+        width: 40
+        height: 25
+
+        anchors.top: _gridRoot.bottom
+        anchors.topMargin: parent.height * 0.03
+
+        onClick: function() {
+            _date.set(new Date());
+        }
+
+        Components.Text {
+            id: _nowText
+            text: "Now"
+            color: internal.colors.light
+
+            font.weight: Font.Bold
+
+            anchors.centerIn: parent
+        }
+    }
+
+    Components.SquircleButton {
+        id: _cancelButton
+        width: 60
+        height: 25
+
+        anchors.top: _gridRoot.bottom
+        anchors.right: _confirmButton.left
+        anchors.topMargin: parent.height * 0.03
+
+        onClick: function() {
+            _date.close();
+        }
+
+        Components.Text {
+            text: "Cancel"
+            color: internal.colors.light
+
+            font.weight: Font.Bold
+
+            anchors.centerIn: parent
+        }
+    }
+
+    Components.SquircleButton {
+        id: _confirmButton
+        width: 40
+        height: 25
+
+        anchors.top: _gridRoot.bottom
+        anchors.right: parent.right
+        anchors.topMargin: parent.height * 0.03
+
+        onClick: function() {
+            _date.close();
+
+            if (!_date.onSelect) {
+                return;
+            }
+
+            _date.onSelect(_date.selectedDate);
+        }
+
+        Components.Text {
+            text: "Ok"
+            color: internal.colors.light
+
+            font.weight: Font.Bold
+
+            anchors.centerIn: parent
         }
     }
 }

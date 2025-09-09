@@ -400,7 +400,7 @@ Components.Page {
                     x:      _dateButton.x + _dateButton.width
                     y:      _dateButton.y + (_date.inputHeight * 0.5)
                     width:  228
-                    height: 228
+                    height: 245
 
                     onSelect: function(date) {
                         internal.setCurrentDate(date);
