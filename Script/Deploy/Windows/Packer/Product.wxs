@@ -13,26 +13,66 @@
         Name="$(var.name)"
         Manufacturer="$(var.publisher)"
         Version="$(var.version)"
-        Scope="perUser"
+        Scope="perMachine"
+        Language="1033"
+        InstallerVersion="300"
+        Compressed="yes"
         UpgradeCode="$(var.guid)"
         UpgradeStrategy="majorUpgrade"
     >
+        <Media Id="1" Cabinet="$(var.name).cab" EmbedCab="yes"/>
+
         <MajorUpgrade
             Schedule="afterInstallInitialize"
             AllowSameVersionUpgrades="yes"
             DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit."
         />
-        <Media
-            Id="1"
-            Cabinet="setup.cab"
-            EmbedCab="yes"
-        />
-        <Files Include="$(var.appLocation)\**">
-            <Exclude Files="$(var.appLocation)\**.json" />
-        </Files>
-        <ui:WixUI
-            Id="WixUI_InstallDir"
-	        InstallDirectory="INSTALLFOLDER"
-        />
+
+        <StandardDirectory Id="ProgramFilesFolder">
+            <Directory Id="INSTALLFOLDER" Name="$(var.name)" />
+        </StandardDirectory>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="ApplicationExecutable" Guid="FC79DF44-B299-43AD-9218-7746AAD8F166">
+                <File
+                    Id="ApplicationExecutableFile"
+                    Source="$(var.appLocation)\$(var.name).exe"
+                    KeyPath="yes"
+                    Checksum="yes"
+                />
+            </Component>
+        </DirectoryRef>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="ApplicationShortcut" Guid="AB7F9FE7-B53F-4242-8BC9-DCEAE6A10CB6">
+                <Shortcut
+                    Id="ApplicationStartMenuShortcut"
+                    Name="$(var.name)"
+                    Description="$(var.name)"
+                    Target="[#ApplicationExecutableFile]"
+                    Directory="DesktopFolder"
+                    WorkingDirectory="INSTALLFOLDER"
+                />
+                <RemoveFolder Id="INSTALLFOLDER" On="uninstall"/>
+                <RegistryValue
+                    Root="HKCU"
+                    Key="Software\$(var.publisher)\$(var.name)"
+                    Name="installed"
+                    Type="integer"
+                    Value="1"
+                    KeyPath="yes"
+                />
+            </Component>
+        </DirectoryRef>
+
+        <Feature Id="MainApplication" Title="Main Application" Level="1">
+            <Files Include="$(var.appLocation)\**" Directory="INSTALLFOLDER">
+                <Exclude Files="$(var.appLocation)\$(var.name).exe" />
+                <Exclude Files="$(var.appLocation)\$(var.name).bat" />
+                <Exclude Files="$(var.appLocation)\**.json" />
+            </Files>
+            <ComponentRef Id="ApplicationExecutable"/>
+            <ComponentRef Id="ApplicationShortcut"/>
+        </Feature>
+
+        <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER"/>
     </Package>
 </Wix>
