@@ -363,6 +363,11 @@ namespace Financy
         delete user;
     }
 
+    void Internal::refresh()
+    {
+        emit onSelectUserUpdate();
+    }
+
     void Internal::login(std::uint32_t inId)
     {
         User* user = getUser(inId);
@@ -388,7 +393,7 @@ namespace Financy
         m_selectedUser = user;
         m_selectedUser->login();
 
-        emit onSelectUserUpdate();
+        refresh();
     }
 
     void Internal::logout()
@@ -403,7 +408,7 @@ namespace Financy
 
         setSelectedUser(m_selectedUser);
 
-        emit onSelectUserUpdate();
+        refresh();
     }
 
     Account* Internal::getAccount(std::uint32_t inId)

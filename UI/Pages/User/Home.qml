@@ -48,6 +48,12 @@ Components.Page {
         internal.logout();
     }
 
+    onRoute: function () {
+        _updateChart();
+
+        internal.refresh();
+    }
+
     onUserChanged: function() {
         internal.setCurrentDate(new Date());
 

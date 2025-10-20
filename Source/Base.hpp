@@ -1,5 +1,23 @@
 #pragma once
 
+#ifdef NDEBUG
+    #define IS_DEBUGGING false
+#else
+    #define IS_DEBUGGING true
+#endif
+
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+#   define OS_WINDOWS true
+#else
+#   define OS_WINDOWS false
+#endif
+
+#if defined(__linux__) || (defined(__GNUC__) && __GNUC__ >= 4)
+#   define OS_LINUX true
+#else
+#   define OS_LINUX false
+#endif
+
 namespace Financy
 {
     constexpr auto DATA_FOLDER_NAME   = "Data";

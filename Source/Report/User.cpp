@@ -6,6 +6,7 @@
 
 #include "hpdf.h"
 
+#include "Core/FileSystem.hpp"
 #include "Core/Globals.hpp"
 #include "UI/Account.hpp"
 #include "UI/Purchase.hpp"
@@ -362,6 +363,8 @@ namespace Financy
             HPDF_SaveToFile(document, filepath.c_str());
 
             HPDF_Free(document);
+
+            FileSystem::openFile(filepath);
         }
     }
 }

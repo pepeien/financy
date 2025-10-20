@@ -106,6 +106,7 @@ namespace Financy
         );
         void deleteUser(std::uint32_t inId);
 
+        void refresh();
         void login(std::uint32_t inId);
         void logout();
 
