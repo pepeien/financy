@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "Core.hpp"
+#include "Base.hpp"
 
 namespace Financy
 {
@@ -20,6 +20,8 @@ namespace Financy
             std::string path      = "";
             std::string extension = "";
         };
+
+        void openFile(const std::string& inFilePath);
 
         FileResult openFileDialog(
             const std::string& inTitle,

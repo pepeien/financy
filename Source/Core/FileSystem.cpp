@@ -1,11 +1,17 @@
 #include "FileSystem.hpp"
 
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 
 #ifdef OS_WINDOWS
     #include <windows.h>
     #include <tchar.h>
+    #include <shellapi.h>
+#endif
+
+#ifdef OS_LINUX
+    #include <cstdlib>
 #endif
 
 #include "Helper.hpp"
@@ -14,6 +20,22 @@ namespace Financy
 {
     namespace FileSystem
     {
+        void openFile(const std::string& inFilePath)
+        {
+            if (!doesFileExist(inFilePath))
+            {
+                return;
+            }
+
+            const std::filesystem::path filepath = std::filesystem::absolute(inFilePath);
+
+            #if defined(OS_WINDOWS)
+                ShellExecuteW(NULL, L"open", filepath.wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            #elif defined(OS_LINUX)
+                system("xdg-open \"" + filepath + "\" &";)
+            #endif
+        }
+
         FileResult openFileDialog(
             const std::string& inTitle,
             const std::vector<FileFormat>& inFileFormats
