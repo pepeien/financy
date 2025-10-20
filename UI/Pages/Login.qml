@@ -11,6 +11,8 @@ Components.Page {
 
     title: "Login"
 
+    canGoToSettings: false
+
     leftButtonIcon: _isDeleting ? "qrc:/Icons/Close.svg" : "qrc:/Icons/Trash.svg" 
     leftButtonOnClick: function() {
         _isDeleting = !_isDeleting;
@@ -19,6 +21,11 @@ Components.Page {
     centerButtonIcon: "qrc:/Icons/Plus.svg"
     centerButtonOnClick: function() {
         stack.push("qrc:/Pages/UserCreate.qml");
+    }
+
+    rightButtonIcon: "qrc:/Icons/Cog.svg"
+    rightButtonOnClick: function() {
+        stack.push("qrc:/Pages/Settings.qml");
     }
 
     ScrollView {

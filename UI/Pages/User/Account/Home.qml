@@ -137,8 +137,8 @@ Components.Page {
 
         anchors.top:         parent.top
         anchors.right:       parent.right
-        anchors.topMargin:   -90
-        anchors.rightMargin: 25
+        anchors.topMargin:   -10
+        anchors.rightMargin: 20
     }
 
     Components.Text {

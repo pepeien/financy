@@ -5,8 +5,11 @@ import Qt5Compat.GraphicalEffects
 import "qrc:/Components" as Components
 
 Rectangle {
-    property string title
-    property var onReturn
+    property string title: "Undefined"
+
+    property bool canGoToSettings: true
+
+    property var onReturn: function() {}
 
     width: parent.width
     height: 140
@@ -167,7 +170,7 @@ Rectangle {
             }
 
             Image {
-                id:     icon
+                id:     backIcon
                 source: "qrc:/Icons/Back.svg"
                 width:  parent.width * 0.35
                 height: parent.height * 0.35
@@ -180,8 +183,8 @@ Rectangle {
             }
 
             ColorOverlay {
-                anchors.fill: icon
-                source:       icon
+                anchors.fill: backIcon
+                source:       backIcon
                 color:        internal.colors.light
                 antialiasing: true
             }
@@ -197,6 +200,48 @@ Rectangle {
             font.weight:    Font.DemiBold
 
             anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        Components.SquircleButton {
+            id:      settingsButton
+            width:   60
+            height:  60
+            visible: canGoToSettings
+
+            // Props
+            hasShadow:       true
+            backgroundColor: internal.colors.background
+
+            anchors.right:       parent.right
+            anchors.rightMargin: 20
+
+            onClick: function() {
+                if (!canGoToSettings) {
+                    return;
+                }
+
+                stack.push("qrc:/Pages/Settings.qml");
+            }
+
+            Image {
+                id:     settingsIcon
+                source: "qrc:/Icons/Cog.svg"
+                width:  parent.width * 0.35
+                height: parent.height * 0.35
+
+                antialiasing: true
+                visible:      false
+
+                anchors.verticalCenter:   parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
+            ColorOverlay {
+                anchors.fill: settingsIcon
+                source:       settingsIcon
+                color:        internal.colors.light
+                antialiasing: true
+            }
         }
     }
 }

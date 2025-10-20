@@ -7,8 +7,9 @@ Item {
     default property alias data: content.data
 
     // Header
-    property alias title:    header.title
-    property alias onReturn: header.onReturn
+    property alias title:           header.title
+    property alias canGoToSettings: header.canGoToSettings
+    property alias onReturn:        header.onReturn
 
     // Footer
     property alias leftButton:        footer.leftButton
@@ -50,10 +51,5 @@ Item {
 
     Components.Footer {
         id: footer
-
-        rightButtonIcon: "qrc:/Icons/Cog.svg"
-        rightButtonOnClick: function() {
-            stack.push("qrc:/Pages/Settings.qml");
-        }
     }
 }

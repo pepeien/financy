@@ -8,6 +8,9 @@ import "qrc:/Components" as Components
 
 Components.Page {
     title:              "Settings"
+
+    canGoToSettings: false
+
     rightButtonIcon:    ""
     rightButtonOnClick: undefined
 
