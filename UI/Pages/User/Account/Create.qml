@@ -16,7 +16,7 @@ Components.Page {
     id:    _root
     title: "Create Account"
 
-    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError
+    centerButton.isDisabled: _name.hasError || _limit.hasError
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (centerButton.isDisabled) {
@@ -32,7 +32,7 @@ Components.Page {
         } else {
             internal.createAccount(
                 _name.text,
-                _closingDay.text,
+                _closingDay.value,
                 _limit.text,
                 _type.value,
                 _primaryColor.picker.color,
@@ -52,6 +52,16 @@ Components.Page {
         _type.clear();
         _primaryColor.set(internal.colors.dark);
         _secondaryColor.set(internal.colors.background);
+    }
+
+    function getAvailableClosingDays() {
+        const result = [];
+
+        for (let i = internal.getMinStatementClosingDay(); i <= internal.getMaxStatementClosingDay(); i++) {
+            result.push(i);
+        }
+
+        return result;
     }
 
     Item {
@@ -189,30 +199,22 @@ Components.Page {
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                Components.Input {
-                    property int min: internal.getMinStatementClosingDay()
-                    property int max: internal.getMaxStatementClosingDay()
-    
-                    id:     _closingDay
-                    width:  (parent.width / 2) - 10
+                Components.Dropdown {
+                    id:         _closingDay
+                    label:      "Closing day" 
+                    itemWidth:  (parent.width / 2) - 10
+                    itemHeight: _limit.inputHeight
 
-                    label: "Closing day" 
-                    color: internal.colors.dark
-                    hint:  _closingDay.min + " ~ " + _closingDay.max
+                    model: _root.getAvailableClosingDays()
 
                     anchors.left: parent.left
-
-                    validator: IntValidator {
-                        bottom: _closingDay.min
-                        top:    _closingDay.max
-                    }
                 }
 
                 Components.Dropdown {
                     id:         _type
                     label:      "Type"
-                    itemWidth:  _closingDay.width
-                    itemHeight: _closingDay.inputHeight
+                    itemWidth:  _closingDay.itemWidth
+                    itemHeight: _closingDay.itemHeight
 
                     model: internal.getAccountTypes()
 

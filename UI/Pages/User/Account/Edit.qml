@@ -17,7 +17,7 @@ Components.Page {
     id:    _root
     title: account?.name ?? ""
 
-    centerButton.isDisabled: _name.hasError || _limit.hasError || _closingDay.hasError || !account?.isOwnedBy(user.id)
+    centerButton.isDisabled: _name.hasError || _limit.hasError || !account?.isOwnedBy(user.id)
     centerButtonIcon: "qrc:/Icons/Check.svg"
     centerButtonOnClick: function() {
         if (centerButton.isDisabled) {
@@ -46,7 +46,7 @@ Components.Page {
         internal.editAccount(
             account.id,
             _name.text,
-            _closingDay.text,
+            _closingDay.value,
             _limit.text,
             _type.value,
             _primaryColor.picker.color,
@@ -54,6 +54,20 @@ Components.Page {
         );
 
         stack.pop();
+    }
+
+    onRoute: function() {
+        _closingDay.set(account?.closingDay ?? 1);
+    }
+
+    function getAvailableClosingDays() {
+        const result = [];
+
+        for (let i = internal.getMinStatementClosingDay(); i <= internal.getMaxStatementClosingDay(); i++) {
+            result.push(i);
+        }
+
+        return result;
     }
 
     Item {
@@ -175,49 +189,37 @@ Components.Page {
                 anchors.top:              _name.bottom
                 anchors.topMargin:        10
                 anchors.horizontalCenter: parent.horizontalCenter
-
-                KeyNavigation.tab: _closingDay.input
             }
 
             Item {
                 id:     _data
                 width:  _name.width
-                height: _closingDay.height
+                height: _name.height
 
                 anchors.top:       _limit.bottom
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
 
-                Components.Input {
-                    property int min: internal.getMinStatementClosingDay()
-                    property int max: internal.getMaxStatementClosingDay()
+                Components.Dropdown {
+                    id:         _closingDay
+                    label:      "Closing day" 
+                    itemWidth:  (parent.width / 2) - 10
+                    itemHeight: _limit.inputHeight
 
-                    id:     _closingDay
-                    width:  (parent.width / 2) - 10
-                    text:   account?.closingDay ?? 1
-
-                    label:       "Closing Day" 
-                    color:       internal.colors.dark
-                    inputHeight: _limit.inputHeight
-                    hint:        _closingDay.min + " ~ " + _closingDay.max
+                    model: _root.getAvailableClosingDays()
 
                     anchors.left: parent.left
-
-                    validator: IntValidator {
-                        bottom: _closingDay.min
-                        top:    _closingDay.max
-                    }
                 }
 
                 Components.Dropdown {
                     id:         _type
                     label:      "Type"
-                    itemWidth:  _closingDay.width
-                    itemHeight: _closingDay.inputHeight
+                    itemWidth:  _closingDay.itemWidth
+                    itemHeight: _closingDay.itemHeight
 
                     model: internal.getAccountTypes()
 
-                    anchors.right:     parent.right
+                    anchors.right: parent.right
                 }
             }
 
