@@ -78,11 +78,7 @@ namespace Financy
 
     public slots:
         // Utils
-        QString openFileDialog(
-            const QString& inTitle,
-            const QString& inExtensions
-        );
-        QList<QColor> getUserColorsFromImage(const QString& inImage);
+        QString openFileDialog(const QString& inTitle, const QString& inExtensions);
 
         // User
         User* getUser(std::uint32_t inId);

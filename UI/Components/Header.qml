@@ -130,8 +130,9 @@ Rectangle {
 
                     var moveDelta = Qt.point(event.x - clickXLocation, event.y - clickYLocation);
 
-                    Window.window.x += moveDelta.x;
-                    Window.window.y += moveDelta.y;
+                    Window.window.startSystemMove();
+                    Window.window.setX(Window.window.x + moveDelta.x);
+                    Window.window.setY(Window.window.y + moveDelta.y);
                 }
             }
         }

@@ -25,16 +25,22 @@ set(VENDOR_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/Vendors")
 set(ASSETS_TARGET_NAME "${NAME}_Assets")
 
 ##############  Set source files  #######################
+file (
+    GLOB_RECURSE
+    HEADERS
+
+    // Headers
+    ${SOURCES_DIR}/*.hpp
+)
+
 file(
     GLOB_RECURSE
     SOURCES
 
     // Sources
     ${SOURCES_DIR}/*.cpp
-    ${VENDOR_DIR}/libharu/src/*.c
 
-    // Vendors
-    ${VENDOR_DIR}/QtOpenCV/cvmatandqimage.cpp
+    ${VENDOR_DIR}/libharu/src/*.c
 )
 
 file(
@@ -45,20 +51,12 @@ file(
 )
 
 ############## Setup Libs #######################
-list(APPEND CMAKE_PREFIX_PATH "${QT_PATH}/lib/cmake")
-list(APPEND CMAKE_PREFIX_PATH "${VENDOR_DIR}/opencv/build")
-
 set(CMAKE_AUTORCC ON)
 
 set(SKIP_AUTOMOC TRUE)
 set(SKIP_AUTOUIC TRUE)
 
-set(LIBHPDF_STATIC TRUE)
-
-set(OpenCV_DIR "${VENDOR_DIR}/opencv/build/lib")
-
-find_package(Qt6    REQUIRED COMPONENTS Charts Core Gui Qml Quick)
-find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
+find_package(Qt6 REQUIRED COMPONENTS Charts Core Gui Qml Quick)
 
 qt_standard_project_setup()
 
@@ -93,10 +91,6 @@ target_include_directories(
     PRIVATE
         ${SOURCES_DIR}
 
-        ${VENDOR_DIR}/base64/include
-        ${VENDOR_DIR}/QtOpenCV
-        ${OpenCV_INCLUDE_DIRS}
-        ${VENDOR_DIR}/json/include
         ${VENDOR_DIR}/libharu/include
 )
 
@@ -104,15 +98,13 @@ target_link_libraries(
     ${NAME}
 
     PRIVATE
-        # Qt6
         Qt6::Charts
         Qt6::Core
         Qt6::Gui
         Qt6::Qml
         Qt6::Quick
-
-        # OpenCV
-        ${OpenCV_LIBRARIES}
+        base64
+        nlohmann_json
 )
 
 set_target_properties(
@@ -139,6 +131,6 @@ set_target_properties(
 
 add_subdirectory(${ASSETS_DIR})
 
-add_subdirectory(${VENDOR_DIR}/libharu)
+add_subdirectory(${VENDOR_DIR})
 
 add_dependencies(${NAME} ${ASSETS_TARGET_NAME})

@@ -7,12 +7,6 @@
 #include <QtDebug>
 #include <QFileDialog>
 
-#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
-
-#include <cvmatandqimage.h>
-
 #include <base64.hpp>
 
 #include "Base.hpp"
@@ -86,65 +80,6 @@ namespace Financy
             QUrl::fromLocalFile("/"),
             fileExtensions
         ).url();
-    }
-
-    QList<QColor> Internal::getUserColorsFromImage(const QString& inImage)
-    {
-        if (inImage.isEmpty() || inImage.toStdString().find("qrc://") != std::string::npos)
-        {
-            return { "#000000", "#FFFFFF" };
-        }
-
-        #ifdef OS_WINDOWS
-            std::vector<std::string> splittedUrl = Helper::splitString(
-                inImage.toStdString(),
-                "file:///"
-            );
-        #else
-            std::vector<std::string> splittedUrl = Helper::splitString(
-                inImage.toStdString(),
-                "file://"
-            );
-        #endif
-
-        std::string filePath = splittedUrl[splittedUrl.size() - 1];
-        std::vector<std::string> splittedFilepath = Helper::splitString(
-            filePath,
-            "."
-        );
-
-        std::string fileExtension = splittedFilepath[splittedFilepath.size() - 1];
-
-        std::vector<char> raw = FileSystem::readFile(filePath);
-        std::string sRaw(raw.begin(), raw.end());
-
-        QImage image;
-        image.loadFromData(
-            QByteArray::fromBase64(
-                base64::to_base64(sRaw).c_str()
-            )
-        );
-
-        cv::Scalar prominentColor = cv::mean(
-            QtOcv::image2Mat(image)
-        );
-
-        QColor primaryColor = QColor(
-            prominentColor[0], // R
-            prominentColor[1], // G
-            prominentColor[2]  // B
-        );
-        QColor secondaryColor = QColor(
-            255 - primaryColor.red(),
-            255 - primaryColor.green(),
-            255 - primaryColor.blue()
-        );
-
-        QList<QColor> result;
-        result.push_back(primaryColor);
-        result.push_back(secondaryColor);
-
-        return result;
     }
 
     User* Internal::getUser(std::uint32_t inId)

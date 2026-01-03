@@ -1,16 +1,9 @@
-[submodule "Vendors/opencv"]
-	path = Vendors/opencv
-	url = https://github.com/pepeien/opencv.git
-	branch = 4.x
 [submodule "Vendors/base64"]
 	path = Vendors/base64
 	url = https://github.com/pepeien/base64
 [submodule "Vendors/json"]
 	path = Vendors/json
 	url = https://github.com/pepeien/json.git
-[submodule "Vendors/CQtDeployer"]
-	path = Vendors/CQtDeployer
-	url = https://github.com/pepeien/CQtDeployer
 [submodule "Vendors/libharu"]
 	path = Vendors/libharu
 	url = https://github.com/pepeien/libharu

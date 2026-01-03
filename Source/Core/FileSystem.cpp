@@ -4,13 +4,13 @@
 #include <filesystem>
 #include <fstream>
 
-#ifdef OS_WINDOWS
+#if OS_WINDOWS
     #include <windows.h>
     #include <tchar.h>
     #include <shellapi.h>
 #endif
 
-#ifdef OS_LINUX
+#if OS_LINUX
     #include <cstdlib>
 #endif
 
@@ -29,10 +29,12 @@ namespace Financy
 
             const std::filesystem::path filepath = std::filesystem::absolute(inFilePath);
 
-            #if defined(OS_WINDOWS)
+            #if OS_WINDOWS
                 ShellExecuteW(NULL, L"open", filepath.wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
-            #elif defined(OS_LINUX)
-                system("xdg-open \"" + filepath + "\" &";)
+            #elif OS_LINUX
+                const std::string command = "xdg-open \"" + filepath.string() + "\" &";
+
+                system(command.c_str());
             #endif
         }
 
@@ -41,7 +43,7 @@ namespace Financy
             const std::vector<FileFormat>& inFileFormats
         )
         {
-            #ifdef OS_WINDOWS
+            #if OS_WINDOWS
                 std::string fileFormatExtensions = "";
 
                 for (FileFormat fileFormat : inFileFormats)

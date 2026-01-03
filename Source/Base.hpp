@@ -18,6 +18,8 @@
 #   define OS_LINUX false
 #endif
 
+#include <cstdint>
+
 namespace Financy
 {
     constexpr auto DATA_FOLDER_NAME   = "Data";

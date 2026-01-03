@@ -3,7 +3,9 @@
     "deploySystem": true,
     "extractPlugins": true,
     "allQMlDependes": true,
-    "bin": "../../Bin",
+    "bin": "../../Bin/Release",
+    "extraData": "../../Bin/Release/Assets",
+    "extraDataout": "Assets",
     "qmlDir": "../../UI",
     "targetDir": "../../Deploy/linux-64x"
 }

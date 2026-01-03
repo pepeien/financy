@@ -76,11 +76,6 @@ Components.Page {
 
                 _root.wasPictureSelected = true;
                 _root.profilePicture     = result;
-
-                var colors = internal.getUserColorsFromImage(result);
-
-                _primaryColor.color   = colors[0];
-                _secondaryColor.color = colors[1];
             }
 
             Image {

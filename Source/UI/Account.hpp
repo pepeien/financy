@@ -3,8 +3,6 @@
 #include <QtCore>
 #include <QColor>
 
-#include <nlohmann/json.hpp>
-
 #include "Purchase.hpp"
 #include "Statement.hpp"
 
