@@ -10,9 +10,9 @@ namespace Financy
     {
         struct UserProps : Props
         {
-            User* user = nullptr;
+            User *user = nullptr;
         };
 
-        void generatreUserReport(const UserProps& inProps);
+        void generatreUserReport(const UserProps &inProps);
     }
 }

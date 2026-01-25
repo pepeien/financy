@@ -238,6 +238,117 @@ namespace Financy
             HPDF_Page_EndText(outPage);
         }
 
+        void generateMonthlyReport(HPDF_Doc &outDocument, const HPDF_Font &inFont, User *inUser, const QDate &inDate)
+        {
+            HPDF_Page page = HPDF_AddPage(outDocument);
+            HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+
+            HPDF_Rect defaultRect{
+                PAGE_HORIZONTAL_PADDING,
+                PAGE_VERTICAL_PADDING,
+                HPDF_Page_GetWidth(page) - (PAGE_HORIZONTAL_PADDING * 2U),
+                HPDF_Page_GetHeight(page) - (PAGE_VERTICAL_PADDING * 2U),
+            };
+
+            HPDF_Rect currentRect = defaultRect;
+
+            QDate currentDate = inDate;
+
+            for (Account *account : inUser->getAccounts(Account::Type::Expense))
+            {
+                if (account->getDueAmount() <= 0.0f)
+                {
+                    continue;
+                }
+
+                currentRect.top -= ACCOUNT_HEADER_HEIGHT;
+
+                generateAccountHeader(
+                    page,
+                    account,
+                    inFont,
+                    currentRect);
+
+                currentRect.top -= PURCHASE_GAP;
+
+                std::uint32_t purchaseCount = 0;
+
+                std::uint32_t closingDay = account->getClosingDay();
+
+                for (Purchase *purchase : account->getPurchases(account->getUserId()))
+                {
+                    if (purchase->isFullyPaid(currentDate, closingDay))
+                    {
+                        continue;
+                    }
+
+                    currentRect.top -= PURCHASE_HEIGHT;
+
+                    generatePurchaseItem(
+                        page,
+                        purchase,
+                        currentDate,
+                        closingDay,
+                        inFont,
+                        currentRect,
+                        purchaseCount % 2 == 0);
+
+                    if (currentRect.top - PURCHASE_HEIGHT <= defaultRect.bottom)
+                    {
+
+                        page = HPDF_AddPage(outDocument);
+                        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+                        currentRect = defaultRect;
+                    }
+
+                    purchaseCount++;
+                }
+
+                currentRect.top -= PURCHASE_GAP;
+
+                if (currentRect.top - ((PURCHASE_HEIGHT + ACCOUNT_HEADER_HEIGHT) * 2U) + PURCHASE_GAP <= defaultRect.bottom)
+                {
+                    page = HPDF_AddPage(outDocument);
+                    HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+                    currentRect = defaultRect;
+                }
+            }
+
+            generateTotalFooter(
+                page,
+                inUser,
+                inFont,
+                currentRect);
+        }
+
+        void generateYearlyReport(HPDF_Doc &outDocument, const HPDF_Font &inFont, User *inUser)
+        {
+
+            for (std::uint32_t month = 1; month <= 12; month++)
+            {
+                QDate currentDate = QDate(Globals::getCurrentDate().year(), month, 1);
+                currentDate = currentDate.addDays(currentDate.daysInMonth() - 1);
+
+                HPDF_Page outPage = HPDF_AddPage(outDocument);
+                HPDF_Page_SetSize(outPage, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+
+                QString title = "";
+                title.append(std::to_string(currentDate.month()));
+                title.append("/");
+                title.append(std::to_string(currentDate.year()));
+
+                HPDF_Page_BeginText(outPage);
+                HPDF_Page_SetFontAndSize(outPage, inFont, (TITLE_FONT_SIZE * 5));
+                HPDF_Page_TextOut(
+                    outPage,
+                    PAGE_HORIZONTAL_PADDING,
+                    PAGE_VERTICAL_PADDING + (TITLE_FONT_SIZE * 5), title.toStdString().c_str());
+                HPDF_Page_EndText(outPage);
+
+                generateMonthlyReport(outDocument, inFont, inUser, currentDate);
+            }
+        }
+
         void generatreUserReport(const UserProps &inProps)
         {
             if (!inProps.user)
@@ -267,85 +378,19 @@ namespace Financy
                 HPDF_LoadTTFontFromFile(document, "Assets/Fonts/Inter.ttf", HPDF_TRUE),
                 "UTF-8");
 
-            HPDF_Page page = HPDF_AddPage(document);
-            HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
-
-            HPDF_Rect defaultRect{
-                PAGE_HORIZONTAL_PADDING,
-                PAGE_VERTICAL_PADDING,
-                HPDF_Page_GetWidth(page) - (PAGE_HORIZONTAL_PADDING * 2U),
-                HPDF_Page_GetHeight(page) - (PAGE_VERTICAL_PADDING * 2U),
-            };
-
-            HPDF_Rect currentRect = defaultRect;
-
-            QDate currentDate = Globals::getCurrentDate();
-
-            for (Account *account : inProps.user->getAccounts(Account::Type::Expense))
+            switch (inProps.type)
             {
-                if (account->getDueAmount() <= 0.0f)
-                {
-                    continue;
-                }
+            case Type::Monthly:
+                generateMonthlyReport(document, font, inProps.user, Globals::getCurrentDate());
 
-                currentRect.top -= ACCOUNT_HEADER_HEIGHT;
+                break;
 
-                generateAccountHeader(
-                    page,
-                    account,
-                    font,
-                    currentRect);
+            case Type::Yearly:
+                generateYearlyReport(document, font, inProps.user);
 
-                currentRect.top -= PURCHASE_GAP;
-
-                std::uint32_t purchaseCount = 0;
-
-                std::uint32_t closingDay = account->getClosingDay();
-
-                for (Purchase *purchase : account->getPurchases(account->getUserId()))
-                {
-                    if (purchase->isFullyPaid(currentDate, closingDay))
-                    {
-                        continue;
-                    }
-
-                    currentRect.top -= PURCHASE_HEIGHT;
-
-                    generatePurchaseItem(
-                        page,
-                        purchase,
-                        currentDate,
-                        closingDay,
-                        font,
-                        currentRect,
-                        purchaseCount % 2 == 0);
-
-                    if (currentRect.top - PURCHASE_HEIGHT <= defaultRect.bottom)
-                    {
-
-                        page = HPDF_AddPage(document);
-                        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
-                        currentRect = defaultRect;
-                    }
-
-                    purchaseCount++;
-                }
-
-                currentRect.top -= PURCHASE_GAP;
-
-                if (currentRect.top - ((PURCHASE_HEIGHT + ACCOUNT_HEADER_HEIGHT) * 2U) + PURCHASE_GAP <= defaultRect.bottom)
-                {
-                    page = HPDF_AddPage(document);
-                    HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
-                    currentRect = defaultRect;
-                }
+            default:
+                break;
             }
-
-            generateTotalFooter(
-                page,
-                inProps.user,
-                font,
-                currentRect);
 
             if (!inProps.path.empty())
             {
