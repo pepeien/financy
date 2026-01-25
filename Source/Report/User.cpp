@@ -114,6 +114,13 @@ namespace Financy
             establishment.append(
                 std::to_string(
                     inPurchase->getInstallments()));
+
+            if (inPurchase->hasDescription())
+            {
+                establishment.append(" - ");
+                establishment.append(inPurchase->getDescription().toStdString());
+            }
+
             std::string value = std::to_string(inPurchase->getInstallmentValue());
             value = std::string(value.begin(), value.end() - 5);
 
@@ -188,8 +195,8 @@ namespace Financy
             std::string total = totalValue;
 
             HPDF_Rect background;
-            background.top = inRect.bottom;
-            background.bottom = inRect.bottom - ACCOUNT_HEADER_HEIGHT;
+            background.top = inRect.bottom + ((ACCOUNT_HEADER_HEIGHT * 2U) - PAGE_VERTICAL_PADDING);
+            background.bottom = inRect.bottom;
             background.left = inRect.left + PAGE_HORIZONTAL_PADDING;
             background.right = inRect.right;
 
@@ -200,7 +207,7 @@ namespace Financy
             HPDF_Page_SetRGBStroke(outPage, red, green, blue);
             HPDF_Page_SetRGBFill(outPage, red, green, blue);
 
-            float width = (background.right - background.left) + (PAGE_HORIZONTAL_PADDING * 2.0f);
+            float width = (background.right - background.left) + (PAGE_HORIZONTAL_PADDING * 2U);
 
             HPDF_Page_Rectangle(
                 outPage,
@@ -326,7 +333,7 @@ namespace Financy
 
                 currentRect.top -= PURCHASE_GAP;
 
-                if (currentRect.top - ((PURCHASE_HEIGHT + ACCOUNT_HEADER_HEIGHT) * 2U) <= defaultRect.bottom)
+                if (currentRect.top - ((PURCHASE_HEIGHT + ACCOUNT_HEADER_HEIGHT) * 2U) + PURCHASE_GAP <= defaultRect.bottom)
                 {
                     page = HPDF_AddPage(document);
                     HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
