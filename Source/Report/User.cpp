@@ -176,7 +176,7 @@ namespace Financy
         {
             const std::uint32_t halvedFontSize = TITLE_FONT_SIZE * 0.5f;
 
-            std::string totalValue = std::to_string(inUser->getDueAmount());
+            std::string totalValue = std::to_string(inUser->getDueAmount(inUser->getId()));
             totalValue = std::string(totalValue.begin(), totalValue.end() - 5);
 
             std::string total = totalValue;
@@ -286,7 +286,7 @@ namespace Financy
 
                 std::uint32_t closingDay = account->getClosingDay();
 
-                for (Purchase *purchase : account->getPurchases())
+                for (Purchase *purchase : account->getPurchases(account->getUserId()))
                 {
                     if (purchase->isFullyPaid(currentDate, closingDay))
                     {
