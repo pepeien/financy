@@ -12,8 +12,8 @@
 #include "UI/Purchase.hpp"
 #include "UI/User.hpp"
 
-constexpr std::uint32_t PAGE_VERTICAL_PADDING = 0;
-constexpr std::uint32_t PAGE_HORIZONTAL_PADDING = 5;
+constexpr std::uint32_t PAGE_VERTICAL_PADDING = 5;
+constexpr std::uint32_t PAGE_HORIZONTAL_PADDING = 15;
 
 constexpr std::uint32_t TITLE_FONT_SIZE = 14;
 constexpr std::uint32_t FONT_SIZE = 8;
@@ -49,7 +49,7 @@ namespace Financy
             HPDF_Rect rect;
             rect.top = inRect.top;
             rect.bottom = inRect.top - ACCOUNT_HEADER_HEIGHT;
-            rect.left = inRect.left;
+            rect.left = inRect.left + PAGE_HORIZONTAL_PADDING;
             rect.right = inRect.right;
 
             float red = 0.3f;
@@ -58,11 +58,14 @@ namespace Financy
 
             HPDF_Page_SetRGBStroke(outPage, red, green, blue);
             HPDF_Page_SetRGBFill(outPage, red, green, blue);
+
+            float width = (rect.right - rect.left) + (PAGE_HORIZONTAL_PADDING * 2.0f);
+
             HPDF_Page_Rectangle(
                 outPage,
                 rect.left - PAGE_HORIZONTAL_PADDING,
                 rect.top,
-                rect.right + PAGE_HORIZONTAL_PADDING,
+                width,
                 1);
             HPDF_Page_ClosePathFillStroke(outPage);
 
@@ -129,11 +132,14 @@ namespace Financy
 
                 HPDF_Page_SetRGBStroke(outPage, red, green, blue);
                 HPDF_Page_SetRGBFill(outPage, red, green, blue);
+
+                float width = (rect.right - rect.left) + horizontalPadding;
+
                 HPDF_Page_Rectangle(
                     outPage,
-                    rect.left - horizontalPadding,
+                    rect.left,
                     rect.top,
-                    rect.right + horizontalPadding,
+                    width,
                     PURCHASE_HEIGHT);
                 HPDF_Page_ClosePathFillStroke(outPage);
             }
@@ -184,7 +190,7 @@ namespace Financy
             HPDF_Rect background;
             background.top = inRect.bottom;
             background.bottom = inRect.bottom - ACCOUNT_HEADER_HEIGHT;
-            background.left = inRect.left;
+            background.left = inRect.left + PAGE_HORIZONTAL_PADDING;
             background.right = inRect.right;
 
             float red = 0.3f;
@@ -193,11 +199,14 @@ namespace Financy
 
             HPDF_Page_SetRGBStroke(outPage, red, green, blue);
             HPDF_Page_SetRGBFill(outPage, red, green, blue);
+
+            float width = (background.right - background.left) + (PAGE_HORIZONTAL_PADDING * 2.0f);
+
             HPDF_Page_Rectangle(
                 outPage,
                 background.left - PAGE_HORIZONTAL_PADDING,
                 background.top,
-                background.right + PAGE_HORIZONTAL_PADDING,
+                width,
                 ACCOUNT_HEADER_HEIGHT);
             HPDF_Page_ClosePathFillStroke(outPage);
 
@@ -254,11 +263,11 @@ namespace Financy
             HPDF_Page page = HPDF_AddPage(document);
             HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
 
-            const HPDF_Rect defaultRect{
+            HPDF_Rect defaultRect{
                 PAGE_HORIZONTAL_PADDING,
                 PAGE_VERTICAL_PADDING,
-                HPDF_Page_GetWidth(page) - PAGE_HORIZONTAL_PADDING,
-                HPDF_Page_GetHeight(page) - PAGE_VERTICAL_PADDING,
+                HPDF_Page_GetWidth(page) - (PAGE_HORIZONTAL_PADDING * 2U),
+                HPDF_Page_GetHeight(page) - (PAGE_VERTICAL_PADDING * 2U),
             };
 
             HPDF_Rect currentRect = defaultRect;
@@ -304,11 +313,12 @@ namespace Financy
                         currentRect,
                         purchaseCount % 2 == 0);
 
-                    if (currentRect.top <= (PURCHASE_GAP + PURCHASE_HEIGHT))
+                    if (currentRect.top - PURCHASE_HEIGHT <= defaultRect.bottom)
                     {
-                        currentRect.top = defaultRect.top;
 
                         page = HPDF_AddPage(document);
+                        HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+                        currentRect = defaultRect;
                     }
 
                     purchaseCount++;
@@ -316,11 +326,11 @@ namespace Financy
 
                 currentRect.top -= PURCHASE_GAP;
 
-                if (currentRect.top <= (PURCHASE_GAP + PURCHASE_HEIGHT))
+                if (currentRect.top - ((PURCHASE_HEIGHT + ACCOUNT_HEADER_HEIGHT) * 2U) <= defaultRect.bottom)
                 {
-                    currentRect.top = defaultRect.top;
-
                     page = HPDF_AddPage(document);
+                    HPDF_Page_SetSize(page, HPDF_PAGE_SIZE_A4, HPDF_PAGE_PORTRAIT);
+                    currentRect = defaultRect;
                 }
             }
 
