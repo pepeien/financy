@@ -31,6 +31,7 @@ namespace Financy
         void generateAccountHeader(
             HPDF_Page &outPage,
             Account *inAccount,
+            User *inUser,
             const HPDF_Font &inFont,
             const HPDF_Rect &inRect)
         {
@@ -43,7 +44,7 @@ namespace Financy
 
             const std::string &name = inAccount->getName().toStdString();
 
-            std::string totalValue = std::to_string(inAccount->getDueAmount(inAccount->getUserId()));
+            std::string totalValue = std::to_string(inAccount->getDueAmount(inUser->getId()));
             totalValue = std::string(totalValue.begin(), totalValue.end() - 5);
 
             HPDF_Rect rect;
@@ -256,7 +257,7 @@ namespace Financy
 
             for (Account *account : inUser->getAccounts(Account::Type::Expense))
             {
-                if (account->getDueAmount() <= 0.0f)
+                if (account->getDueAmount(inUser->getId()) <= 0.0f)
                 {
                     continue;
                 }
@@ -266,6 +267,7 @@ namespace Financy
                 generateAccountHeader(
                     page,
                     account,
+                    inUser,
                     inFont,
                     currentRect);
 
@@ -275,7 +277,7 @@ namespace Financy
 
                 std::uint32_t closingDay = account->getClosingDay();
 
-                for (Purchase *purchase : account->getPurchases(account->getUserId()))
+                for (Purchase *purchase : account->getPurchases(inUser->getId()))
                 {
                     if (purchase->isFullyPaid(currentDate, closingDay))
                     {
